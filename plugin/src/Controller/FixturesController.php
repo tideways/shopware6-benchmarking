@@ -13,11 +13,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @RouteScope(scopes={"api"})
- * @Acl("tideways.loadtesting")
+ * @Acl({"tideways.loadtesting"})
  */
 class FixturesController
 {
-    private Connection $connection;
+    private $connection;
 
     public function __construct(Connection $connection)
     {
@@ -25,7 +25,7 @@ class FixturesController
     }
 
     /**
-     * @Acl("tideways.loadtesting")
+     * @Acl({"tideways.loadtesting"})
      * @Route("/api/_tideways/loadtesting-fixtures", name="api.tideways.loadtesting", methods={"GET"}, requirements={"version"="\d+"})
      */
     public function load(Context $context)

@@ -6,8 +6,8 @@
 
     <services>
         <service id="Tideways\LoadTesting\Controller\FixturesController">
-            <argument type="service">Doctrine\DBAL\Connection</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection" />
         </service>
     </services>
-    
+
 </container>
