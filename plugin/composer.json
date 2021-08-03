@@ -1,0 +1,30 @@
+{
+    "name": "tideways/shopware-loadtesting-plugin",
+    "description": "Basic Building Blocks and Integration to run Tideways Shopware Loadtests",
+    "version": "0.0.1",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "authors": [
+        {"name": "Tideways", "homepage": "https://tideways.com"},
+        {"name": "beberlei", "email": "kontakt@beberlei.de"}
+    ],
+    "require": {
+        "shopware/core": "6.4.*"
+    },
+    "extra": {
+        "shopware-plugin-class": "Tideways\\LoadTesting\\TidewaysLoadTesting",
+        "label": {
+            "en-GB": "Tideways Load-Testing Tools",
+            "de-DE": "Tideways Lasttest Tools"
+        },
+        "description": {
+            "en-GB": "Basic Building Blocks and Integration to run Tideways Shopware Loadtests",
+            "de-DE": "Bausteine und Integration für die Verwendung von Tideways Shopware Lasttests"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Tideways\\LoadTesting\\": "src/"
+        }
+    }
+}
