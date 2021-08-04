@@ -6,6 +6,8 @@ import random
 import uuid
 import json
 from locust import HttpUser, task, between, constant
+from lxml import etree
+import logging
 
 class Purchaser(HttpUser):
     weight = 10
@@ -25,6 +27,11 @@ class Purchaser(HttpUser):
             self.salutationId = data['salutationId']
 
     def register(self):
+        response = self.client.get('/account/register', name='register')
+
+        root = etree.fromstring(response.content, etree.HTMLParser())
+        csrfElement = root.find('.//form[@action="/account/register"]/input[@name="_csrf_token"]')
+
         register = {
             'redirectTo': 'frontend.account.home.page',
             'salutationId': self.salutationId,
@@ -35,7 +42,8 @@ class Purchaser(HttpUser):
             'billingAddress[street]': 'Test street',
             'billingAddress[zipcode]': '11111',
             'billingAddress[city]': 'Test city',
-            'billingAddress[countryId]': self.countryId
+            'billingAddress[countryId]': self.countryId,
+            '_csrf_token': csrfElement.attrib.get('value')
         }
 
         self.client.post('/account/register', data=register, name='register')
@@ -51,13 +59,21 @@ class Purchaser(HttpUser):
     @task
     def order(self):
         url = random.choice(listings)
-        self.client.get(url, name='listing-page-logged-in')
+        logging.error("Visit listing " + url)
+        response = self.client.get(url, name='listing-page-logged-in')
+
+        root = etree.fromstring(response.content, etree.HTMLParser())
+        csrfElement = root.find('.//input[@name="_csrf_token"]')
 
         self.client.get('/widgets/checkout/info', name='cart-widget')
+        number = random.choice(numbers)
 
-        count = random.randint(1, 5)
-        for i in range(1,count+1):
-            self.addProduct()
+        self.client.post('/checkout/line-item/add', name='line-item-add', data={
+            "lineItems[" + number + "][id]": number,
+            "lineItems[" + number + "][referenceId]": number,
+            "lineItems[" + number + "][quantity]": "1",
+            '_csrf_token': csrfElement.attrib.get('value')
+        })
 
         self.client.get('/checkout/cart', name='cart-page')
 

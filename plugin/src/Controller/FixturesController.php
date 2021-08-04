@@ -24,33 +24,45 @@ class FixturesController
         $this->connection = $connection;
     }
 
+    private function fetchFirstColumn(string $sql, $args = []): array
+    {
+        $rows = $this->connection->fetchAll($sql, $args);
+        return array_map('current', $rows);
+    }
+
     /**
      * @Acl({"tideways.loadtesting"})
      * @Route("/api/_tideways/loadtesting-fixtures", name="api.tideways.loadtesting", methods={"GET"}, requirements={"version"="\d+"})
      */
     public function load(Context $context)
     {
-        $listings = $this->connection->fetchFirstColumn("SELECT CONCAT('/', seo_path_info) FROM seo_url WHERE route_name = 'frontend.navigation.page' AND is_deleted = 0");
+        $salesChannelId = $this->connection->fetchColumn("SELECT LOWER(HEX(sales_channel_id)) FROM sales_channel_translation WHERE name = 'Tideways Test' LIMIT 1");
 
-        $details = $this->connection->fetchFirstColumn("SELECT CONCAT('/', seo_path_info) FROM seo_url  WHERE route_name = 'frontend.detail.page' AND is_deleted = 0");
+        $listings = $this->fetchFirstColumn(
+            "SELECT CONCAT('/', seo_path_info) FROM seo_url WHERE route_name = 'frontend.navigation.page' AND is_deleted = 0 AND sales_channel_id = UNHEX(?)",
+            [$salesChannelId]
+        );
 
-        $keywords = $this->connection->fetchFirstColumn("SELECT keyword FROM  product_keyword_dictionary LIMIT 5000");
+        $details = $this->fetchFirstColumn(
+            "SELECT CONCAT('/', seo_path_info) FROM seo_url  WHERE route_name = 'frontend.detail.page' AND is_deleted = 0 AND sales_channel_id = UNHEX(?)",
+            [$salesChannelId]
+        );
 
-        $numbers = $this->connection->fetchFirstColumn('SELECT product_number FROM product');
+        $keywords = $this->fetchFirstColumn("SELECT keyword FROM  product_keyword_dictionary LIMIT 5000");
 
-        $salutationId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM salutation LIMIT 1');
+        $numbers = $this->fetchFirstColumn('SELECT product_number FROM product');
 
-        $countryId = $this->connection->fetchOne("SELECT LOWER(HEX(country_id)) FROM `country_translation` WHERE `name` = 'Deutschland' LIMIT 1");
+        $salutationId = $this->connection->fetchColumn('SELECT LOWER(HEX(id)) FROM salutation LIMIT 1');
 
-        $productIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM product LIMIT 5000');
+        $countryId = $this->connection->fetchColumn("SELECT LOWER(HEX(country_id)) FROM `country_translation` WHERE `name` = 'Deutschland' LIMIT 1");
+
+        $productIds = $this->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM product LIMIT 5000');
 
         $currencyId = Defaults::CURRENCY;
 
-        $categoryIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM category LIMIT 2000');
+        $categoryIds = $this->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM category LIMIT 2000');
 
-        $salesChannelId = $this->connection->fetchOne("SELECT LOWER(HEX(sales_channel_id)) FROM sales_channel_translation WHERE name = 'Storefront' LIMIT 1");
-
-        $taxId = $this->connection->fetchOne("SELECT LOWER(HEX(id)) FROM tax LIMIT 1");
+        $taxId = $this->connection->fetchColumn("SELECT LOWER(HEX(id)) FROM tax LIMIT 1");
 
         if (!$salutationId) {
             throw new RuntimeException('No salutation id found');
