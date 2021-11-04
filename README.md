@@ -39,3 +39,11 @@ Currently not much is automated:
    ```sh
    locust --headless --host=https://shopware6.tideways.io --csv=shopware6.tideways.io --csv-full-history -u 2 -r 1 -t 1m
    ```
+
+### Ansible Setup
+
+For an inventory `digitalocean` with a clean Ubuntu server configured setting up shopware looks like this:
+
+```
+ansible-playbook -i ansible/digitalocean ansible/setup_shopware.yml
+```
