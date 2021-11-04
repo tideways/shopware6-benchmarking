@@ -1,0 +1,4 @@
+loadtesting.shopware6-1 ansible_ssh_host=167.172.104.85 ansible_ssh_user=root
+
+[all]
+loadtesting.shopware6-1
