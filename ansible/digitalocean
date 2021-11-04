@@ -1,4 +1,10 @@
 loadtesting.shopware6-1 ansible_ssh_host=167.172.104.85 ansible_ssh_user=root
 
-[all]
+[web]
+loadtesting.shopware6-1
+
+[mysql]
+loadtesting.shopware6-1
+
+[redis]
 loadtesting.shopware6-1
