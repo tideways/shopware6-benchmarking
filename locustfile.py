@@ -6,6 +6,7 @@ import random
 from locust import constant, task
 from locust_plugins.users import HttpUserWithResources
 from lxml import etree
+from requests.models import Response
 
 from locusthelpers import csrf
 from locusthelpers.authentication import Authentication
@@ -20,26 +21,32 @@ class Purchaser(HttpUserWithResources):
         auth = Authentication(self.client)
         auth.register()
 
+    def visitPage(self, url: str, name=None) -> Response:
+        if not name:
+            name = url
+        response = self.client.get(url, name=name)
+
+        self.client.get('/widgets/checkout/info', name='cart-widget')
+
+        return response
+
     def visitProduct(self, productDetailPageUrl: str):
         logging.info("Visit product detail page")
-        self.client.get(productDetailPageUrl, name='product-detail-page')
-        self.client.get('/widgets/checkout/info', name='cart-widget')
+        return self.visitPage(
+            productDetailPageUrl, name='product-detail-page')
 
     def addProductToCart(self, productDetailPageUrl: str):
         logging.info("Adding product to cart " + productDetailPageUrl)
-        productDetailPageResponse = self.client.get(
-            productDetailPageUrl, name='listing-page')
-
-        self.client.get('/widgets/checkout/info', name='cart-widget')
+        productDetailPageResponse = self.visitProduct(productDetailPageUrl)
 
         submitForm(productDetailPageResponse,
                    self.client, "/checkout/line-item/add", name='add-to-cart')
 
     def checkoutOrder(self):
         logging.info("Going into checkout…")
-        self.client.get('/checkout/cart', name='cart-page')
+        self.visitPage('/checkout/cart', name='cart-page')
 
-        confirmationPageResponse = self.client.get(
+        confirmationPageResponse = self.visitPage(
             '/checkout/confirm', name='confirm-page'
         )
 
@@ -53,8 +60,7 @@ class Purchaser(HttpUserWithResources):
 
     def visitProductListingPageAndRetrieveProductUrls(self, productListingUrl: str) -> list:
         logging.info("Visit product listing page " + productListingUrl)
-        response = self.client.get(productListingUrl, name='listing-page')
-        self.client.get('/widgets/checkout/info', name='cart-widget')
+        response = self.visitPage(productListingUrl, name='listing-page')
         root = etree.fromstring(response.content, etree.HTMLParser())
         productUrlElements = root.xpath(
             './/div[contains(@class, "product-box")]//a')
