@@ -1,65 +1,24 @@
-import requests
-import time
 import csv
+import logging
 import os
 import random
-import uuid
-import json
-import pprint
-from locust import task, constant
+
+from locust import constant, task
 from locust_plugins.users import HttpUserWithResources
-from locusthelpers import csrf
-
 from lxml import etree
-import logging
 
+from locusthelpers import csrf
+from locusthelpers.authentication import Authentication
 from locusthelpers.form import submitForm
 
 
 class Purchaser(HttpUserWithResources):
     weight = 10
     wait_time = constant(15)
-    countryId = 1
-    salutationId = 1
 
     def on_start(self):
-        self.initRegister()
-        self.register()
-
-    def initRegister(self):
-        path = os.path.dirname(os.path.realpath(
-            __file__)) + '/fixtures/register.json'
-        with open(path) as file:
-            data = json.load(file)
-            self.countryId = data['countryId']
-            self.salutationId = data['salutationId']
-
-    def register(self):
-        response = self.client.get('/account/register', name='register')
-
-        root = etree.fromstring(response.content, etree.HTMLParser())
-        csrfElement = root.find(
-            './/form[@action="/account/register"]/input[@name="_csrf_token"]')
-
-        userMailAddress = 'user-' + \
-            str(uuid.uuid4()).replace('-', '') + '@example.com'
-        logging.info("Registering user " + userMailAddress)
-
-        register = {
-            'redirectTo': 'frontend.account.home.page',
-            'salutationId': self.salutationId,
-            'firstName': 'Firstname',
-            'lastName': 'Lastname',
-            'email': userMailAddress,
-            'password': 'shopware',
-            'billingAddress[street]': 'Test street',
-            'billingAddress[zipcode]': '11111',
-            'billingAddress[city]': 'Test city',
-            'billingAddress[countryId]': self.countryId,
-            '_csrf_token': csrfElement.attrib.get('value')
-        }
-
-        self.client.post('/account/register', data=register, name='register')
+        auth = Authentication(self.client)
+        auth.register()
 
     def visitProduct(self, productDetailPageUrl: str):
         logging.info("Visit product detail page")
