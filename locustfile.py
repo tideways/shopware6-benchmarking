@@ -5,11 +5,14 @@ import os
 import random
 import uuid
 import json
-from locust import HttpUser, task, between, constant
+from locust import task, between, constant
+from locust_plugins.users import HttpUserWithResources
+
 from lxml import etree
 import logging
 
-class Purchaser(HttpUser):
+
+class Purchaser(HttpUserWithResources):
     weight = 10
     wait_time = constant(15)
     countryId = 1
@@ -85,7 +88,8 @@ class Purchaser(HttpUser):
             'tos': 'on'
         })
 
-class Surfer(HttpUser):
+
+class Surfer(HttpUserWithResources):
     weight = 30
     wait_time = constant(2)
 
