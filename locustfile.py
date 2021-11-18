@@ -35,21 +35,20 @@ class Purchaser(ShopwareUser):
         self.checkoutOrder()
 
 
-class Surfer(HttpUserWithResources):
+class Surfer(ShopwareUser):
     weight = 30
     wait_time = constant(2)
 
     @task(10)
     def listing_page(self):
         url = random.choice(listings)
-        self.client.get(url, name='listing-page')
-        self.client.get('/widgets/checkout/info', name='cart-widget')
+        self.visitProductListingPageAndRetrieveProductUrls(
+            productListingUrl=url)
 
     @task(4)
     def detail_page(self):
         url = random.choice(details)
-        self.client.get(url, name='detail-page')
-        self.client.get('/widgets/checkout/info', name='cart-widget')
+        self.visitProduct(url)
 
 
 listings = []
