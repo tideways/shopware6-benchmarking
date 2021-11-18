@@ -46,7 +46,7 @@ class ShopwareUser(HttpUserWithResources):
         logging.info("Going into checkout…")
         self.visitCart()
 
-        confirmationPageResponse = self.visitCheckoutConfirmationPage
+        confirmationPageResponse = self.visitCheckoutConfirmationPage()
 
         orderResponse = self.client.post('/checkout/order', name='order', data={
             'tos': 'on',
