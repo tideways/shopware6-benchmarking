@@ -5,6 +5,7 @@ import os
 import random
 import uuid
 import json
+import pprint
 from locust import task, constant
 from locust_plugins.users import HttpUserWithResources
 from locusthelpers import csrf
@@ -91,15 +92,33 @@ class Purchaser(HttpUserWithResources):
         logging.info("Checkout finished with status code " +
                      str(orderResponse.status_code))
 
+    def visitProductListingPageAndRetrieveProductUrls(self, productListingUrl: str) -> list:
+        logging.info("Visit product listing page " + productListingUrl)
+        response = self.client.get(productListingUrl, name='listing-page')
+        self.client.get('/widgets/checkout/info', name='cart-widget')
+        root = etree.fromstring(response.content, etree.HTMLParser())
+        productUrlElements = root.xpath(
+            './/div[contains(@class, "product-box")]//a')
+
+        productUrls = [productUrl.attrib.get(
+            'href') for productUrl in productUrlElements]
+
+        # Remove duplicate product urls
+        productUrls = list(set(productUrls))
+
+        # Remove host prefix from all product urls
+        productUrls = [productUrl.replace(self.host, '')
+                       for productUrl in productUrls]
+
+        return productUrls
+
     @task
     def order(self):
         url = random.choice(listings)
-        logging.info("Visit listing " + url)
+        productUrls = self.visitProductListingPageAndRetrieveProductUrls(
+            productListingUrl=url)
 
-        self.client.get(url, name='listing-page-logged-in')
-        self.client.get('/widgets/checkout/info', name='cart-widget')
-
-        for detailPageUrl in random.sample(details, random.randint(1, 5)):
+        for detailPageUrl in random.sample(productUrls, random.randint(1, 5)):
             self.visitProduct(detailPageUrl)
             self.addProductToCart(detailPageUrl)
 
