@@ -5,11 +5,14 @@ import os
 import random
 import uuid
 import json
-from locust import task, between, constant
+from locust import task, constant
 from locust_plugins.users import HttpUserWithResources
+from locusthelpers import csrf
 
 from lxml import etree
 import logging
+
+from locusthelpers.form import submitForm
 
 
 class Purchaser(HttpUserWithResources):
@@ -57,40 +60,50 @@ class Purchaser(HttpUserWithResources):
 
         self.client.post('/account/register', data=register, name='register')
 
-    def addProduct(self):
-        number = random.choice(numbers)
+    def visitProduct(self, productDetailPageUrl: str):
+        logging.info("Visit product detail page")
+        self.client.get(productDetailPageUrl, name='product-detail-page')
+        self.client.get('/widgets/checkout/info', name='cart-widget')
 
-        self.client.post('/checkout/product/add-by-number', name='add-product', data={
-            'redirectTo': 'frontend.checkout.cart.page',
-            'number': number
+    def addProductToCart(self, productDetailPageUrl: str):
+        logging.info("Adding product to cart " + productDetailPageUrl)
+        productDetailPageResponse = self.client.get(
+            productDetailPageUrl, name='listing-page')
+
+        self.client.get('/widgets/checkout/info', name='cart-widget')
+
+        submitForm(productDetailPageResponse,
+                   self.client, "/checkout/line-item/add", name='add-to-cart')
+
+    def checkoutOrder(self):
+        logging.info("Going into checkout…")
+        self.client.get('/checkout/cart', name='cart-page')
+
+        confirmationPageResponse = self.client.get(
+            '/checkout/confirm', name='confirm-page'
+        )
+
+        orderResponse = self.client.post('/checkout/order', name='order', data={
+            'tos': 'on',
+            '_csrf_token': csrf.getCsrfTokenForForm(confirmationPageResponse, '/checkout/order'),
         })
+
+        logging.info("Checkout finished with status code " +
+                     str(orderResponse.status_code))
 
     @task
     def order(self):
         url = random.choice(listings)
-        logging.error("Visit listing " + url)
-        response = self.client.get(url, name='listing-page-logged-in')
+        logging.info("Visit listing " + url)
 
-        root = etree.fromstring(response.content, etree.HTMLParser())
-        csrfElement = root.find('.//input[@name="_csrf_token"]')
-
+        self.client.get(url, name='listing-page-logged-in')
         self.client.get('/widgets/checkout/info', name='cart-widget')
-        number = random.choice(numbers)
 
-        self.client.post('/checkout/line-item/add', name='line-item-add', data={
-            "lineItems[" + number + "][id]": number,
-            "lineItems[" + number + "][referenceId]": number,
-            "lineItems[" + number + "][quantity]": "1",
-            '_csrf_token': csrfElement.attrib.get('value')
-        })
+        for detailPageUrl in random.sample(details, random.randint(1, 5)):
+            self.visitProduct(detailPageUrl)
+            self.addProductToCart(detailPageUrl)
 
-        self.client.get('/checkout/cart', name='cart-page')
-
-        self.client.get('/checkout/confirm', name='confirm-page')
-
-        self.client.post('/checkout/order', name='order', data={
-            'tos': 'on'
-        })
+        self.checkoutOrder()
 
 
 class Surfer(HttpUserWithResources):
