@@ -37,12 +37,16 @@ class Purchaser(HttpUserWithResources):
         csrfElement = root.find(
             './/form[@action="/account/register"]/input[@name="_csrf_token"]')
 
+        userMailAddress = 'user-' + \
+            str(uuid.uuid4()).replace('-', '') + '@example.com'
+        logging.info("Registering user " + userMailAddress)
+
         register = {
             'redirectTo': 'frontend.account.home.page',
             'salutationId': self.salutationId,
             'firstName': 'Firstname',
             'lastName': 'Lastname',
-            'email': 'user-' + str(uuid.uuid4()).replace('-', '') + '@example.com',
+            'email': userMailAddress,
             'password': 'shopware',
             'billingAddress[street]': 'Test street',
             'billingAddress[zipcode]': '11111',
