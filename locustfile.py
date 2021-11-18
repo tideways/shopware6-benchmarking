@@ -39,6 +39,15 @@ class Surfer(ShopwareUser):
     weight = 30
     wait_time = constant(2)
 
+    def on_start(self):
+        # Percentage of users that are authenticated
+        probability = 0.5
+        auth = Authentication(self.client)
+        if bool(random.random() < probability) is True:
+            auth.register()
+        else:
+            logging.info("Anonymous Surfer starting")
+
     @task(10)
     def listing_page(self):
         url = random.choice(listings)
