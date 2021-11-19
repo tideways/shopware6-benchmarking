@@ -42,7 +42,8 @@ class PaginationSurfer(ShopwareUser):
     @task()
     def detail_page(self):
         url = random.choice(listings)
-        self.visitProductListingPageAndUseThePagination(url)
+        self.visitProductListingPageAndUseThePagination(
+            url, random.randint(0, 3))
 
 
 class Surfer(ShopwareUser):

@@ -60,12 +60,12 @@ class ShopwareUser(HttpUserWithResources):
         logging.info("Visit product listing page " + productListingUrl)
         return self.visitPage(productListingUrl, name='listing-page')
 
-    def visitProductListingPageAndUseThePagination(self, productListingUrl: str) -> list:
+    def visitProductListingPageAndUseThePagination(self, productListingUrl: str, numberOfTimesToPaginate: int) -> list:
         pages = self.visitProductListingPageAndRetrievePageNumbers(
             productListingUrl=productListingUrl)
 
         # for a random number of times, visit a random page
-        for i in range(random.randint(1, 3)):
+        for i in range(numberOfTimesToPaginate):
             pages = self.visitProductListingPageAndRetrievePageNumbers(
                 productListingUrl=productListingUrl + "?p=" + random.choice(pages))
 
