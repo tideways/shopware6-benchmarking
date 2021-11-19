@@ -56,9 +56,21 @@ class ShopwareUser(HttpUserWithResources):
         logging.info("Checkout finished with status code " +
                      str(orderResponse.status_code))
 
-    def visitProductListingPageAndRetrieveProductUrls(self, productListingUrl: str) -> list:
+    def visitProductListingPage(self, productListingUrl: str) -> list:
         logging.info("Visit product listing page " + productListingUrl)
-        response = self.visitPage(productListingUrl, name='listing-page')
+        return self.visitPage(productListingUrl, name='listing-page')
+
+    def visitProductListingPageAndUseThePagination(self, productListingUrl: str) -> list:
+        pages = self.visitProductListingPageAndRetrievePageNumbers(
+            productListingUrl=productListingUrl)
+
+        # for a random number of times, visit a random page
+        for i in range(random.randint(1, 3)):
+            pages = self.visitProductListingPageAndRetrievePageNumbers(
+                productListingUrl=productListingUrl + "?p=" + random.choice(pages))
+
+    def visitProductListingPageAndRetrieveProductUrls(self, productListingUrl: str) -> list:
+        response = self.visitProductListingPage(productListingUrl)
         root = etree.fromstring(response.content, etree.HTMLParser())
         productUrlElements = root.xpath(
             './/div[contains(@class, "product-box")]//a')
@@ -74,3 +86,17 @@ class ShopwareUser(HttpUserWithResources):
                        for productUrl in productUrls]
 
         return productUrls
+
+    def visitProductListingPageAndRetrievePageNumbers(self, productListingUrl: str) -> list:
+        response = self.visitProductListingPage(productListingUrl)
+        root = etree.fromstring(response.content, etree.HTMLParser())
+        pagintationElements = root.xpath(
+            './/nav[@aria-label="pagination"]//input[@name="p"]')
+
+        pages = [page.attrib.get(
+            'value') for page in pagintationElements]
+
+        # Remove duplicate pages
+        pages = list(set(pages))
+
+        return pages

@@ -35,6 +35,16 @@ class Purchaser(ShopwareUser):
         self.checkoutOrder()
 
 
+class PaginationSurfer(ShopwareUser):
+    weight = 30
+    wait_time = constant(2)
+
+    @task()
+    def detail_page(self):
+        url = random.choice(listings)
+        self.visitProductListingPageAndUseThePagination(url)
+
+
 class Surfer(ShopwareUser):
     weight = 30
     wait_time = constant(2)
