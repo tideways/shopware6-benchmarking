@@ -5,11 +5,48 @@ import os
 import random
 import uuid
 import json
+import hashlib
+import hmac
 from locust import HttpUser, task, between, constant
 from lxml import etree
 import logging
+from locust import events
 
-class Purchaser(HttpUser):
+@events.init_command_line_parser.add_listener
+def _(parser):
+    parser.add_argument("--tideways-apikey", type=str, env_var="LOCUST_TIDEWAYS_APIKEY", default="", help="The API Key to trigger Tideways callgraph traces with")
+    parser.add_argument("--tideways-trace-rate", type=int, env_var="LOCUST_TIDEWAYS_TRACE_RATE", default=1, help="The sample rate for triggering callgraph traces")
+
+class HttpTidewaysUser(HttpUser):
+    """
+    provides a user that can trigger callgraph traces
+    """
+
+    abstract = True
+
+    def tidewaysProfilingHeaders(self):
+        if random.randint(1, 100) > self.environment.parsed_options.tideways_trace_rate:
+            return {}
+
+        apiKey = self.environment.parsed_options.tideways_apikey
+
+        if len(apiKey) == 0:
+            return {}
+
+        m = hashlib.md5()
+        m.update(apiKey.encode("utf-8"))
+        profilingHash = m.hexdigest()
+        validUntil = int(time.time())+120
+        hm = hmac.new(str.encode(profilingHash), digestmod="sha256")
+        hm.update(("method=&time=" + str(validUntil) + "&user=").encode("utf-8"))
+        token = hm.hexdigest()
+        header = "method=&time=" + str(validUntil) + "&user=&hash=" + token
+
+        print(f'Tideways header: ' + header + '\n')
+
+        return {"X-Tideways-Profiler": header}
+
+class Purchaser(HttpTidewaysUser):
     weight = 10
     wait_time = constant(15)
     countryId = 1
@@ -46,7 +83,7 @@ class Purchaser(HttpUser):
             '_csrf_token': csrfElement.attrib.get('value')
         }
 
-        self.client.post('/account/register', data=register, name='register')
+        self.client.post('/account/register', data=register, name='register', headers=self.tidewaysProfilingHeaders())
 
     def addProduct(self):
         number = random.choice(numbers)
@@ -54,7 +91,7 @@ class Purchaser(HttpUser):
         self.client.post('/checkout/product/add-by-number', name='add-product', data={
             'redirectTo': 'frontend.checkout.cart.page',
             'number': number
-        })
+        }, headers=self.tidewaysProfilingHeaders())
 
     @task
     def order(self):
@@ -73,32 +110,31 @@ class Purchaser(HttpUser):
             "lineItems[" + number + "][referenceId]": number,
             "lineItems[" + number + "][quantity]": "1",
             '_csrf_token': csrfElement.attrib.get('value')
-        })
+        }, headers=self.tidewaysProfilingHeaders())
 
-        self.client.get('/checkout/cart', name='cart-page')
+        self.client.get('/checkout/cart', name='cart-page', headers=self.tidewaysProfilingHeaders())
 
-        self.client.get('/checkout/confirm', name='confirm-page')
+        self.client.get('/checkout/confirm', name='confirm-page', headers=self.tidewaysProfilingHeaders())
 
         self.client.post('/checkout/order', name='order', data={
             'tos': 'on'
-        })
+        }, headers=self.tidewaysProfilingHeaders())
 
-class Surfer(HttpUser):
+class Surfer(HttpTidewaysUser):
     weight = 30
     wait_time = constant(2)
 
     @task(10)
     def listing_page(self):
         url = random.choice(listings)
-        self.client.get(url, name='listing-page')
-        self.client.get('/widgets/checkout/info', name='cart-widget')
+        self.client.get(url, name='listing-page', headers=self.tidewaysProfilingHeaders())
+        self.client.get('/widgets/checkout/info', name='cart-widget', headers=self.tidewaysProfilingHeaders())
 
     @task(4)
     def detail_page(self):
         url = random.choice(details)
-        self.client.get(url, name='detail-page')
-        self.client.get('/widgets/checkout/info', name='cart-widget')
-
+        self.client.get(url, name='detail-page', headers=self.tidewaysProfilingHeaders())
+        self.client.get('/widgets/checkout/info', name='cart-widget', headers=self.tidewaysProfilingHeaders())
 
 listings = []
 details = []
