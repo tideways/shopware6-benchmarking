@@ -1,6 +1,4 @@
-import csv
 import logging
-import os
 import random
 
 from locust import constant, task
@@ -12,6 +10,8 @@ from locusthelpers import csrf
 from locusthelpers.authentication import Authentication
 from locusthelpers.form import submitForm
 from locusthelpers.shopware_user import ShopwareUser
+
+from locusthelpers.fixtures import getListings, getProductDetails, getProductNumbers
 
 
 class Purchaser(ShopwareUser):
@@ -83,38 +83,6 @@ class Surfer(ShopwareUser):
         self.visitProduct(url)
 
 
-listings = []
-details = []
-numbers = []
-
-
-def initListings():
-    path = os.path.dirname(os.path.realpath(__file__)) + \
-        '/fixtures/listing_urls.csv'
-    with open(path) as file:
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            listings.append(row[0])
-
-
-def initProducts():
-    path = os.path.dirname(os.path.realpath(__file__)) + \
-        '/fixtures/product_urls.csv'
-    with open(path) as file:
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            details.append(row[0])
-
-
-def initNumbers():
-    path = os.path.dirname(os.path.realpath(__file__)) + \
-        '/fixtures/product_numbers.csv'
-    with open(path) as file:
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            numbers.append(row[0])
-
-
-initListings()
-initProducts()
-initNumbers()
+listings = getListings()
+details = getProductDetails()
+numbers = getProductNumbers()
