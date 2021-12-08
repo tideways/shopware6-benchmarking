@@ -28,7 +28,14 @@ class Purchaser(ShopwareUser):
         productUrls = self.visitProductListingPageAndRetrieveProductUrls(
             productListingUrl=url)
 
-        for detailPageUrl in random.sample(productUrls, random.randint(1, 5)):
+        if len(productUrls) == 0:
+            logging.error("No products found on this page")
+            return
+
+        # get the maximum number of products to order, either 5 or the number of productUrls
+        maxProducts = min(5, len(productUrls))
+
+        for detailPageUrl in random.sample(productUrls, random.randint(1, maxProducts)):
             self.visitProduct(detailPageUrl)
             self.addProductToCart(detailPageUrl)
 
