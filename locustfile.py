@@ -12,6 +12,9 @@ from locusthelpers.form import submitForm
 from locusthelpers.shopware_user import ShopwareUser
 
 from locusthelpers.fixtures import getListings, getProductDetails, getProductNumbers
+from locust import task, HttpUser
+from locust.exception import StopUser
+from locust_plugins import run_single_user
 
 
 class Purchaser(ShopwareUser):
@@ -44,6 +47,19 @@ class Purchaser(ShopwareUser):
             self.addProductToCart(detailPageUrl)
 
         self.checkoutOrder()
+
+
+class Filterer(ShopwareUser):
+    # Visit random product listing page
+    # and apply a filter
+    @task
+    def filter(self):
+        url = random.choice(listings)
+        numberOfFiltersToApply = random.randint(3, 5)
+        response = self.visitProductListingPage(productListingUrl=url)
+
+        for _ in range(numberOfFiltersToApply):
+            response = self.applyRandomFilterOnProductListingPage(response)
 
 
 class PaginationSurfer(ShopwareUser):
@@ -86,3 +102,9 @@ class Surfer(ShopwareUser):
 listings = getListings()
 details = getProductDetails()
 numbers = getProductNumbers()
+
+
+if __name__ == "__main__":
+    Filterer.host = "https://shopware64.tideways.io"
+    run_single_user(Filterer, include_length=True,
+                    include_time=True, include_context=True)

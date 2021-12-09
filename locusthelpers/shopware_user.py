@@ -1,17 +1,17 @@
+from locusthelpers.listingFilters.listingFilterParser import ListingFilterParser
+from locusthelpers.form import submitForm
+from locusthelpers.authentication import Authentication
+from locusthelpers import csrf
+from requests.models import Response
+from lxml import etree
+from locust_plugins.users import HttpUserWithResources
+from locust import constant, task
 from locust_plugins.users.resource import HttpUserWithResources
 import csv
 import logging
 import os
 import random
-
-from locust import constant, task
-from locust_plugins.users import HttpUserWithResources
-from lxml import etree
-from requests.models import Response
-
-from locusthelpers import csrf
-from locusthelpers.authentication import Authentication
-from locusthelpers.form import submitForm
+from urllib.parse import urlencode, urlparse, parse_qs
 
 
 class ShopwareUser(HttpUserWithResources):
@@ -68,6 +68,27 @@ class ShopwareUser(HttpUserWithResources):
         for i in range(numberOfTimesToPaginate):
             pages = self.visitProductListingPageAndRetrievePageNumbers(
                 productListingUrl=productListingUrl + "?p=" + random.choice(pages))
+
+    def applyRandomFilterOnProductListingPage(self, response: Response):
+        listingFilterParser = ListingFilterParser(response.content)
+        filters = listingFilterParser.findFilters()
+        filter = random.choice(filters)
+        filterValue = random.choice(filter.possibleValues)
+
+        url = urlparse(response.url)
+        queryParams = parse_qs(url.query)
+
+        if filter.name in queryParams:
+            queryParams[filter.name] = queryParams[filter.name][0] + \
+                "|" + filterValue
+        else:
+            queryParams[filter.name] = filterValue
+
+        queryString = "?" + urlencode(queryParams)
+
+        return self.visitProductListingPage(
+            productListingUrl=url.path + queryString
+        )
 
     def visitProductListingPageAndRetrieveProductUrls(self, productListingUrl: str) -> list:
         response = self.visitProductListingPage(productListingUrl)
