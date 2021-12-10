@@ -84,8 +84,17 @@ class ShopwareUser(HttpUserWithResources):
         else:
             queryParams[filter.name] = filterValue
 
+        # if page is missing in the queryParams, add it
+        if 'p' not in queryParams:
+            queryParams['p'] = 1
+
+        # order by name ascending if no order was configured yet
+        if 'order' not in queryParams:
+            queryParams['order'] = 'name-asc'
+
         queryString = "?" + urlencode(queryParams)
 
+        # @TODO instead of visiting the listing page, we should do the ajax request
         return self.visitProductListingPage(
             productListingUrl=url.path + queryString
         )
