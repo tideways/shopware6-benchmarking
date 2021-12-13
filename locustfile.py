@@ -22,15 +22,17 @@ class Purchaser(ShopwareUser):
     weight = 10
     wait_time = constant(15)
 
-    def on_start(self):
-        auth = Authentication(self.client)
-        auth.register()
-
     # Visit random product listing page
     # add up to five products to cart
     # do checkout
     @task
     def order(self):
+        auth = Authentication(self.client)
+        # 50% chance to login or register
+        if random.randint(0, 1) == 0:
+            auth.loginRandomUserFromFixture()
+        else:
+            auth.register()
         url = random.choice(listings)
         productUrls = self.visitProductListingPageAndRetrieveProductUrls(
             productListingUrl=url
@@ -104,6 +106,13 @@ class PaginationSurfer(ShopwareUser):
         url = random.choice(listings)
         self.visitProductListingPageAndUseThePagination(
             url, random.randint(0, 3))
+
+
+class Registerer(ShopwareUser):
+    @task
+    def register(self):
+        auth = Authentication(self.client)
+        auth.register(writeToFixture=True)
 
 
 class Surfer(ShopwareUser):
