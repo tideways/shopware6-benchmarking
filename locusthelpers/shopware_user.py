@@ -103,7 +103,8 @@ class ShopwareUser(HttpUserWithResources):
 
         queryString = "?" + urlencode(queryParams, doseq=True)
 
-        ajaxResponse = self.getAjaxResource(listingWidgetUrl + queryString)
+        ajaxResponse = self.getAjaxResource(
+            listingWidgetUrl + queryString, name='listing-widget-filtered')
 
         productUrls = self.findProductUrlsFromProductListing(ajaxResponse)
         if len(productUrls) == 0:
