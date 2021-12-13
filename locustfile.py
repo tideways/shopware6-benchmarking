@@ -9,6 +9,7 @@ from requests.models import Response
 from locusthelpers import csrf
 from locusthelpers.authentication import Authentication
 from locusthelpers.form import submitForm
+from locusthelpers.search import Search
 from locusthelpers.shopware_user import ShopwareUser
 
 from locusthelpers.fixtures import getListings, getProductDetails, getProductNumbers
@@ -71,6 +72,16 @@ class Filterer(ShopwareUser):
                     productUrls, random.randint(0, maxProducts))
                 for productUrl in productsToVisit:
                     self.visitProduct(productUrl)
+
+
+class Searcher(ShopwareUser):
+    # Visit random product listing page
+    # and apply a filter
+    @task
+    def search(self):
+        self.visitPage("/")
+        search = Search(self)
+        response = search.search("Durable")
 
 
 class PaginationSurfer(ShopwareUser):
