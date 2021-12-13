@@ -12,7 +12,7 @@ from locusthelpers.form import submitForm
 from locusthelpers.search import Search
 from locusthelpers.shopware_user import ShopwareUser
 
-from locusthelpers.fixtures import getListings, getProductDetails, getProductNumbers
+from locusthelpers.fixtures import getListings, getProductDetails, getProductNumbers, getRandomWordFromFixture
 from locust import task, HttpUser
 from locust.exception import StopUser
 from locust_plugins import run_single_user
@@ -81,7 +81,7 @@ class Searcher(ShopwareUser):
     def search(self):
         self.visitPage("/")
         search = Search(self)
-        response = search.search("Durable")
+        response = search.search(getRandomWordFromFixture())
 
 
 class PaginationSurfer(ShopwareUser):
