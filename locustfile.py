@@ -65,8 +65,10 @@ class Filterer(ShopwareUser):
                 productUrls = self.findProductUrlsFromProductListing(
                     ajaxResponse)
 
-                productsToVisit = random.choices(
-                    productUrls, k=random.randint(0, 5))
+                maxProducts = min(5, len(productUrls))
+
+                productsToVisit = random.sample(
+                    productUrls, random.randint(0, maxProducts))
                 for productUrl in productsToVisit:
                     self.visitProduct(productUrl)
 
