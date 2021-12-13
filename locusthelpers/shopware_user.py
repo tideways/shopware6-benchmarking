@@ -24,6 +24,12 @@ class ShopwareUser(HttpUserWithResources):
 
         return response
 
+    def getAjaxResource(self, url: str, name: str = None):
+        if not name:
+            name = url
+        logging.info("Fetching ajax resource " + url)
+        return self.client.get(url, name=name)
+
     def visitProduct(self, productDetailPageUrl: str):
         logging.info("Visit product detail page")
         return self.visitPage(
@@ -92,16 +98,24 @@ class ShopwareUser(HttpUserWithResources):
         if 'order' not in queryParams:
             queryParams['order'] = 'name-asc'
 
-        queryString = "?" + urlencode(queryParams)
+        listingWidgetUrl, listingWidgetParams = listingFilterParser.findListingWidgetUrlAndParams()
+        queryParams = queryParams | listingWidgetParams
 
-        # @TODO instead of visiting the listing page, we should do the ajax request
-        return self.visitProductListingPage(
-            productListingUrl=url.path + queryString
-        )
+        queryString = "?" + urlencode(queryParams, doseq=True)
+
+        # Adjust the original
+        response.url = url.path + queryString
+
+        return self.getAjaxResource(listingWidgetUrl + queryString)
 
     def visitProductListingPageAndRetrieveProductUrls(self, productListingUrl: str) -> list:
         response = self.visitProductListingPage(productListingUrl)
-        root = etree.fromstring(response.content, etree.HTMLParser())
+
+        return self.retrieveProductUrlsFromProductListing(response)
+
+    def retrieveProductUrlsFromProductListing(self, productListingResponse: Response) -> list:
+        root = etree.fromstring(
+            productListingResponse.content, etree.HTMLParser())
         productUrlElements = root.xpath(
             './/div[contains(@class, "product-box")]//a')
 
