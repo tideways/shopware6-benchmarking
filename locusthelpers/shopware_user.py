@@ -103,10 +103,19 @@ class ShopwareUser(HttpUserWithResources):
 
         queryString = "?" + urlencode(queryParams, doseq=True)
 
-        # Adjust the original
-        response.url = url.path + queryString
+        ajaxResponse = self.getAjaxResource(listingWidgetUrl + queryString)
 
-        return self.getAjaxResource(listingWidgetUrl + queryString)
+        productUrls = self.findProductUrlsFromProductListing(ajaxResponse)
+        if len(productUrls) == 0:
+            logging.info("No products found, not applying filter permanently")
+        else:
+            # Adjust the original response to include the new filter
+            # This way, subsequent requests know about it
+            response.url = url.path + queryString
+            logging.info("Found " + str(len(productUrls)) +
+                         " products, applying filter permanently")
+
+        return ajaxResponse
 
     def visitProductListingPageAndRetrieveProductUrls(self, productListingUrl: str) -> list:
         response = self.visitProductListingPage(productListingUrl)
