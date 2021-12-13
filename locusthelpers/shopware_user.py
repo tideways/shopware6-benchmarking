@@ -111,9 +111,9 @@ class ShopwareUser(HttpUserWithResources):
     def visitProductListingPageAndRetrieveProductUrls(self, productListingUrl: str) -> list:
         response = self.visitProductListingPage(productListingUrl)
 
-        return self.retrieveProductUrlsFromProductListing(response)
+        return self.findProductUrlsFromProductListing(response)
 
-    def retrieveProductUrlsFromProductListing(self, productListingResponse: Response) -> list:
+    def findProductUrlsFromProductListing(self, productListingResponse: Response) -> list:
         root = etree.fromstring(
             productListingResponse.content, etree.HTMLParser())
         productUrlElements = root.xpath(
