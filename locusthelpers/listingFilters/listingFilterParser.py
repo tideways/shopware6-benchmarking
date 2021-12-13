@@ -50,6 +50,17 @@ class ListingFilterParser:
 
         return listingFilters
 
+    def findListingWidgetUrlAndParams(self) -> str:
+        root = etree.fromstring(
+            self.html, etree.HTMLParser())
+        productListingWrapperElement = root.xpath(
+            './/div[@class="cms-element-product-listing-wrapper"]')[0]
+
+        listingOptions = json.loads(
+            productListingWrapperElement.attrib.get("data-listing-options"))
+
+        return listingOptions.get("dataUrl"), listingOptions.get("params")
+
     def __findPossibleValuesForFilterElement(self, filterElement: etree.Element):
         valueCheckboxElements = filterElement.xpath(
             './/input[@type="checkbox"]'
