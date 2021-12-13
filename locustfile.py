@@ -60,8 +60,15 @@ class Filterer(ShopwareUser):
 
         for _ in range(numberOfFiltersToApply):
             ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
-            productUrls = self.findProductUrlsFromProductListing(
-                ajaxResponse)
+            # In 10 percent of cases, try to visit a few products
+            if random.randint(1, 10) == 1:
+                productUrls = self.findProductUrlsFromProductListing(
+                    ajaxResponse)
+
+                productsToVisit = random.choices(
+                    productUrls, k=random.randint(0, 5))
+                for productUrl in productsToVisit:
+                    self.visitProduct(productUrl)
 
 
 class PaginationSurfer(ShopwareUser):
