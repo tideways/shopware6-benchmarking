@@ -12,7 +12,7 @@ from locusthelpers.form import submitForm
 from locusthelpers.search import Search
 from locusthelpers.shopware_user import ShopwareUser
 
-from locusthelpers.fixtures import getListings, getProductDetails, getProductNumbers, getRandomWordFromFixture
+from locusthelpers.fixtures import getListings, getProductDetails, getProductNumbers, getRandomWordFromFixture, getRandomWordFromOperatingSystem
 from locust import task, HttpUser
 from locust.exception import StopUser
 from locust_plugins import run_single_user
@@ -63,15 +63,7 @@ class Filterer(ShopwareUser):
             ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
             # In 10 percent of cases, try to visit a few products
             if random.randint(1, 10) == 1:
-                productUrls = self.findProductUrlsFromProductListing(
-                    ajaxResponse)
-
-                maxProducts = min(5, len(productUrls))
-
-                productsToVisit = random.sample(
-                    productUrls, random.randint(0, maxProducts))
-                for productUrl in productsToVisit:
-                    self.visitProduct(productUrl)
+                self.visitRandomProductDetailPagesFromListing(ajaxResponse)
 
 
 class Searcher(ShopwareUser):
@@ -82,6 +74,24 @@ class Searcher(ShopwareUser):
         self.visitPage("/")
         search = Search(self)
         response = search.search(getRandomWordFromFixture())
+        self.visitRandomProductDetailPagesFromListing(response)
+
+    @task
+    def searchAndFilter(self):
+        self.visitPage("/")
+        search = Search(self)
+        response = search.search(getRandomWordFromFixture())
+        ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
+        self.visitRandomProductDetailPagesFromListing(ajaxResponse)
+
+    @task
+    def searchForWordFromWordlist(self):
+        self.visitPage("/")
+        search = Search(self)
+        response = search.search(getRandomWordFromOperatingSystem())
+        self.visitRandomProductDetailPagesFromListing(response)
+        ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
+        self.visitRandomProductDetailPagesFromListing(ajaxResponse)
 
 
 class PaginationSurfer(ShopwareUser):

@@ -31,7 +31,7 @@ class ShopwareUser(HttpUserWithResources):
         return self.client.get(url, name=name)
 
     def visitProduct(self, productDetailPageUrl: str):
-        logging.info("Visit product detail page")
+        logging.info("Visit product detail page " + productDetailPageUrl)
         return self.visitPage(
             productDetailPageUrl, name='product-detail-page')
 
@@ -154,3 +154,23 @@ class ShopwareUser(HttpUserWithResources):
         pages = list(set(pages))
 
         return pages
+
+    def visitRandomProductDetailPagesFromListing(self, response: Response, maxNumberOfProducts: int = 5, minNumberOfProducts: int = 0) -> list[Response]:
+        productUrls = self.findProductUrlsFromProductListing(response)
+
+        if len(productUrls) == 0:
+            logging.info(
+                "No products found, not visiting product detail pages")
+            return []
+
+        maxProducts = min(maxNumberOfProducts, len(productUrls))
+        minProducts = min(minNumberOfProducts, len(productUrls))
+
+        productsToVisit = random.sample(
+            productUrls, random.randint(minProducts, maxProducts))
+
+        responses = []
+        for productUrl in productsToVisit:
+            responses.append(self.visitProduct(productUrl))
+
+        return responses
