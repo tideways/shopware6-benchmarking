@@ -1,3 +1,4 @@
+from locust.user.users import HttpUser
 from locusthelpers.listingFilters.listingFilterParser import ListingFilterParser
 from locusthelpers.form import submitForm
 from locusthelpers.authentication import Authentication
@@ -11,18 +12,32 @@ import csv
 import logging
 import os
 import random
+import time
 from urllib.parse import urlencode, urlparse, parse_qs
 
+from locusthelpers.search import Search
 
-class ShopwareUser(HttpUserWithResources):
-    def visitPage(self, url: str, name=None) -> Response:
+
+class ShopwareUser(HttpUser):
+    # constructor, initialize authentication
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.auth = Authentication(self.client)
+        self.search = Search(self)
+
+    def visitPage(self, url: str, name=None, catch_response=False) -> Response:
         if not name:
             name = url
         response = self.client.get(url, name=name)
 
-        self.client.get('/widgets/checkout/info', name='cart-widget')
+        self.client.get('/widgets/checkout/info',
+                        name='cart-widget', catch_response=catch_response)
 
         return response
+
+    def visitHomepage(self) -> Response:
+        logging.info("Visit homepage")
+        return self.visitPage('/', name='homepage')
 
     def getAjaxResource(self, url: str, name: str = None):
         if not name:
@@ -46,11 +61,26 @@ class ShopwareUser(HttpUserWithResources):
         self.visitPage('/checkout/cart', name='cart-page')
 
     def visitCheckoutConfirmationPage(self):
-        return self.visitPage('/checkout/confirm', name='confirm-page')
+        response = self.visitPage(
+            '/checkout/confirm', name='confirm-page', catch_response=True)
+        if response.url != self.host + '/checkout/confirm':
+            logging.error(
+                "Did not end up on checkout confirmation page, is the cart empty?")
+            raise Exception(
+                "Did not end up on checkout confirmation page, is the cart empty?")
+
+        if response.status_code != 200:
+            response.failure(
+                "Checkout confirmation page returned status code " + str(response.status_code))
+            raise Exception(
+                "Checkout confirmation page returned status code " + str(response.status_code))
+
+        return response
 
     def checkoutOrder(self):
         logging.info("Going into checkout…")
         self.visitCart()
+        # time.sleep(1)
 
         confirmationPageResponse = self.visitCheckoutConfirmationPage()
 
@@ -62,7 +92,7 @@ class ShopwareUser(HttpUserWithResources):
         logging.info("Checkout finished with status code " +
                      str(orderResponse.status_code))
 
-    def visitProductListingPage(self, productListingUrl: str) -> list:
+    def visitProductListingPage(self, productListingUrl: str) -> Response:
         logging.info("Visit product listing page " + productListingUrl)
         return self.visitPage(productListingUrl, name='listing-page')
 

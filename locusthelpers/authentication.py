@@ -15,6 +15,9 @@ class Authentication:
     def __init__(self, client: HttpSession):
         self.client = client
 
+    def clearCookies(self):
+        self.client.cookies.clear()
+
     def initRegister(self):
         path = os.path.dirname(os.path.realpath(
             __file__)) + '/../fixtures/register.json'
@@ -24,7 +27,6 @@ class Authentication:
             self.salutationId = data['salutationId']
 
     def register(self, writeToFixture: bool = False):
-        self.client.cookies.clear()
         self.initRegister()
         # @TODO missing cart request
         response = self.client.get('/account/register', name='register')
@@ -60,7 +62,6 @@ class Authentication:
         self.client.post('/account/register', data=register, name='register')
 
     def login(self, user: str, password: str):
-        self.client.cookies.clear()
         logging.info("Logging in user " + user)
         # @TODO missing cart request
         response = self.client.get('/account/login', name='login')
@@ -89,3 +90,12 @@ class Authentication:
             userMailAddress = user[0]
             password = user[1].strip()
             self.login(userMailAddress, password)
+
+    def registerOrLogin(self):
+        """
+        Register or login a random user from fixture
+        """
+        if random.randint(0, 1) == 0:
+            self.loginRandomUserFromFixture()
+        else:
+            self.register()

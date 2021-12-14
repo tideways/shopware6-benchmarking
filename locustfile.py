@@ -140,12 +140,76 @@ class Surfer(ShopwareUser):
         self.visitProduct(url)
 
 
+class FancySurferThatDoesALotOfThings(ShopwareUser):
+    @task
+    def browseAroundFromHomepageAndAddToAnonymousCart(self):
+        self.auth.clearCookies()
+        self.visitHomepage()
+        response = self.visitProductListingPage(random.choice(listings))
+        productDetailResponses = self.visitRandomProductDetailPagesFromListing(
+            response)
+        if len(productDetailResponses) > 0:
+            self.addProductToCart(
+                random.choice(productDetailResponses).url
+            )
+
+    @task
+    def browseAroundFromHomepageAndAddToAnonymousCartAndCheckout(self):
+        self.auth.clearCookies()
+        self.visitHomepage()
+        response = self.visitProductListingPage(random.choice(listings))
+        productDetailResponses = self.visitRandomProductDetailPagesFromListing(
+            response)
+        if len(productDetailResponses) > 0:
+            self.addProductToCart(
+                random.choice(productDetailResponses).url
+            )
+
+        self.auth.registerOrLogin()
+        if len(productDetailResponses) > 0:
+            self.checkoutOrder()
+
+    @task
+    def authenticatedSearchAfterHomepageAndAddToCartAndCheckout(self):
+        self.auth.clearCookies()
+        self.auth.registerOrLogin()
+        self.visitHomepage()
+
+        response = self.search.search(getRandomWordFromFixture())
+        ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
+        productDetailResponses = self.visitRandomProductDetailPagesFromListing(
+            ajaxResponse)
+
+        if len(productDetailResponses) > 0:
+            self.addProductToCart(
+                random.choice(productDetailResponses).url
+            )
+            self.checkoutOrder()
+
+
+class DebugUser(ShopwareUser):
+    @task
+    def browseAroundFromHomepageAndAddToAnonymousCartAndCheckout(self):
+        self.auth.clearCookies()
+        self.visitHomepage()
+
+        self.addProductToCart(
+            "https://shopware64.tideways.io/Sleek-Iron-Federal-Preserve/3073f9e5e8744ba28b7cb649d3e598aa"
+        )
+        self.auth.register()
+
+        # Authentication(self.client).login(
+        # "user-d3f8f2b621f843faad2f2683ee198942@example.com", "shopware")
+        # time.sleep(3)
+        self.checkoutOrder()
+
+
 listings = getListings()
 details = getProductDetails()
 numbers = getProductNumbers()
 
 
 if __name__ == "__main__":
-    Filterer.host = "https://shopware64.tideways.io"
-    run_single_user(Filterer, include_length=True,
+    DebugUser.host = "https://shopware64.tideways.io"
+    run_single_user(DebugUser, include_length=True,
                     include_time=True, include_context=True)
