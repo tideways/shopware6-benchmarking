@@ -3,7 +3,6 @@ import random
 
 from locust import constant, task
 
-from locusthelpers.authentication import Authentication
 from locusthelpers.search import Search
 from locusthelpers.shopware_user import ShopwareUser
 
@@ -20,12 +19,12 @@ class Purchaser(ShopwareUser):
     # do checkout
     @task
     def order(self):
-        auth = Authentication(self.client)
+        self.auth.clearCookies()
         # 50% chance to login or register
         if random.randint(0, 1) == 0:
-            auth.loginRandomUserFromFixture()
+            self.auth.loginRandomUserFromFixture()
         else:
-            auth.register()
+            self.auth.register()
         url = random.choice(listings)
         productUrls = self.visitProductListingPageAndRetrieveProductUrls(
             productListingUrl=url
@@ -104,8 +103,8 @@ class PaginationSurfer(ShopwareUser):
 class Registerer(ShopwareUser):
     @task
     def register(self):
-        auth = Authentication(self.client)
-        auth.register(writeToFixture=True)
+        self.auth.clearCookies()
+        self.auth.register(writeToFixture=True)
 
 
 class Surfer(ShopwareUser):
@@ -113,11 +112,11 @@ class Surfer(ShopwareUser):
     wait_time = constant(2)
 
     def on_start(self):
+        self.auth.clearCookies()
         # Percentage of users that are authenticated
         probability = 0.5
-        auth = Authentication(self.client)
         if bool(random.random() < probability) is True:
-            auth.register()
+            self.auth.register()
         else:
             logging.info("Anonymous Surfer starting")
 
@@ -191,9 +190,6 @@ class DebugUser(ShopwareUser):
         )
         self.auth.register()
 
-        # Authentication(self.client).login(
-        # "user-d3f8f2b621f843faad2f2683ee198942@example.com", "shopware")
-        # time.sleep(3)
         self.checkoutOrder()
 
 
