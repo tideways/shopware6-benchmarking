@@ -2,8 +2,6 @@ import logging
 import random
 
 from locust import constant, task
-
-from locusthelpers.search import Search
 from locusthelpers.shopware_user import ShopwareUser
 
 from locusthelpers.fixtures import getListings, getProductDetails, getProductNumbers, getRandomWordFromFixture, getRandomWordFromOperatingSystem
@@ -66,23 +64,20 @@ class Searcher(ShopwareUser):
     @task
     def search(self):
         self.visitPage("/")
-        search = Search(self)
-        response = search.search(getRandomWordFromFixture())
+        response = self.search.search(getRandomWordFromFixture())
         self.visitRandomProductDetailPagesFromListing(response)
 
     @task
     def searchAndFilter(self):
         self.visitPage("/")
-        search = Search(self)
-        response = search.search(getRandomWordFromFixture())
+        response = self.search.search(getRandomWordFromFixture())
         ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
         self.visitRandomProductDetailPagesFromListing(ajaxResponse)
 
     @task
     def searchForWordFromWordlist(self):
         self.visitPage("/")
-        search = Search(self)
-        response = search.search(getRandomWordFromOperatingSystem())
+        response = self.search.search(getRandomWordFromOperatingSystem())
         self.visitRandomProductDetailPagesFromListing(response)
         ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
         self.visitRandomProductDetailPagesFromListing(ajaxResponse)

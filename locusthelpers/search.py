@@ -1,7 +1,6 @@
 import logging
 from locust.clients import HttpSession
 
-from locusthelpers.shopware_user import ShopwareUser
 import random
 
 
@@ -10,7 +9,7 @@ class Search:
     Class that helps with searching in the shopware shop
     """
 
-    def __init__(self, user: ShopwareUser):
+    def __init__(self, user):
         self.user = user
         self.client = user.client
 
