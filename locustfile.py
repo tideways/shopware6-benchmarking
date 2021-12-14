@@ -162,6 +162,10 @@ class FancySurferThatDoesALotOfThings(ShopwareUser):
         self.auth.registerOrLogin()
         self.visitHomepage()
 
+        # in 50% of the cases do a bogus search first
+        if random.randint(0, 1) == 0:
+            self.search.search(getRandomWordFromOperatingSystem())
+
         response = self.search.search(getRandomWordFromFixture())
         ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
         productDetailResponses = self.visitRandomProductDetailPagesFromListing(
