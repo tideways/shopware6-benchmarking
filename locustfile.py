@@ -2,19 +2,12 @@ import logging
 import random
 
 from locust import constant, task
-from locust_plugins.users import HttpUserWithResources
-from lxml import etree
-from requests.models import Response
 
-from locusthelpers import csrf
 from locusthelpers.authentication import Authentication
-from locusthelpers.form import submitForm
 from locusthelpers.search import Search
 from locusthelpers.shopware_user import ShopwareUser
 
 from locusthelpers.fixtures import getListings, getProductDetails, getProductNumbers, getRandomWordFromFixture, getRandomWordFromOperatingSystem
-from locust import task, HttpUser
-from locust.exception import StopUser
 from locust_plugins import run_single_user
 
 

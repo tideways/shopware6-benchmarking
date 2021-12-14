@@ -1,24 +1,21 @@
-from locust.user.users import HttpUser
-from locusthelpers.listingFilters.listingFilterParser import ListingFilterParser
-from locusthelpers.form import submitForm
-from locusthelpers.authentication import Authentication
-from locusthelpers import csrf
-from requests.models import Response
-from lxml import etree
-from locust_plugins.users import HttpUserWithResources
-from locust import constant, task
-from locust_plugins.users.resource import HttpUserWithResources
-import csv
 import logging
-import os
 import random
-import time
-from urllib.parse import urlencode, urlparse, parse_qs
+from urllib.parse import parse_qs, urlencode, urlparse
 
+from locust_plugins.users import HttpUserWithResources
+from locust_plugins.users.resource import HttpUserWithResources
+from lxml import etree
+from requests.models import Response
+
+from locusthelpers import csrf
+from locusthelpers.authentication import Authentication
+from locusthelpers.form import submitForm
+from locusthelpers.listingFilters.listingFilterParser import \
+    ListingFilterParser
 from locusthelpers.search import Search
 
 
-class ShopwareUser(HttpUser):
+class ShopwareUser(HttpUserWithResources):
     # constructor, initialize authentication
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
