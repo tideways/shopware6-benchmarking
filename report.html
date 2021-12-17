@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+            <link href='http://fonts.googleapis.com/css?family=Arial' rel='stylesheet' type='text/css'>
+
+<style type="text/css">
+    body {
+        font-family: Arial, sans-serif;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%
+    }
+    table {
+        border: solid #999 0px;
+        border-collapse: collapse;
+        padding: 0px;
+        width: 100%;
+    }
+    th, td {
+        border: solid #999 0px;
+        border-collapse: collapse;
+        padding-bottom: 10px;
+        vertical-align: top;
+    }
+    .new-page {
+        page-break-before: always;
+    }
+    h1 {
+        padding: 0px;
+    }
+</style>
+    </head>
+
+    <body>
+        <div id="content">
+            <h1><img height="36" src="report/shopware_logo_blue.svg" /> Benchmark by <img height="36" src="report/tideways.png" /></h1>
+            <h2>Scenario: Small Shop with 10.000 products and 300 categories</h2>
+
+            <table>
+                <tr>
+                    <td width="50%">
+                        <h3>Scenario Description</h3>
+
+                        <table>
+                            <tr>
+                                <td width="50%">Duration</td>
+                                <td width="50%">60 minutes</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Shopware Version</td>
+                                <td width="50%">6.4 Community Edition</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Plugins</td>
+                                <td width="50%">(none)</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">PHP Version</td>
+                                <td width="50%">8.0.13</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Hardware</td>
+                                <td width="50%">Digitalocean, 1x 4 CPU Cores, 8 GB RAM</td>
+                            </tr>
+                        </table>
+
+                        <h3>Shop Variables</h3>
+
+                        <table>
+                            <tr>
+                                <td width="50%">Products</td>
+                                <td width="50%">10.000</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Categories</td>
+                                <td width="50%">300</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Purchasers/Hour</td>
+                                <td width="50%">50</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Aborted Baskets</td>
+                                <td width="50%">50</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Storefronts</td>
+                                <td width="50%">1</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Exports</td>
+                                <td width="50%">1</td>
+                            </tr>
+                        </table>
+
+                        <h3>Configuration</h3>
+
+                        <table>
+                            <tr>
+                                <td width="50%">HTTP Cache Lifetime</td>
+                                <td width="50%">2 hours</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Cache</td>
+                                <td width="50%">Redis</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Product Search</td>
+                                <td width="50%">MySQL Database</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Background Queue</td>
+                                <td width="50%">Database, 1 Worker</td>
+                            </tr>
+                        </table>
+                    </td>
+
+                    <td width="50%">
+                        <h3>Overall User-Facing Performance 500ms</h3>
+
+                        <img src="https://app.tideways.io/images/12823/graph.png?hash=ebd60e6835528dc867cc1392424aaf5cd3cee70b882ebd52527ea0b245f2ad93&env=production&s=web&range=day" width="300" />
+
+                        <h3>Overall PHP Performance 500ms</h3>
+
+                        <img src="https://app.tideways.io/images/12823/graph.png?hash=ebd60e6835528dc867cc1392424aaf5cd3cee70b882ebd52527ea0b245f2ad93&env=production&s=web&range=day" width="300" />
+
+                        <h3>Category Page 500ms</h3>
+
+                        <img src="https://app.tideways.io/images/12823/graph.png?hash=ebd60e6835528dc867cc1392424aaf5cd3cee70b882ebd52527ea0b245f2ad93&env=production&s=web&range=day" width="300" />
+
+                        <h3>Product Detail Page 500ms</h3>
+
+                        <img src="https://app.tideways.io/images/12823/graph.png?hash=ebd60e6835528dc867cc1392424aaf5cd3cee70b882ebd52527ea0b245f2ad93&env=production&s=web&range=day" width="300" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>
