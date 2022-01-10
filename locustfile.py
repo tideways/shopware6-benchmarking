@@ -4,7 +4,7 @@ import random
 from locust import constant, task
 from locusthelpers.shopware_user import ShopwareUser
 
-from locusthelpers.fixtures import getListings, getProductDetails, getProductNumbers, getRandomWordFromFixture, getRandomWordFromOperatingSystem
+from locusthelpers.fixtures import getListings, getProductDetails, getRandomWordFromFixture, getRandomWordFromOperatingSystem
 from locust_plugins import run_single_user
 
 
@@ -194,7 +194,6 @@ class DebugUser(ShopwareUser):
 
 listings = getListings()
 details = getProductDetails()
-numbers = getProductNumbers()
 
 
 if __name__ == "__main__":
