@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  master:
+    build:
+      context: ./docker/locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --host=https://shopware64.tideways.io  -u 10 -r 1 -t 120s --autostart
