@@ -1,6 +1,7 @@
 {
     "require": {
         "symfony/process": "^6.0",
-        "twig/twig": "^3.3"
+        "twig/twig": "^3.3",
+        "ext-json": "*"
     }
 }

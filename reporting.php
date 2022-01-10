@@ -6,19 +6,20 @@ use Twig\Loader\FilesystemLoader;
 
 require __DIR__ . '/vendor/autoload.php';
 
-$htmlFile = __DIR__ . '/report.html';
-$pdfFilename = __DIR__  . '/report.pdf';
+$htmlFilePath = __DIR__ . '/report.html';
+$pdfFilePath = __DIR__  . '/report.pdf';
+$configFilePath = __DIR__ . '/config.json';
+
+$config = json_decode(file_get_contents($configFilePath), true);
 
 $loader = new FilesystemLoader(__DIR__ . '/templates');
 $twig = new Environment($loader, [
     'cache' => __DIR__ . '/cache/twig',
 ]);
 
-$data = [];
+$reportHtml = $twig->render('report.html.twig', $config);
 
-$reportHtml = $twig->render('report.html.twig', $data);
-
-file_put_contents($htmlFile, $reportHtml);
+file_put_contents($htmlFilePath, $reportHtml);
 
 $process = Process::fromShellCommandline(
     sprintf(
@@ -35,8 +36,8 @@ $process = Process::fromShellCommandline(
         '--header-center "Shopware Benchmark Scenario - Page [page]" ' .
         '--header-font-size 10 ' .
         '%s %s',
-        $htmlFile,
-        $pdfFilename
+        $htmlFilePath,
+        $pdfFilePath
     )
 );
 $process->run();

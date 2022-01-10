@@ -46,23 +46,23 @@
                         <table>
                             <tr>
                                 <td width="50%">Duration</td>
-                                <td width="50%">60 minutes</td>
+                                <td width="50%">{{ duration }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Shopware Version</td>
-                                <td width="50%">6.4 Community Edition</td>
+                                <td width="50%">{{ shopware.version }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Plugins</td>
-                                <td width="50%">(none)</td>
+                                <td width="50%">{{ shopware.plugins }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">PHP Version</td>
-                                <td width="50%">8.0.13</td>
+                                <td width="50%">{{ shopware.phpVersion }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Hardware</td>
-                                <td width="50%">Digitalocean, 1x 4 CPU Cores, 8 GB RAM</td>
+                                <td width="50%">{{ shopware.serverHardware }}</td>
                             </tr>
                         </table>
 
@@ -100,19 +100,19 @@
                         <table>
                             <tr>
                                 <td width="50%">HTTP Cache Lifetime</td>
-                                <td width="50%">2 hours</td>
+                                <td width="50%">{{ shopware.configuration.httpCacheLifetime }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Cache</td>
-                                <td width="50%">Redis</td>
+                                <td width="50%">{{ shopware.configuration.cacheBackend }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Product Search</td>
-                                <td width="50%">MySQL Database</td>
+                                <td width="50%">{{ shopware.configuration.productSearchBackend }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Background Queue</td>
-                                <td width="50%">Database, 1 Worker</td>
+                                <td width="50%">{{ shopware.configuration.backgroundQueue }}</td>
                             </tr>
                         </table>
                     </td>

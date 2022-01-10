@@ -1,0 +1,15 @@
+{
+  "duration": "60 minutes",
+  "shopware": {
+    "version": "6.4 Community Edition",
+    "plugins": "none",
+    "phpVersion": "8.0.13",
+    "serverHardware": "Digitalocean, 1x4 CPU cores, 4GB RAM",
+    "configuration": {
+      "httpCacheLifetime": "2 hours",
+      "cacheBackend": "Redis",
+      "productSearchBackend": "MySQL Database",
+      "backgroundQueue": "Database, 1 Worker"
+    }
+  }
+}
