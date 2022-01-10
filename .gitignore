@@ -2,3 +2,5 @@
 **/__pycache__
 *.csv
 /vendor
+/cache
+/report.html
