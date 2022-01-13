@@ -4,7 +4,12 @@ namespace Tideways\Shopware6Loadtesting\Reporting;
 
 class ChartGenerator
 {
-    public function generatePngChart(array $data, string $ouputFilePath): bool
+    public function generatePngChart(
+        array              $data,
+        string             $ouputFilePath,
+        \DateTimeImmutable $start,
+        \DateTimeImmutable $end
+    ): bool
     {
         $lineWidth = 210;
 
@@ -17,6 +22,9 @@ class ChartGenerator
         $graph->xAxis->label = 'UTC';
         $graph->xAxis->font->maxFontSize = 12;
         $graph->xAxis->majorGrid = '#cccccc';
+        $graph->xAxis->dateFormat = "H:i";
+        $graph->xAxis->startDate = $start->getTimestamp();
+        $graph->xAxis->endDate = $end->getTimestamp();
 
         $graph->yAxis->label = 'ms';
         $graph->yAxis->axisSpace = 0.07;

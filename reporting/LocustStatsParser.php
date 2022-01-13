@@ -25,7 +25,8 @@ class LocustStatsParser
                 $stats[$name] = [];
             }
 
-            $stats[$name][$timestamp] = $data[13];
+            // Use data from 95-percentile
+            $stats[$name][$timestamp] = $data[11];
         }
 
         fclose($handle);

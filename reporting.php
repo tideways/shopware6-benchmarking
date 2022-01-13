@@ -30,21 +30,30 @@ $twig = new Environment($loader, [
 
 ['start' => $locustRunStart, 'end' => $locustRunEnd] = runLocust($locustRunDuration);
 
+/**
+ * @var \DateTimeImmutable $locustRunStart
+ */
+$tidewaysDataRangeStart = $locustRunStart->setTime(intval($locustRunStart->format('H')), intval($locustRunStart->format('i')));
+$tidewaysDataRangeEnd = $locustRunEnd->setTime(
+    intval($locustRunEnd->format('H')),
+    intval($locustRunEnd->format('i'))
+)->modify('+1 minute');
+
 // Allow for tideways data to be processed
-sleep(60);
+sleep(120);
 
 $statsParser = new LocustStatsParser();
 $responseTimes = $statsParser->parseLocustStats('shopware64.tideways.io_stats_history.csv');
 
-generateChartsFromLocustStats($responseTimes);
+generateChartsFromLocustStats($responseTimes, $locustRunStart, $locustRunEnd);
 
 $tidewaysPerformanceData = fetchTidewaysPerformanceData(
     $envConfig['TIDEWAYS_API_TOKEN'],
-    $locustRunStart,
-    $locustRunEnd
+    $tidewaysDataRangeStart,
+    $tidewaysDataRangeEnd
 );
 
-generateChartsFromTidewaysStats($tidewaysPerformanceData);
+generateChartsFromTidewaysStats($tidewaysPerformanceData, $locustRunStart, $locustRunEnd);
 
 $reportHtml = $twig->render('report.html.twig', $templateVariables);
 
@@ -139,7 +148,7 @@ function transformLocustStatsToChartDataSet(array $stats): array
     );
 }
 
-function generateChartsFromLocustStats(array $locustStats): void
+function generateChartsFromLocustStats(array $locustStats, \DateTimeImmutable $start, \DateTimeImmutable $end): void
 {
     $chartGenerator = new ChartGenerator();
 
@@ -147,12 +156,14 @@ function generateChartsFromLocustStats(array $locustStats): void
     $productDetailPageTimeData = transformLocustStatsToChartDataSet($locustStats['product-detail-page']);
     $aggregatedTimeData = transformLocustStatsToChartDataSet($locustStats['Aggregated']);
 
-    $chartGenerator->generatePngChart($listingTimeData, __DIR__ . '/generated/listing-page_response_times.png');
+    $chartGenerator->generatePngChart($listingTimeData, __DIR__ . '/generated/listing-page_response_times.png', $start, $end);
     $chartGenerator->generatePngChart(
         $productDetailPageTimeData,
-        __DIR__ . '/generated/product-detail-page_response_times.png'
+        __DIR__ . '/generated/product-detail-page_response_times.png',
+        $start,
+        $end
     );
-    $chartGenerator->generatePngChart($aggregatedTimeData, __DIR__ . '/generated/aggregated_response_times.png');
+    $chartGenerator->generatePngChart($aggregatedTimeData, __DIR__ . '/generated/aggregated_response_times.png', $start, $end);
 }
 
 function transformTidewaysStatsToChartDataSet(array $stats): array
@@ -163,11 +174,11 @@ function transformTidewaysStatsToChartDataSet(array $stats): array
     );
 }
 
-function generateChartsFromTidewaysStats(array $tidewaysStats): void
+function generateChartsFromTidewaysStats(array $tidewaysStats, \DateTimeImmutable $start, \DateTimeImmutable $end): void
 {
     $chartGenerator = new ChartGenerator();
 
     $data = transformTidewaysStatsToChartDataSet($tidewaysStats);
 
-    $chartGenerator->generatePngChart($data, __DIR__ . '/generated/tideways_php_performance.png');
+    $chartGenerator->generatePngChart($data, __DIR__ . '/generated/tideways_php_performance.png', $start, $end);
 }
