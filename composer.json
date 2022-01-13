@@ -5,7 +5,9 @@
         "zetacomponents/graph": "dev-master",
         "ext-json": "*",
         "ext-dom": "*",
-        "ext-zlib": "*"
+        "ext-zlib": "*",
+        "ext-curl": "*",
+        "guzzlehttp/guzzle": "7.4.x-dev"
     },
     "prefer-stable": false,
     "minimum-stability": "dev",
@@ -15,4 +17,3 @@
         }
     }
 }
-

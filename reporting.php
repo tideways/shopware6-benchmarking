@@ -8,6 +8,8 @@ use Twig\Loader\FilesystemLoader;
 
 require __DIR__ . '/vendor/autoload.php';
 
+$envConfig = parse_ini_file(__DIR__ . '/.env');
+
 $htmlFilePath = __DIR__ . '/generated/report.html';
 $pdfFilePath = __DIR__ . '/generated/report.pdf';
 $configFilePath = __DIR__ . '/config.json';
@@ -26,12 +28,23 @@ $twig = new Environment($loader, [
     'cache' => __DIR__ . '/cache/twig',
 ]);
 
-runLocust($locustRunDuration);
+['start' => $locustRunStart, 'end' => $locustRunEnd] = runLocust($locustRunDuration);
+
+// Allow for tideways data to be processed
+sleep(60);
 
 $statsParser = new LocustStatsParser();
 $responseTimes = $statsParser->parseLocustStats('shopware64.tideways.io_stats_history.csv');
 
 generateChartsFromLocustStats($responseTimes);
+
+$tidewaysPerformanceData = fetchTidewaysPerformanceData(
+    $envConfig['TIDEWAYS_API_TOKEN'],
+    $locustRunStart,
+    $locustRunEnd
+);
+
+generateChartsFromTidewaysStats($tidewaysPerformanceData);
 
 $reportHtml = $twig->render('report.html.twig', $templateVariables);
 
@@ -65,7 +78,7 @@ if ($exitCode > 0) {
 
 exit($exitCode);
 
-function runLocust(string $locustRunDuration): void
+function runLocust(string $locustRunDuration): array
 {
     $locustProcess = Process::fromShellCommandline(
         sprintf(
@@ -84,11 +97,35 @@ function runLocust(string $locustRunDuration): void
 
     echo "Starting locust run..." . PHP_EOL;
     $locustProcess->run();
-    $locustDurationSeconds = microtime(true) - $locustProcess->getStartTime();
+    $endTime = microtime(true);
+    $locustDurationSeconds = $endTime - $locustProcess->getStartTime();
     echo sprintf("Complete after %.0f seconds.", $locustDurationSeconds) . PHP_EOL;
+
+    return [
+        'start' => new \DateTimeImmutable('@'. $locustProcess->getStartTime()),
+        'end' => new \DateTimeImmutable('@' . $endTime),
+    ];
 }
 
-function transformStatsToChartDataSet(array $stats): array
+function fetchTidewaysPerformanceData(string $apiToken, \DateTimeImmutable $start, \DateTimeImmutable $end)
+{
+    $baseUrl = "https://app.tideways.io/apps/api/";
+    $client = new GuzzleHttp\Client(['base_uri' => $baseUrl]);
+    $url = sprintf(
+        "demos-tideways/Shopware6/performance?ts=%s&m=%d",
+        $end->format("Y-m-d H:i"),
+        $end->diff($start)->i
+    );
+
+    $headers = ['Authorization' => sprintf('Bearer %s', $apiToken)];
+    $response = $client->request('GET', $url, ['headers' => $headers]);
+
+    $data = json_decode($response->getBody(), true);
+
+    return $data['application']['by_time'];
+}
+
+function transformLocustStatsToChartDataSet(array $stats): array
 {
     return array_combine(
         array_map(
@@ -106,9 +143,9 @@ function generateChartsFromLocustStats(array $locustStats): void
 {
     $chartGenerator = new ChartGenerator();
 
-    $listingTimeData = transformStatsToChartDataSet($locustStats['listing-page']);
-    $productDetailPageTimeData = transformStatsToChartDataSet($locustStats['product-detail-page']);
-    $aggregatedTimeData = transformStatsToChartDataSet($locustStats['Aggregated']);
+    $listingTimeData = transformLocustStatsToChartDataSet($locustStats['listing-page']);
+    $productDetailPageTimeData = transformLocustStatsToChartDataSet($locustStats['product-detail-page']);
+    $aggregatedTimeData = transformLocustStatsToChartDataSet($locustStats['Aggregated']);
 
     $chartGenerator->generatePngChart($listingTimeData, __DIR__ . '/generated/listing-page_response_times.png');
     $chartGenerator->generatePngChart(
@@ -116,4 +153,21 @@ function generateChartsFromLocustStats(array $locustStats): void
         __DIR__ . '/generated/product-detail-page_response_times.png'
     );
     $chartGenerator->generatePngChart($aggregatedTimeData, __DIR__ . '/generated/aggregated_response_times.png');
+}
+
+function transformTidewaysStatsToChartDataSet(array $stats): array
+{
+    return array_map(
+        fn(array $values) => $values['percentile_95p'],
+        $stats
+    );
+}
+
+function generateChartsFromTidewaysStats(array $tidewaysStats): void
+{
+    $chartGenerator = new ChartGenerator();
+
+    $data = transformTidewaysStatsToChartDataSet($tidewaysStats);
+
+    $chartGenerator->generatePngChart($data, __DIR__ . '/generated/tideways_php_performance.png');
 }
