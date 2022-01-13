@@ -1,5 +1,8 @@
 {
-  "duration": "60 minutes",
+  "scenario": {
+    "title": "Small Shop with 10.000 products and 300 categories",
+    "duration": "60 minutes"
+  },
   "shopware": {
     "version": "6.4 Community Edition",
     "plugins": "none",

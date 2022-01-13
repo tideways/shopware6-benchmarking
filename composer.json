@@ -2,6 +2,17 @@
     "require": {
         "symfony/process": "^6.0",
         "twig/twig": "^3.3",
-        "ext-json": "*"
+        "zetacomponents/graph": "dev-master",
+        "ext-json": "*",
+        "ext-dom": "*",
+        "ext-zlib": "*"
+    },
+    "prefer-stable": false,
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Tideways\\Shopware6Loadtesting\\Reporting\\": "reporting"
+        }
     }
 }
+
