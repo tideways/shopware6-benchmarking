@@ -60,7 +60,7 @@ echo sprintf("Complete after %.0f seconds.", $locustDurationSeconds) . PHP_EOL;
 ]);
 
 // Allow for tideways data to be processed
-sleep(120);
+sleep(60);
 
 $locustData = $statsParser->parseLocustStats('shopware64.tideways.io_stats_history.csv');
 
