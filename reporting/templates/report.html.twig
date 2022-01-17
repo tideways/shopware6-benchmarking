@@ -79,19 +79,19 @@
                             </tr>
                             <tr>
                                 <td width="50%">Purchasers/Hour</td>
-                                <td width="50%">50</td>
+                                <td width="50%" style="color: red">50</td>
                             </tr>
                             <tr>
                                 <td width="50%">Aborted Baskets</td>
-                                <td width="50%">50</td>
+                                <td width="50%" style="color: red">50</td>
                             </tr>
                             <tr>
                                 <td width="50%">Storefronts</td>
-                                <td width="50%">1</td>
+                                <td width="50%">{{ shopware.configuration.storefronts }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Exports</td>
-                                <td width="50%">1</td>
+                                <td width="50%">{{ shopware.configuration.exports }}</td>
                             </tr>
                         </table>
 
@@ -118,19 +118,19 @@
                     </td>
 
                     <td width="50%">
-                        <h3 style="color: red;">Overall User-Facing Performance 500ms</h3>
+                        <h3>Overall User-Facing Performance <span style="color: red">500ms</span></h3>
 
                         <img src="./aggregated_response_times.png" width="300" />
 
-                        <h3 style="color: red;">Overall PHP Performance 500ms</h3>
+                        <h3>Overall PHP Performance <span style="color: red">500ms</span></h3>
 
                         <img src="./tideways_php_performance.png" width="300" />
 
-                        <h3 style="color: red;">Category Page 500ms</h3>
+                        <h3>Category Page <span style="color: red">500ms</span></h3>
 
                         <img src="./listing-page_response_times.png" width="300" />
 
-                        <h3 style="color: red;">Product Detail Page 500ms</h3>
+                        <h3>Product Detail Page <span style="color: red">500ms</span></h3>
 
                         <img src="./product-detail-page_response_times.png" width="300" />
                     </td>

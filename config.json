@@ -12,7 +12,9 @@
       "httpCacheLifetime": "2 hours",
       "cacheBackend": "Redis",
       "productSearchBackend": "MySQL Database",
-      "backgroundQueue": "Database, 1 Worker"
+      "backgroundQueue": "Database, 1 Worker",
+      "storefronts": 1,
+      "exports": 1
     }
   }
 }
