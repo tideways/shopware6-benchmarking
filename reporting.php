@@ -99,7 +99,6 @@ $process = Process::fromShellCommandline(
         '--minimum-font-size 18 ' .
         '--page-width 23cm ' .
         '--header-spacing 10 ' .
-        '--header-center "Shopware Benchmark Scenario - Page [page]" ' .
         '--header-font-size 10 ' .
         '%s %s',
         $htmlFilePath,
