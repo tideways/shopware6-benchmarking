@@ -6,17 +6,19 @@ use GuzzleHttp;
 
 class TidewaysApiLoader
 {
-    private const BASE_URI = "https://app.tideways.io/apps/demos-tideways/Shopware6/";
+    private const BASE_URI = "https://app.tideways.io/apps/api/";
 
+    private string $project;
     private string $apiToken;
     private GuzzleHttp\Client $client;
 
-    public function __construct(string $apiToken)
+    public function __construct(string $project, string $apiToken)
     {
+        $this->project = $project;
         $this->apiToken = $apiToken;
 
         $headers = ['Authorization' => sprintf('Bearer %s', $this->apiToken)];
-        $this->client = new GuzzleHttp\Client(['base_uri' => self::BASE_URI, 'headers' => $headers]);
+        $this->client = new GuzzleHttp\Client(['base_uri' => self::BASE_URI . $this->project . '/', 'headers' => $headers]);
     }
 
     public function fetchOverallPerformanceData(\DateTimeImmutable $start, \DateTimeImmutable $end): array
@@ -46,6 +48,6 @@ class TidewaysApiLoader
         $until = $end->format("Y-m-d H:i");
         $duration = ($end->getTimestamp() - $start->getTimestamp()) / 60 - 1;
 
-        return sprintf("%s?ts=%s&m=%d", $path, $until, $duration);
+        return sprintf("%s?ts=%s&m=%d", $path, $until, max(60, $duration));
     }
 }

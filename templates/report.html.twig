@@ -35,7 +35,7 @@
 
     <body>
         <div id="content">
-            <h1><img height="36" src="../reporting/shopware_logo_blue.svg" /> Benchmark by <img height="36" src="../reporting/tideways.png" /></h1>
+            <h1><img height="36" src="./shopware_logo_blue.svg" /> Benchmark by <img height="36" src="./tideways.png" /></h1>
             <h2>Scenario: {{ config.scenario.title }}</h2>
 
             <table>
@@ -54,7 +54,7 @@
                             </tr>
                             <tr>
                                 <td width="50%">Plugins</td>
-                                <td width="50%">{{ config.shopware.plugins }}</td>
+                                <td width="50%">{{ config.shopware.plugins|join(", ") }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">PHP Version</td>

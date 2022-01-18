@@ -24,7 +24,7 @@ class Configuration
         $data = file_get_contents($filename);
 
         $payload = json_decode($data, JSON_THROW_ON_ERROR);
-        $tideways = $payload['tideways'] ?? ['apiKey' => ''];
+        $tideways = $payload['tideways'] ?? ['apiToken' => ''];
 
         return new self(
             scenario: new ScenarioConfiguration(...$payload['scenario']),

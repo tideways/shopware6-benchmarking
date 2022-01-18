@@ -1,7 +1,7 @@
 {
   "scenario": {
     "title": "Small Shop with 10.000 products and 300 categories",
-    "duration": "60m",
+    "duration": "1m",
     "host": "https://shopware64.tideways.io"
   },
   "shopware": {
@@ -15,5 +15,9 @@
     "backgroundQueue": "Database, 1 Worker",
     "storefronts": 1,
     "exports": 1
+  },
+  "tideways": {
+    "apiToken": "",
+    "project": "demos-tideways/Shopware6"
   }
 }

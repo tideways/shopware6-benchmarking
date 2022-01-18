@@ -46,12 +46,12 @@ class ReportCommand extends Command
 
         $loader = new FilesystemLoader(__DIR__ . '/../../templates');
         $twig = new Environment($loader, [
-            'cache' => __DIR__ . '/cache/twig',
+            'cache' => sys_get_temp_dir() . '/.swbench-twig-cache',
         ]);
 
         $statsParser = new LocustStatsParser();
-        $chartGenerator = new ChartGenerator();
-        $tidewaysLoader = new TidewaysApiLoader($config->tideways->apiKey);
+        $chartGenerator = new ChartGenerator($config->getDataDirectory());
+        $tidewaysLoader = new TidewaysApiLoader($config->tideways->project, $config->tideways->apiToken);
 
         if (!is_dir($config->getDataDirectory() . '/tideways')) {
             mkdir($config->getDataDirectory() . '/tideways', 0755, true);
@@ -60,7 +60,9 @@ class ReportCommand extends Command
             mkdir($config->getDataDirectory() . '/locust', 0755, true);
         }
 
-        $locustStats = $statsParser->parseLocustStats($config->getName() . '_stats_history.csv');
+        $locustStats = $statsParser->parseLocustStats(
+            $config->getDataDirectory() . '/' . $config->getName() . '_stats_history.csv'
+        );
 
         $tidewaysDataRangeStart = $locustStats->startDate->setTime(
             intval($locustStats->startDate->format('H')),
@@ -72,26 +74,32 @@ class ReportCommand extends Command
             intval($locustStats->endDate->format('i'))
         )->modify('+1 minute');
 
+        $pageMappings = [
+            'product-detail-page' => 'Shopware\Storefront\Controller\ProductController::index',
+            'listing-page' => 'Shopware\Storefront\Controller\NavigationController::index',
+        ];
+
         $tidewaysData = [];
         $tidewaysData['overall'] = $tidewaysLoader->fetchOverallPerformanceData(
             $tidewaysDataRangeStart,
             $tidewaysDataRangeEnd
         );
-        $tidewaysData['product-detail-page'] = $tidewaysLoader->fetchTransactionPerformanceData(
-            'Shopware\Storefront\Controller\ProductController::index',
-            $tidewaysDataRangeStart,
-            $tidewaysDataRangeEnd
-        );
-        $tidewaysData['listing-page'] = $tidewaysLoader->fetchTransactionPerformanceData(
-            'Shopware\Storefront\Controller\NavigationController::index',
-            $tidewaysDataRangeStart,
-            $tidewaysDataRangeEnd
-        );
+
+        foreach ($pageMappings as $locustPage => $tidewaysTransaction) {
+            $tidewaysData[$locustPage] = $tidewaysLoader->fetchTransactionPerformanceData(
+                $tidewaysTransaction,
+                $tidewaysDataRangeStart,
+                $tidewaysDataRangeEnd
+            );
+        }
 
         $chartGenerator->generateChartsFromLocustStats($locustStats->pagePercentiles, $locustStats->startDate, $locustStats->endDate);
         $chartGenerator->generateChartsFromTidewaysStats($tidewaysData, $locustStats->startDate, $locustStats->endDate);
 
         $reportHtml = $twig->render('report.html.twig', $templateVariables);
+
+        copy(__DIR__ . '/../../templates/shopware_logo_blue.svg', $config->getDataDirectory() . '/shopware_logo_blue.svg');
+        copy(__DIR__ . '/../../templates/tideways.png', $config->getDataDirectory() . '/tideways.png');
 
         file_put_contents($htmlFilePath, $reportHtml);
 

@@ -4,7 +4,7 @@ namespace Tideways\Shopware6Benchmarking\Reporting;
 
 class ChartGenerator
 {
-    private const OUTPUT_DIR = __DIR__ . '/../generated/';
+    public function __construct(private string $dataDir) {}
 
     public function generateChartsFromTidewaysStats(
         array              $tidewaysStats,
@@ -14,15 +14,15 @@ class ChartGenerator
     {
         $data = $this->transformTidewaysStatsToChartDataSet($tidewaysStats['overall']);
         $data = $this->cropDataToChartRange($data, $start, $end);
-        $this->generatePngChart($data, self::OUTPUT_DIR . 'tideways/php_performance.png', $start, $end);
+        $this->generatePngChart($data, $this->dataDir . '/tideways/php_performance.png', $start, $end);
 
         $data = $this->transformTidewaysStatsToChartDataSet($tidewaysStats['product-detail-page']);
         $data = $this->cropDataToChartRange($data, $start, $end);
-        $this->generatePngChart($data, self::OUTPUT_DIR . 'tideways/product-detail-page_performance.png', $start, $end);
+        $this->generatePngChart($data, $this->dataDir . '/tideways/product-detail-page_performance.png', $start, $end);
 
         $data = $this->transformTidewaysStatsToChartDataSet($tidewaysStats['listing-page']);
         $data = $this->cropDataToChartRange($data, $start, $end);
-        $this->generatePngChart($data, self::OUTPUT_DIR . 'tideways/listing-page_performance.png', $start, $end);
+        $this->generatePngChart($data, $this->dataDir . '/tideways/listing-page_performance.png', $start, $end);
     }
 
     public function generateChartsFromLocustStats(
@@ -37,19 +37,19 @@ class ChartGenerator
 
         $this->generatePngChart(
             $listingTimeData,
-            self::OUTPUT_DIR . 'locust/listing-page_response_times.png',
+            $this->dataDir . '/locust/listing-page_response_times.png',
             $start,
             $end
         );
         $this->generatePngChart(
             $productDetailPageTimeData,
-            self::OUTPUT_DIR . 'locust/product-detail-page_response_times.png',
+            $this->dataDir . '/locust/product-detail-page_response_times.png',
             $start,
             $end
         );
         $this->generatePngChart(
             $aggregatedTimeData,
-            self::OUTPUT_DIR . 'locust/aggregated_response_times.png',
+            $this->dataDir . '/locust/aggregated_response_times.png',
             $start,
             $end
         );
@@ -112,7 +112,7 @@ class ChartGenerator
         $lineWidth = 210;
 
         $graph = new \ezcGraphLineChart();
-        $graph->options->font = __DIR__ . '/font.ttf';
+        $graph->options->font = __DIR__ . '/../../templates/font.ttf';
 
         $graph->palette->majorGridColor = '#cccccc';
 
