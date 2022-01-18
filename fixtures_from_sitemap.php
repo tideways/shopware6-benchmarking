@@ -11,10 +11,12 @@ $products = [];
 $categories = [];
 $listingHandle = fopen(__DIR__ . '/fixtures/listing_urls.csv', 'w');
 $productHandle = fopen(__DIR__ . '/fixtures/product_urls.csv', 'w');
+
 $counts = [
     'listings' => 0,
     'products' => 0,
 ];
+
 foreach ($sitemapDom->getElementsByTagName('loc') as $locationNode) {
     $url = $locationNode->nodeValue;
 
