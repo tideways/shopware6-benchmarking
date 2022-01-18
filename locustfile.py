@@ -1,147 +1,202 @@
-import requests
-import time
-import csv
-import os
-import random
-import uuid
-import json
-from locust import task, between, constant
-from locust_plugins.users import HttpUserWithResources
-
-from lxml import etree
 import logging
+import random
+
+from locust import constant, task
+from locusthelpers.shopware_user import ShopwareUser
+
+from locusthelpers.fixtures import getListings, getProductDetails, getRandomWordFromFixture, getRandomWordFromOperatingSystem
+from locust_plugins import run_single_user
 
 
-class Purchaser(HttpUserWithResources):
+class Purchaser(ShopwareUser):
     weight = 10
     wait_time = constant(15)
-    countryId = 1
-    salutationId = 1
 
-    def on_start(self):
-        self.initRegister()
-        self.register()
-
-    def initRegister(self):
-        path = os.path.dirname(os.path.realpath(
-            __file__)) + '/fixtures/register.json'
-        with open(path) as file:
-            data = json.load(file)
-            self.countryId = data['countryId']
-            self.salutationId = data['salutationId']
-
-    def register(self):
-        response = self.client.get('/account/register', name='register')
-
-        root = etree.fromstring(response.content, etree.HTMLParser())
-        csrfElement = root.find(
-            './/form[@action="/account/register"]/input[@name="_csrf_token"]')
-
-        userMailAddress = 'user-' + \
-            str(uuid.uuid4()).replace('-', '') + '@example.com'
-        logging.info("Registering user " + userMailAddress)
-
-        register = {
-            'redirectTo': 'frontend.account.home.page',
-            'salutationId': self.salutationId,
-            'firstName': 'Firstname',
-            'lastName': 'Lastname',
-            'email': userMailAddress,
-            'password': 'shopware',
-            'billingAddress[street]': 'Test street',
-            'billingAddress[zipcode]': '11111',
-            'billingAddress[city]': 'Test city',
-            'billingAddress[countryId]': self.countryId,
-            '_csrf_token': csrfElement.attrib.get('value')
-        }
-
-        self.client.post('/account/register', data=register, name='register')
-
-    def addProduct(self):
-        number = random.choice(numbers)
-
-        self.client.post('/checkout/product/add-by-number', name='add-product', data={
-            'redirectTo': 'frontend.checkout.cart.page',
-            'number': number
-        })
-
+    # Visit random product listing page
+    # add up to five products to cart
+    # do checkout
     @task
     def order(self):
+        self.auth.clearCookies()
+        # 50% chance to login or register
+        if random.randint(0, 1) == 0:
+            self.auth.loginRandomUserFromFixture()
+        else:
+            self.auth.register()
         url = random.choice(listings)
-        logging.error("Visit listing " + url)
-        response = self.client.get(url, name='listing-page-logged-in')
+        productUrls = self.visitProductListingPageAndRetrieveProductUrls(
+            productListingUrl=url
+        )
 
-        root = etree.fromstring(response.content, etree.HTMLParser())
-        csrfElement = root.find('.//input[@name="_csrf_token"]')
+        if len(productUrls) == 0:
+            logging.error("No products found on this page")
+            return
 
-        self.client.get('/widgets/checkout/info', name='cart-widget')
-        number = random.choice(numbers)
+        # get the maximum number of products to order, either 5 or the number of productUrls
+        maxProducts = min(5, len(productUrls))
 
-        self.client.post('/checkout/line-item/add', name='line-item-add', data={
-            "lineItems[" + number + "][id]": number,
-            "lineItems[" + number + "][referenceId]": number,
-            "lineItems[" + number + "][quantity]": "1",
-            '_csrf_token': csrfElement.attrib.get('value')
-        })
+        for detailPageUrl in random.sample(productUrls, random.randint(1, maxProducts)):
+            self.visitProduct(detailPageUrl)
+            self.addProductToCart(detailPageUrl)
 
-        self.client.get('/checkout/cart', name='cart-page')
-
-        self.client.get('/checkout/confirm', name='confirm-page')
-
-        self.client.post('/checkout/order', name='order', data={
-            'tos': 'on'
-        })
+        self.checkoutOrder()
 
 
-class Surfer(HttpUserWithResources):
+class Filterer(ShopwareUser):
+    # Visit random product listing page
+    # and apply a filter
+    @task
+    def filter(self):
+        url = random.choice(listings)
+        numberOfFiltersToApply = random.randint(3, 5)
+        response = self.visitProductListingPage(productListingUrl=url)
+
+        for _ in range(numberOfFiltersToApply):
+            ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
+            # In 10 percent of cases, try to visit a few products
+            if random.randint(1, 10) == 1:
+                self.visitRandomProductDetailPagesFromListing(ajaxResponse)
+
+
+class Searcher(ShopwareUser):
+    # Visit random product listing page
+    # and apply a filter
+    @task
+    def search(self):
+        self.visitPage("/")
+        response = self.search.search(getRandomWordFromFixture())
+        self.visitRandomProductDetailPagesFromListing(response)
+
+    @task
+    def searchAndFilter(self):
+        self.visitPage("/")
+        response = self.search.search(getRandomWordFromFixture())
+        ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
+        self.visitRandomProductDetailPagesFromListing(ajaxResponse)
+
+    @task
+    def searchForWordFromWordlist(self):
+        self.visitPage("/")
+        response = self.search.search(getRandomWordFromOperatingSystem())
+        self.visitRandomProductDetailPagesFromListing(response)
+        ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
+        self.visitRandomProductDetailPagesFromListing(ajaxResponse)
+
+
+class PaginationSurfer(ShopwareUser):
     weight = 30
     wait_time = constant(2)
+
+    # Visit a random product listing page and paginate through 1-3 additional pages
+    @task()
+    def detail_page(self):
+        url = random.choice(listings)
+        self.visitProductListingPageAndUseThePagination(
+            url, random.randint(0, 3))
+
+
+class Registerer(ShopwareUser):
+    @task
+    def register(self):
+        self.auth.clearCookies()
+        self.auth.register(writeToFixture=True)
+
+
+class Surfer(ShopwareUser):
+    weight = 30
+    wait_time = constant(2)
+
+    def on_start(self):
+        self.auth.clearCookies()
+        # Percentage of users that are authenticated
+        probability = 0.5
+        if bool(random.random() < probability) is True:
+            self.auth.register()
+        else:
+            logging.info("Anonymous Surfer starting")
 
     @task(10)
     def listing_page(self):
         url = random.choice(listings)
-        self.client.get(url, name='listing-page')
-        self.client.get('/widgets/checkout/info', name='cart-widget')
+        self.visitProductListingPageAndRetrieveProductUrls(
+            productListingUrl=url)
 
     @task(4)
     def detail_page(self):
         url = random.choice(details)
-        self.client.get(url, name='detail-page')
-        self.client.get('/widgets/checkout/info', name='cart-widget')
+        self.visitProduct(url)
 
 
-listings = []
-details = []
-numbers = []
+class FancySurferThatDoesALotOfThings(ShopwareUser):
+    @task
+    def browseAroundFromHomepageAndAddToAnonymousCart(self):
+        self.auth.clearCookies()
+        self.visitHomepage()
+        response = self.visitProductListingPage(random.choice(listings))
+        productDetailResponses = self.visitRandomProductDetailPagesFromListing(
+            response)
+        if len(productDetailResponses) > 0:
+            self.addProductToCart(
+                random.choice(productDetailResponses).url
+            )
+
+    @task
+    def browseAroundFromHomepageAndAddToAnonymousCartAndCheckout(self):
+        self.auth.clearCookies()
+        self.visitHomepage()
+        response = self.visitProductListingPage(random.choice(listings))
+        productDetailResponses = self.visitRandomProductDetailPagesFromListing(
+            response)
+        if len(productDetailResponses) > 0:
+            self.addProductToCart(
+                random.choice(productDetailResponses).url
+            )
+
+        self.auth.registerOrLogin()
+        if len(productDetailResponses) > 0:
+            self.checkoutOrder()
+
+    @task
+    def authenticatedSearchAfterHomepageAndAddToCartAndCheckout(self):
+        self.auth.clearCookies()
+        self.auth.registerOrLogin()
+        self.visitHomepage()
+
+        # in 50% of the cases do a bogus search first
+        if random.randint(0, 1) == 0:
+            self.search.search(getRandomWordFromOperatingSystem())
+
+        response = self.search.search(getRandomWordFromFixture())
+        ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
+        productDetailResponses = self.visitRandomProductDetailPagesFromListing(
+            ajaxResponse)
+
+        if len(productDetailResponses) > 0:
+            self.addProductToCart(
+                random.choice(productDetailResponses).url
+            )
+            self.checkoutOrder()
 
 
-def initListings():
-    path = os.path.dirname(os.path.realpath(__file__)) + \
-        '/fixtures/listing_urls.csv'
-    with open(path) as file:
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            listings.append(row[0])
+class DebugUser(ShopwareUser):
+    @task
+    def browseAroundFromHomepageAndAddToAnonymousCartAndCheckout(self):
+        self.auth.clearCookies()
+        self.visitHomepage()
+
+        self.addProductToCart(
+            "https://shopware64.tideways.io/Sleek-Iron-Federal-Preserve/3073f9e5e8744ba28b7cb649d3e598aa"
+        )
+        self.auth.register()
+
+        self.checkoutOrder()
 
 
-def initProducts():
-    path = os.path.dirname(os.path.realpath(__file__)) + \
-        '/fixtures/product_urls.csv'
-    with open(path) as file:
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            details.append(row[0])
+listings = getListings()
+details = getProductDetails()
 
 
-def initNumbers():
-    path = os.path.dirname(os.path.realpath(__file__)) + \
-        '/fixtures/product_numbers.csv'
-    with open(path) as file:
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            numbers.append(row[0])
-
-
-initListings()
-initProducts()
-initNumbers()
+if __name__ == "__main__":
+    DebugUser.host = "https://shopware64.tideways.io"
+    run_single_user(DebugUser, include_length=True,
+                    include_time=True, include_context=True)

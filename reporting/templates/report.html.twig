@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+            <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+
+<style type="text/css">
+    body {
+        font-family: Roboto, sans-serif;
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%
+    }
+    table {
+        border: solid #999 0px;
+        border-collapse: collapse;
+        padding: 0px;
+        width: 100%;
+    }
+    th, td {
+        border: solid #999 0px;
+        border-collapse: collapse;
+        padding-bottom: 10px;
+        vertical-align: top;
+    }
+    .new-page {
+        page-break-before: always;
+    }
+    h1 {
+        padding: 0px;
+    }
+</style>
+    </head>
+
+    <body>
+        <div id="content">
+            <h1><img height="36" src="../reporting/shopware_logo_blue.svg" /> Benchmark by <img height="36" src="../reporting/tideways.png" /></h1>
+            <h2>Scenario: {{ scenario.title }}</h2>
+
+            <table>
+                <tr>
+                    <td width="50%">
+                        <h3>Scenario Description</h3>
+
+                        <table>
+                            <tr>
+                                <td width="50%">Duration</td>
+                                <td width="50%">{{ scenario.duration }}</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Shopware Version</td>
+                                <td width="50%">{{ shopware.version }}</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Plugins</td>
+                                <td width="50%">{{ shopware.plugins }}</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">PHP Version</td>
+                                <td width="50%">{{ shopware.phpVersion }}</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Hardware</td>
+                                <td width="50%">{{ shopware.serverHardware }}</td>
+                            </tr>
+                        </table>
+
+                        <h3>Shop Variables</h3>
+
+                        <table>
+                            <tr>
+                                <td width="50%">Products</td>
+                                <td width="50%">{{ counts.products | number_format(0, '.', ',') }}</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Categories</td>
+                                <td width="50%">{{ counts.listings | number_format(0, '.', ',')}}</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Purchasers/Hour</td>
+                                <td width="50%">50</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Aborted Baskets</td>
+                                <td width="50%">50</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Storefronts</td>
+                                <td width="50%">1</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Exports</td>
+                                <td width="50%">1</td>
+                            </tr>
+                        </table>
+
+                        <h3>Configuration</h3>
+
+                        <table>
+                            <tr>
+                                <td width="50%">HTTP Cache Lifetime</td>
+                                <td width="50%">{{ shopware.configuration.httpCacheLifetime }}</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Cache</td>
+                                <td width="50%">{{ shopware.configuration.cacheBackend }}</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Product Search</td>
+                                <td width="50%">{{ shopware.configuration.productSearchBackend }}</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Background Queue</td>
+                                <td width="50%">{{ shopware.configuration.backgroundQueue }}</td>
+                            </tr>
+                        </table>
+                    </td>
+
+                    <td width="50%">
+                        <h3 style="color: red;">Overall User-Facing Performance 500ms</h3>
+
+                        <img src="./aggregated_response_times.png" width="300" />
+
+                        <h3 style="color: red;">Overall PHP Performance 500ms</h3>
+
+                        <img src="./tideways_php_performance.png" width="300" />
+
+                        <h3 style="color: red;">Category Page 500ms</h3>
+
+                        <img src="./listing-page_response_times.png" width="300" />
+
+                        <h3 style="color: red;">Product Detail Page 500ms</h3>
+
+                        <img src="./product-detail-page_response_times.png" width="300" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>

@@ -1,3 +1,8 @@
 /.env
-/__pycache__
+**/__pycache__
 *.csv
+/vendor
+/cache
+/report.html
+/shopware64.tideways.io
+/generated

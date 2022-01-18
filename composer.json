@@ -1,0 +1,19 @@
+{
+    "require": {
+        "symfony/process": "^6.0",
+        "twig/twig": "^3.3",
+        "zetacomponents/graph": "dev-master",
+        "ext-json": "*",
+        "ext-dom": "*",
+        "ext-zlib": "*",
+        "ext-curl": "*",
+        "guzzlehttp/guzzle": "7.4.x-dev"
+    },
+    "prefer-stable": false,
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Tideways\\Shopware6Loadtesting\\Reporting\\": "reporting"
+        }
+    }
+}

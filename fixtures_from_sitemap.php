@@ -11,6 +11,12 @@ $products = [];
 $categories = [];
 $listingHandle = fopen(__DIR__ . '/fixtures/listing_urls.csv', 'w');
 $productHandle = fopen(__DIR__ . '/fixtures/product_urls.csv', 'w');
+
+$counts = [
+    'listings' => 0,
+    'products' => 0,
+];
+
 foreach ($sitemapDom->getElementsByTagName('loc') as $locationNode) {
     $url = $locationNode->nodeValue;
 
@@ -32,11 +38,15 @@ foreach ($sitemapDom->getElementsByTagName('loc') as $locationNode) {
 
         if ($changeFrequency == 'hourly') {
             fwrite($productHandle, $url . "\n");
+            $counts['products']++;
         } else if ($changeFrequency == 'daily') {
             fwrite($listingHandle, $url . "\n");
+            $counts['listings']++;
         }
     }
 }
+
+file_put_contents(__DIR__ . '/generated/counts.json', json_encode($counts));
 
 fclose($productHandle);
 fclose($listingHandle);
