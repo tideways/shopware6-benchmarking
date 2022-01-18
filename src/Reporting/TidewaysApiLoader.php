@@ -1,6 +1,6 @@
 <?php
 
-namespace Tideways\Shopware6Loadtesting\Reporting;
+namespace Tideways\Shopware6Benchmarking\Reporting;
 
 use GuzzleHttp;
 

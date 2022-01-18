@@ -9,6 +9,7 @@ class Configuration
     public function __construct(
         public ScenarioConfiguration $scenario,
         public ShopwareConfiguration $shopware,
+        public TidewaysConfiguration $tideways,
         string $filename
     ) {
         $this->name = pathinfo($filename, PATHINFO_FILENAME);
@@ -23,10 +24,12 @@ class Configuration
         $data = file_get_contents($filename);
 
         $payload = json_decode($data, JSON_THROW_ON_ERROR);
+        $tideways = $payload['tideways'] ?? ['apiKey' => ''];
 
         return new self(
             scenario: new ScenarioConfiguration(...$payload['scenario']),
             shopware: new ShopwareConfiguration(...$payload['shopware']),
+            tideways: new TidewaysConfiguration(...$tideways),
             filename: $filename,
         );
     }

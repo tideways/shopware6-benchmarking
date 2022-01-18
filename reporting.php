@@ -1,9 +1,9 @@
 <?php
 
 use Symfony\Component\Process\Process;
-use Tideways\Shopware6Loadtesting\Reporting\ChartGenerator;
-use Tideways\Shopware6Loadtesting\Reporting\LocustStatsParser;
-use Tideways\Shopware6Loadtesting\Reporting\TidewaysApiLoader;
+use Tideways\Shopware6Benchmarking\Reporting\ChartGenerator;
+use Tideways\Shopware6Benchmarking\Reporting\LocustStatsParser;
+use Tideways\Shopware6Benchmarking\Reporting\TidewaysApiLoader;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 

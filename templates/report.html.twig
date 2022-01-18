@@ -36,7 +36,7 @@
     <body>
         <div id="content">
             <h1><img height="36" src="../reporting/shopware_logo_blue.svg" /> Benchmark by <img height="36" src="../reporting/tideways.png" /></h1>
-            <h2>Scenario: {{ scenario.title }}</h2>
+            <h2>Scenario: {{ config.scenario.title }}</h2>
 
             <table>
                 <tr>
@@ -46,23 +46,23 @@
                         <table>
                             <tr>
                                 <td width="50%">Duration</td>
-                                <td width="50%">{{ scenario.duration }}</td>
+                                <td width="50%">{{ config.scenario.duration }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Shopware Version</td>
-                                <td width="50%">{{ shopware.version }}</td>
+                                <td width="50%">{{ config.shopware.version }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Plugins</td>
-                                <td width="50%">{{ shopware.plugins }}</td>
+                                <td width="50%">{{ config.shopware.plugins }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">PHP Version</td>
-                                <td width="50%">{{ shopware.phpVersion }}</td>
+                                <td width="50%">{{ config.shopware.phpVersion }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Hardware</td>
-                                <td width="50%">{{ shopware.serverHardware }}</td>
+                                <td width="50%">{{ config.shopware.serverHardware }}</td>
                             </tr>
                         </table>
 
@@ -79,19 +79,19 @@
                             </tr>
                             <tr>
                                 <td width="50%">Purchasers/Hour</td>
-                                <td width="50%" style="color: red">50</td>
+                                <td width="50%" style="color: red">tbd</td>
                             </tr>
                             <tr>
                                 <td width="50%">Aborted Baskets</td>
-                                <td width="50%" style="color: red">50</td>
+                                <td width="50%" style="color: red">tbd</td>
                             </tr>
                             <tr>
                                 <td width="50%">Storefronts</td>
-                                <td width="50%">{{ shopware.configuration.storefronts }}</td>
+                                <td width="50%">{{ config.shopware.storefronts }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Exports</td>
-                                <td width="50%">{{ shopware.configuration.exports }}</td>
+                                <td width="50%">{{ config.shopware.exports }}</td>
                             </tr>
                         </table>
 
@@ -100,15 +100,15 @@
                         <table>
                             <tr>
                                 <td width="50%">HTTP Cache Lifetime</td>
-                                <td width="50%">{{ shopware.configuration.httpCacheLifetime }}</td>
+                                <td width="50%">{{ config.shopware.httpCacheLifetime }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Cache</td>
-                                <td width="50%">{{ shopware.configuration.cacheBackend }}</td>
+                                <td width="50%">{{ config.shopware.cacheBackend }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Product Search</td>
-                                <td width="50%">{{ shopware.configuration.productSearchBackend }}</td>
+                                <td width="50%">{{ config.shopware.productSearchBackend }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Background Queue</td>

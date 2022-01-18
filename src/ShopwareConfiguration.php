@@ -12,6 +12,8 @@ class ShopwareConfiguration
         public string $cacheBackend,
         public string $productSearchBackend,
         public string $backgroundQueue,
+        public int $storefronts,
+        public int $exports,
         public array $plugins = [],
     ) {}
 }
