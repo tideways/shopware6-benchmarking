@@ -7,7 +7,6 @@ import os
 import logging
 import random
 
-
 class Authentication:
     countryId = 1
     salutationId = 1
@@ -19,8 +18,8 @@ class Authentication:
         self.client.cookies.clear()
 
     def initRegister(self):
-        path = os.path.dirname(os.path.realpath(
-            __file__)) + '/../fixtures/register.json'
+        dataDir = os.getenv('SWBENCH_DATA_DIR', os.path.dirname(os.path.realpath(__file__)) + '/../fixtures')
+        path = dataDir + '/register.json'
         with open(path) as file:
             data = json.load(file)
             self.countryId = data['countryId']
@@ -54,8 +53,8 @@ class Authentication:
         }
 
         if writeToFixture:
-            path = os.path.dirname(os.path.realpath(
-                __file__)) + '/../fixtures/users.csv'
+            dataDir = os.getenv('SWBENCH_DATA_DIR', os.path.dirname(os.path.realpath(__file__)) + '/../fixtures')
+            path = dataDir + '/users.csv'
             with open(path, 'a') as file:
                 file.write(userMailAddress + ',' + password + '\n')
 
@@ -79,8 +78,8 @@ class Authentication:
         self.client.post('/account/login', data=login, name='login')
 
     def loginRandomUserFromFixture(self):
-        path = os.path.dirname(os.path.realpath(
-            __file__)) + '/../fixtures/users.csv'
+        dataDir = os.getenv('SWBENCH_DATA_DIR', os.path.dirname(os.path.realpath(__file__)) + '/../fixtures')
+        path = dataDir + '/users.csv'
 
         # choose random user from fixture
         with open(path) as file:

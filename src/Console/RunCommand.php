@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use Tideways\Shopware6Benchmarking\Configuration;
+use Tideways\Shopware6Benchmarking\Services\SitemapFixturesDownloader;
 
 class RunCommand extends Command
 {
@@ -34,6 +35,11 @@ class RunCommand extends Command
     {
         $config = Configuration::fromFile($input->getOption('config'));
 
+        $output->writeln('Update listings and products from sitemap.xml');
+
+        $sitemapDownloader = new SitemapFixturesDownloader();
+        $sitemapDownloader->download($config);
+
         $locustProcess = new Process([
             'docker-compose',
             'run',
@@ -55,9 +61,13 @@ class RunCommand extends Command
             '--csv-full-history',
             '--html=' . $config->getName(),
         ]);
+        $locustProcess->setEnv([
+            'SWBENCH_NAME' => $config->getName(),
+        ]);
+        $locustProcess->setWorkingDirectory(__DIR__ . '/../../');
         $locustProcess->setTimeout(null);
 
-        $output->writeln("Running benchmark...");
+        $output->writeln("Running benchmark for " . $config->scenario->duration . "...");
 
         $locustProcess->run(function ($type, $buffer) use ($output) {
             $output->write($buffer);

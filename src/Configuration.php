@@ -35,4 +35,14 @@ class Configuration
     {
         return $this->name;
     }
+
+    public function getDataDirectory() : string
+    {
+        $home = $_SERVER['HOME'] ?? throw new \LogicException("No home directory found in environment");
+        $dataDir = $home . "/.swbench/" . $this->getName();
+
+        @mkdir($dataDir, 0777, true);
+
+        return $dataDir;
+    }
 }

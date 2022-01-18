@@ -4,9 +4,11 @@ services:
   master:
     build:
       context: ./docker/locust
+    environment:
+      - SWBENCH_DATA_DIR=/mnt/data/${SWBENCH_NAME}
     ports:
       - "8089:8089"
     volumes:
       - ./:/mnt/locust
-    command: -f /mnt/locust/locustfile.py --host=https://shopware64.tideways.io  -u 10 -r 1 -t 120s --autostart --csv=shopware64.tideways.io --csv-full-history --html=shopware64.tideways.io
+      - ~/.swbench:/mnt/data
     working_dir: /mnt/locust

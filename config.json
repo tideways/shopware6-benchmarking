@@ -1,7 +1,7 @@
 {
   "scenario": {
     "title": "Small Shop with 10.000 products and 300 categories",
-    "duration": "60 minutes",
+    "duration": "60m",
     "host": "https://shopware64.tideways.io"
   },
   "shopware": {
