@@ -7,6 +7,8 @@ use Symfony\Component\Console\Application;
 
 $application = new Application();
 $application->addCommands([
+    new \Tideways\Shopware6Benchmarking\Console\InitializeConfigCommand(),
     new \Tideways\Shopware6Benchmarking\Console\RunCommand(),
 ]);
+$application->setDefaultCommand('run');
 $application->run();
