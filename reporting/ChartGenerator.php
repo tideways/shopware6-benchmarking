@@ -4,16 +4,25 @@ namespace Tideways\Shopware6Loadtesting\Reporting;
 
 class ChartGenerator
 {
+    private const OUTPUT_DIR = __DIR__ . '/../generated/';
+
     public function generateChartsFromTidewaysStats(
         array              $tidewaysStats,
         \DateTimeImmutable $start,
         \DateTimeImmutable $end
     ): void
     {
-        $data = $this->transformTidewaysStatsToChartDataSet($tidewaysStats);
+        $data = $this->transformTidewaysStatsToChartDataSet($tidewaysStats['overall']);
         $data = $this->cropDataToChartRange($data, $start, $end);
+        $this->generatePngChart($data, self::OUTPUT_DIR . 'tideways/php_performance.png', $start, $end);
 
-        $this->generatePngChart($data, __DIR__ . '/../generated/tideways_php_performance.png', $start, $end);
+        $data = $this->transformTidewaysStatsToChartDataSet($tidewaysStats['product-detail-page']);
+        $data = $this->cropDataToChartRange($data, $start, $end);
+        $this->generatePngChart($data, self::OUTPUT_DIR . 'tideways/product-detail-page_performance.png', $start, $end);
+
+        $data = $this->transformTidewaysStatsToChartDataSet($tidewaysStats['listing-page']);
+        $data = $this->cropDataToChartRange($data, $start, $end);
+        $this->generatePngChart($data, self::OUTPUT_DIR . 'tideways/listing-page_performance.png', $start, $end);
     }
 
     public function generateChartsFromLocustStats(
@@ -28,19 +37,19 @@ class ChartGenerator
 
         $this->generatePngChart(
             $listingTimeData,
-            __DIR__ . '/../generated/listing-page_response_times.png',
+            self::OUTPUT_DIR . 'locust/listing-page_response_times.png',
             $start,
             $end
         );
         $this->generatePngChart(
             $productDetailPageTimeData,
-            __DIR__ . '/../generated/product-detail-page_response_times.png',
+            self::OUTPUT_DIR . 'locust/product-detail-page_response_times.png',
             $start,
             $end
         );
         $this->generatePngChart(
             $aggregatedTimeData,
-            __DIR__ . '/../generated/aggregated_response_times.png',
+            self::OUTPUT_DIR . 'locust/aggregated_response_times.png',
             $start,
             $end
         );

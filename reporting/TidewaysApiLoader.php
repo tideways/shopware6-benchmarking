@@ -2,33 +2,50 @@
 
 namespace Tideways\Shopware6Loadtesting\Reporting;
 
-use \GuzzleHttp;
+use GuzzleHttp;
 
 class TidewaysApiLoader
 {
+    private const BASE_URI = "https://app.tideways.io/apps/demos-tideways/Shopware6/";
+
     private string $apiToken;
+    private GuzzleHttp\Client $client;
 
     public function __construct(string $apiToken)
     {
         $this->apiToken = $apiToken;
-    }
-
-    public function fetchTidewaysPerformanceData( \DateTimeImmutable $start, \DateTimeImmutable $end ): array
-    {
-        $baseUrl = "https://app.tideways.io/apps/api/";
-        $client = new GuzzleHttp\Client(['base_uri' => $baseUrl]);
-        $url = sprintf(
-            "demos-tideways/Shopware6/performance?ts=%s&m=%d",
-            $end->format("Y-m-d H:i"),
-            $end->diff($start)->i + 1
-        );
 
         $headers = ['Authorization' => sprintf('Bearer %s', $this->apiToken)];
-        $response = $client->request('GET', $url, ['headers' => $headers]);
+        $this->client = new GuzzleHttp\Client(['base_uri' => self::BASE_URI, 'headers' => $headers]);
+    }
 
+    public function fetchOverallPerformanceData(\DateTimeImmutable $start, \DateTimeImmutable $end): array
+    {
+        $url = $this->getPerformanceApiUrl('performance', $end, $start);
+        $response = $this->client->request('GET', $url);
         $data = json_decode($response->getBody(), true);
 
         return $data['application']['by_time'];
     }
 
+    public function fetchTransactionPerformanceData(
+        string             $transactionName,
+        \DateTimeImmutable $start,
+        \DateTimeImmutable $end
+    ): array
+    {
+        $url = $this->getPerformanceApiUrl('transaction-by-name/' . $transactionName, $start, $end);
+        $response = $this->client->request('GET', $url);
+        $data = json_decode($response->getBody(), true);
+
+        return $data['transaction']['by_time'];
+    }
+
+    private function getPerformanceApiUrl(string $path, \DateTimeImmutable $end, \DateTimeImmutable $start): string
+    {
+        $until = $end->format("Y-m-d H:i");
+        $duration = ($end->getTimestamp() - $start->getTimestamp()) / 60 - 1;
+
+        return sprintf("%s?ts=%s&m=%d", $path, $until, $duration);
+    }
 }
