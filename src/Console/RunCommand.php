@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use Tideways\Shopware6Benchmarking\Configuration;
+use Tideways\Shopware6Benchmarking\Services\RegisterJsonUpdater;
 use Tideways\Shopware6Benchmarking\Services\SitemapFixturesDownloader;
 
 class RunCommand extends Command
@@ -17,11 +18,6 @@ class RunCommand extends Command
 
     protected function configure(): void
     {
-        $this->setHelp(<<<HELP
-
-        HELP
-        );
-
         $this->addOption(
             'config',
             'c',
@@ -34,6 +30,11 @@ class RunCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $config = Configuration::fromFile($input->getOption('config'));
+
+        $output->writeln('Update register.json fixture data');
+
+        $registerJsonUpdater = new RegisterJsonUpdater();
+        $registerJsonUpdater->update($config, refreshIfExists: true);
 
         $output->writeln('Update listings and products from sitemap.xml');
 
