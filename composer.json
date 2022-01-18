@@ -1,5 +1,6 @@
 {
     "require": {
+        "php": ">=8.1",
         "symfony/process": "^6.0",
         "twig/twig": "^3.3",
         "zetacomponents/graph": "dev-master",
@@ -7,12 +8,13 @@
         "ext-dom": "*",
         "ext-zlib": "*",
         "ext-curl": "*",
-        "guzzlehttp/guzzle": "7.4.x-dev"
+        "guzzlehttp/guzzle": "7.4.x-dev",
+        "symfony/console": "^6.0",
+        "phpunit/phpunit": "^9.5"
     },
-    "prefer-stable": false,
-    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
+            "Tideways\\Shopware6Benchmarking\\": "src/",
             "Tideways\\Shopware6Loadtesting\\Reporting\\": "reporting"
         }
     }
