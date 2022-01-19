@@ -54,8 +54,8 @@ class TidewaysApiLoader
     private function getPerformanceApiUrl(string $path, \DateTimeImmutable $end, \DateTimeImmutable $start): string
     {
         $until = $end->format("Y-m-d H:i");
-        $duration = ($end->getTimestamp() - $start->getTimestamp()) / 60 - 1;
+        $duration = ($end->getTimestamp() - $start->getTimestamp()) / 60;
 
-        return sprintf("%s?ts=%s&m=%d", $path, $until, max(60, $duration));
+        return sprintf("%s?ts=%s&m=%d", $path, $until, $duration - 1);
     }
 }
