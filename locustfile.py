@@ -1,12 +1,16 @@
 import logging
 import random
 
-from locust import constant, task
+from locust import constant, task, events
 from locusthelpers.shopware_user import ShopwareUser
 
 from locusthelpers.fixtures import getListings, getProductDetails, getRandomWordFromFixture, getRandomWordFromOperatingSystem
 from locust_plugins import run_single_user
 
+@events.init_command_line_parser.add_listener
+def _(parser):
+    parser.add_argument("--tideways-apikey", type=str, env_var="LOCUST_TIDEWAYS_APIKEY", default="", help="The API Key to trigger Tideways callgraph traces with")
+    parser.add_argument("--tideways-trace-rate", type=int, env_var="LOCUST_TIDEWAYS_TRACE_RATE", default=1, help="The sample rate for triggering callgraph traces")
 
 class Purchaser(ShopwareUser):
     weight = 10

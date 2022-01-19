@@ -7,6 +7,7 @@ from locust_plugins.users.resource import HttpUserWithResources
 from lxml import etree
 from requests.models import Response
 
+from locusthelpers.tideways import HttpTidewaysSession
 from locusthelpers import csrf
 from locusthelpers.authentication import Authentication
 from locusthelpers.form import submitForm
@@ -14,11 +15,21 @@ from locusthelpers.listingFilters.listingFilterParser import \
     ListingFilterParser
 from locusthelpers.search import Search
 
-
 class ShopwareUser(HttpUserWithResources):
     # constructor, initialize authentication
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        session = HttpTidewaysSession(
+            base_url=self.host,
+            request_event=self.environment.events.request,
+            user=self,
+        )
+        session.tideways_apikey = self.environment.parsed_options.tideways_apikey
+        session.tideways_tracae_rate = self.environment.parsed_options.tideways_trace_rate
+        session.trust_env = False
+        self.client = session
+
         self.auth = Authentication(self.client)
         self.search = Search(self)
 
@@ -28,7 +39,8 @@ class ShopwareUser(HttpUserWithResources):
         response = self.client.get(url, name=name)
 
         self.client.get('/widgets/checkout/info',
-                        name='cart-widget', catch_response=catch_response)
+                        name='cart-widget',
+                        catch_response=catch_response)
 
         return response
 
