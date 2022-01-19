@@ -21,26 +21,34 @@ class TidewaysApiLoader
         $this->client = new GuzzleHttp\Client(['base_uri' => self::BASE_URI . $this->project . '/', 'headers' => $headers]);
     }
 
-    public function fetchOverallPerformanceData(\DateTimeImmutable $start, \DateTimeImmutable $end): array
+    public function fetchOverallPerformanceData(\DateTimeImmutable $start, \DateTimeImmutable $end): TidewaysStats
     {
         $url = $this->getPerformanceApiUrl('performance', $end, $start);
         $response = $this->client->request('GET', $url);
         $data = json_decode($response->getBody(), true);
 
-        return $data['application']['by_time'];
+        return new TidewaysStats(
+            byTime: $data['application']['by_time'],
+            responseTime: $data['application']['total']['response_time'],
+            requests: $data['application']['total']['requests'],
+        );
     }
 
     public function fetchTransactionPerformanceData(
         string             $transactionName,
         \DateTimeImmutable $start,
         \DateTimeImmutable $end
-    ): array
+    ): TidewaysStats
     {
         $url = $this->getPerformanceApiUrl('transaction-by-name/' . $transactionName, $start, $end);
         $response = $this->client->request('GET', $url);
         $data = json_decode($response->getBody(), true);
 
-        return $data['transaction']['by_time'];
+        return new TidewaysStats(
+            byTime: $data['transaction']['by_time'],
+            responseTime: $data['transaction']['total']['response_time'],
+            requests: $data['transaction']['total']['requests'],
+        );
     }
 
     private function getPerformanceApiUrl(string $path, \DateTimeImmutable $end, \DateTimeImmutable $start): string
