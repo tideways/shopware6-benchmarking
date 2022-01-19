@@ -64,6 +64,8 @@ class RunCommand extends Command
         ]);
         $locustProcess->setEnv([
             'SWBENCH_NAME' => $config->getName(),
+            'LOCUST_TIDEWAYS_APIKEY' => $config->tideways->apiKey,
+            'LOCUST_TIDEWAYS_TRACE_RATE' => $config->tideways->traceSampleRate,
         ]);
         $locustProcess->setWorkingDirectory(__DIR__ . '/../../');
         $locustProcess->setTimeout(null);

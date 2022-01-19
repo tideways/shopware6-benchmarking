@@ -26,7 +26,7 @@ class ShopwareUser(HttpUserWithResources):
             user=self,
         )
         session.tideways_apikey = self.environment.parsed_options.tideways_apikey
-        session.tideways_tracae_rate = self.environment.parsed_options.tideways_trace_rate
+        session.tideways_trace_rate = self.environment.parsed_options.tideways_trace_rate
         session.trust_env = False
         self.client = session
 

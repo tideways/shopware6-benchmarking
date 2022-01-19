@@ -18,6 +18,8 @@
   },
   "tideways": {
     "apiToken": "",
-    "project": "demos-tideways/Shopware6"
+    "project": "demos-tideways/Shopware6",
+    "apiKey": "",
+    "traceSampleRate": 0
   }
 }
