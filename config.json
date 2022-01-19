@@ -1,8 +1,9 @@
 {
   "scenario": {
     "title": "Small Shop with 10.000 products and 300 categories",
-    "duration": "1m",
-    "host": "https://shopware64.tideways.io"
+    "duration": "10m",
+    "host": "https://shopware64.tideways.io",
+    "concurrentUsers": 100
   },
   "shopware": {
     "version": "6.4 Community Edition",

@@ -77,6 +77,17 @@ class ReportCommand extends Command
         $pageMappings = [
             'product-detail-page' => 'Shopware\Storefront\Controller\ProductController::index',
             'listing-page' => 'Shopware\Storefront\Controller\NavigationController::index',
+            'listing-widget-filtered' => 'Shopware\Storefront\Controller\CmsController::category',
+            'add-to-cart' => 'Shopware\Storefront\Controller\CartLineItemController::addLineItems',
+            'cart-page' => 'Shopware\Storefront\Controller\CheckoutController::cartPage',
+            'cart-widget' => 'Shopware\Storefront\Controller\CheckoutController::info',
+            'homepage' => 'Shopware\Storefront\Controller\NavigationController::home',
+            'search' => 'Shopware\Storefront\Controller\SearchController::search',
+            'register' => 'Shopware\Storefront\Controller\RegisterController::register',
+            'register-page' => 'Shopware\Storefront\Controller\RegisterController::accountRegisterPage',
+            'login' => 'Shopware\Storefront\Controller\AuthController::login',
+            'order' => 'Shopware\Storefront\Controller\CheckoutController::order',
+            'confirm-page' => 'Shopware\Storefront\Controller\CheckoutController::confirmPage',
         ];
 
         $tidewaysData = [];

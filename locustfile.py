@@ -18,7 +18,7 @@ def _(parser):
     parser.add_argument("--max-pagination-surfing", type=int, env_var="LOCUST_MAX_PAGINATION_SURFING", default=3, help="Random surfer number of maximum pages they paginate through")
 
 class Purchaser(ShopwareUser):
-    weight = 10
+    weight = 2
     wait_time = constant(15)
 
     # Visit random product listing page
@@ -131,7 +131,7 @@ class Surfer(ShopwareUser):
         self.visitProduct(url)
 
 class FancySurferThatDoesALotOfThings(ShopwareUser):
-    weight = 30
+    weight = 20
 
     @task
     def browseAroundFromHomepageAndAddToAnonymousCart(self):

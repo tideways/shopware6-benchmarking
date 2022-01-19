@@ -12,17 +12,11 @@ class ChartGenerator
         \DateTimeImmutable $end
     ): void
     {
-        $data = $this->transformTidewaysStatsToChartDataSet($tidewaysStats['overall']);
-        $data = $this->cropDataToChartRange($data, $start, $end);
-        $this->generatePngChart($data, $this->dataDir . '/tideways/php_performance.png', $start, $end);
-
-        $data = $this->transformTidewaysStatsToChartDataSet($tidewaysStats['product-detail-page']);
-        $data = $this->cropDataToChartRange($data, $start, $end);
-        $this->generatePngChart($data, $this->dataDir . '/tideways/product-detail-page_performance.png', $start, $end);
-
-        $data = $this->transformTidewaysStatsToChartDataSet($tidewaysStats['listing-page']);
-        $data = $this->cropDataToChartRange($data, $start, $end);
-        $this->generatePngChart($data, $this->dataDir . '/tideways/listing-page_performance.png', $start, $end);
+        foreach ($tidewaysStats as $page => $data) {
+            $data = $this->transformTidewaysStatsToChartDataSet($data);
+            $data = $this->cropDataToChartRange($data, $start, $end);
+            $this->generatePngChart($data, $this->dataDir . '/tideways/' . $page . '_performance.png', $start, $end);
+        }
     }
 
     public function generateChartsFromLocustStats(
@@ -31,28 +25,14 @@ class ChartGenerator
         \DateTimeImmutable $end
     ): void
     {
-        $listingTimeData = $this->transformLocustStatsToChartDataSet($locustStats['listing-page']);
-        $productDetailPageTimeData = $this->transformLocustStatsToChartDataSet($locustStats['product-detail-page']);
-        $aggregatedTimeData = $this->transformLocustStatsToChartDataSet($locustStats['Aggregated']);
-
-        $this->generatePngChart(
-            $listingTimeData,
-            $this->dataDir . '/locust/listing-page_response_times.png',
-            $start,
-            $end
-        );
-        $this->generatePngChart(
-            $productDetailPageTimeData,
-            $this->dataDir . '/locust/product-detail-page_response_times.png',
-            $start,
-            $end
-        );
-        $this->generatePngChart(
-            $aggregatedTimeData,
-            $this->dataDir . '/locust/aggregated_response_times.png',
-            $start,
-            $end
-        );
+        foreach ($locustStats as $page => $data) {
+            $this->generatePngChart(
+                $this->transformLocustStatsToChartDataSet($data),
+                $this->dataDir . '/locust/' . $page . '_response_times.png',
+                $start,
+                $end
+            );
+        }
     }
 
     private function transformTidewaysStatsToChartDataSet(array $stats): array
