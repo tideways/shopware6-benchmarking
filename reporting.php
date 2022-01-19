@@ -1,9 +1,9 @@
 <?php
 
 use Symfony\Component\Process\Process;
-use Tideways\Shopware6Loadtesting\Reporting\ChartGenerator;
-use Tideways\Shopware6Loadtesting\Reporting\LocustStatsParser;
-use Tideways\Shopware6Loadtesting\Reporting\TidewaysApiLoader;
+use Tideways\Shopware6Benchmarking\Reporting\ChartGenerator;
+use Tideways\Shopware6Benchmarking\Reporting\LocustStatsParser;
+use Tideways\Shopware6Benchmarking\Reporting\TidewaysApiLoader;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -32,6 +32,13 @@ $twig = new Environment($loader, [
 $statsParser = new LocustStatsParser();
 $chartGenerator = new ChartGenerator();
 $tidewaysLoader = new TidewaysApiLoader($envConfig['TIDEWAYS_API_TOKEN']);
+
+if (!is_dir(__DIR__ . '/generated/tideways')) {
+    mkdir(__DIR__ . '/generated/tideways', 0755, true);
+}
+if (!is_dir(__DIR__ . '/generated/locust')) {
+    mkdir(__DIR__ . '/generated/locust', 0755, true);
+}
 
 $locustProcess = Process::fromShellCommandline(
     sprintf(
@@ -75,7 +82,18 @@ $tidewaysDataRangeEnd = $locustRunEnd->setTime(
     intval($locustRunEnd->format('i'))
 )->modify('+1 minute');
 
-$tidewaysData = $tidewaysLoader->fetchTidewaysPerformanceData(
+$tidewaysData = [];
+$tidewaysData['overall'] = $tidewaysLoader->fetchOverallPerformanceData(
+    $tidewaysDataRangeStart,
+    $tidewaysDataRangeEnd
+);
+$tidewaysData['product-detail-page'] = $tidewaysLoader->fetchTransactionPerformanceData(
+    'Shopware\Storefront\Controller\ProductController::index',
+    $tidewaysDataRangeStart,
+    $tidewaysDataRangeEnd
+);
+$tidewaysData['listing-page'] = $tidewaysLoader->fetchTransactionPerformanceData(
+    'Shopware\Storefront\Controller\NavigationController::index',
     $tidewaysDataRangeStart,
     $tidewaysDataRangeEnd
 );
@@ -95,11 +113,11 @@ $process = Process::fromShellCommandline(
         '-L 15mm ' .
         '-R 15mm ' .
         '--disable-local-file-access --allow ./reporting/ --allow ./generated/ ' .
+        '--allow ./generated/tideways --allow ./generated/locust ' .
         '--encoding "utf8" ' .
         '--minimum-font-size 18 ' .
         '--page-width 23cm ' .
         '--header-spacing 10 ' .
-        '--header-center "Shopware Benchmark Scenario - Page [page]" ' .
         '--header-font-size 10 ' .
         '%s %s',
         $htmlFilePath,
