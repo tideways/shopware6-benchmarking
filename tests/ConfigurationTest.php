@@ -13,5 +13,6 @@ class ConfigurationTest extends TestCase
         $this->assertEquals('test_scenario', $config->getName());
         $this->assertEquals('Small Shop with 10.000 products and 300 categories', $config->scenario->title);
         $this->assertEquals('6.4 Community Edition', $config->shopware->version);
+        $this->assertEquals('foobar', $config->tideways->apiToken);
     }
 }
