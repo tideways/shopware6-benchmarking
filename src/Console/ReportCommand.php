@@ -46,6 +46,7 @@ class ReportCommand extends Command
 
         $loader = new FilesystemLoader(__DIR__ . '/../../templates');
         $twig = new Environment($loader, [
+            'debug' => true,
             'cache' => sys_get_temp_dir() . '/.swbench-twig-cache',
         ]);
 
