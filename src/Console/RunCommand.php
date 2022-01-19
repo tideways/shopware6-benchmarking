@@ -61,6 +61,7 @@ class RunCommand extends Command
             '--csv=' . $config->getName(),
             '--csv-full-history',
             '--html=' . $config->getName(),
+            '--print-stats',
         ]);
         $locustProcess->setEnv([
             'SWBENCH_NAME' => $config->getName(),

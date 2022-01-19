@@ -16,6 +16,8 @@ from locusthelpers.listingFilters.listingFilterParser import \
 from locusthelpers.search import Search
 
 class ShopwareUser(HttpUserWithResources):
+    abstract = True
+
     # constructor, initialize authentication
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
