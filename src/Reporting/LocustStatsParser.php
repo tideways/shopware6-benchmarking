@@ -39,8 +39,8 @@ class LocustStatsParser
 
         return new LocustStats(
             pagePercentiles: $stats,
-            startDate: new \DateTimeImmutable('@' . $minTimestamp),
-            endDate: new \DateTimeImmutable('@' . $maxTimestamp),
+            startDate: new \DateTimeImmutable('@' . $minTimestamp, new \DateTimeZone('UTC')),
+            endDate: new \DateTimeImmutable('@' . $maxTimestamp, new \DateTimeZone('UTC')),
         );
     }
 }

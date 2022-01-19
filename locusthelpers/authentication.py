@@ -28,7 +28,7 @@ class Authentication:
     def register(self, writeToFixture: bool = False):
         self.initRegister()
         # @TODO missing cart request
-        response = self.client.get('/account/register', name='register')
+        response = self.client.get('/account/register', name='register-page')
         root = etree.fromstring(response.content, etree.HTMLParser())
         csrfElement = root.find(
             './/form[@action="/account/register"]/input[@name="_csrf_token"]')
@@ -63,7 +63,7 @@ class Authentication:
     def login(self, user: str, password: str):
         logging.info("Logging in user " + user)
         # @TODO missing cart request
-        response = self.client.get('/account/login', name='login')
+        response = self.client.get('/account/login', name='login-page')
         root = etree.fromstring(response.content, etree.HTMLParser())
         csrfElement = root.find(
             './/form[@action="/account/login"]/input[@name="_csrf_token"]')

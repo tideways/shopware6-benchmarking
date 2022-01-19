@@ -11,9 +11,14 @@ from locust_plugins import run_single_user
 def _(parser):
     parser.add_argument("--tideways-apikey", type=str, env_var="LOCUST_TIDEWAYS_APIKEY", default="", help="The API Key to trigger Tideways callgraph traces with")
     parser.add_argument("--tideways-trace-rate", type=int, env_var="LOCUST_TIDEWAYS_TRACE_RATE", default=1, help="The sample rate for triggering callgraph traces")
+    parser.add_argument("--recurring-user-rate", type=int, env_var="LOCUST_RECURRING_USER_RATE", default=50, help="The percentage of users that already have a login and come back")
+    parser.add_argument("--filterer-min-filters", type=int, env_var="LOCUST_FILTERER_MIN_FILTERS", default=3, help="Filterer User: Minimum number of filters to apply on a listing page")
+    parser.add_argument("--filterer-max-filters", type=int, env_var="LOCUST_FILTERER_MAX_FILTERS", default=5, help="Filterer User: Maximum number of filters to apply on a listing page")
+    parser.add_argument("--filterer-visit-product-ratio", type=int, env_var="LOCUST_FILTERER_VISIT_PRODUCT_RATIO", default=10, help="Filterer User: Percentage of times a product is visited after filtering.")
+    parser.add_argument("--max-pagination-surfing", type=int, env_var="LOCUST_MAX_PAGINATION_SURFING", default=3, help="Random surfer number of maximum pages they paginate through")
 
 class Purchaser(ShopwareUser):
-    weight = 10
+    weight = 2
     wait_time = constant(15)
 
     # Visit random product listing page
@@ -22,8 +27,8 @@ class Purchaser(ShopwareUser):
     @task
     def order(self):
         self.auth.clearCookies()
-        # 50% chance to login or register
-        if random.randint(0, 1) == 0:
+        # default 50% chance to login or register
+        if random.randint(0, 100) <= self.environment.parsed_options.recurring_user_rate:
             self.auth.loginRandomUserFromFixture()
         else:
             self.auth.register()
@@ -45,24 +50,24 @@ class Purchaser(ShopwareUser):
 
         self.checkoutOrder()
 
-
 class Filterer(ShopwareUser):
+    weight = 30
     # Visit random product listing page
     # and apply a filter
     @task
     def filter(self):
         url = random.choice(listings)
-        numberOfFiltersToApply = random.randint(3, 5)
+        numberOfFiltersToApply = random.randint(self.environment.parsed_options.filterer_min_filters, self.environment.parsed_options.filterer_max_filters)
         response = self.visitProductListingPage(productListingUrl=url)
 
         for _ in range(numberOfFiltersToApply):
             ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
             # In 10 percent of cases, try to visit a few products
-            if random.randint(1, 10) == 1:
+            if random.randint(1, 100) <= self.environment.parsed_options.filterer_visit_product_ratio:
                 self.visitRandomProductDetailPagesFromListing(ajaxResponse)
 
-
 class Searcher(ShopwareUser):
+    weight = 20
     # Visit random product listing page
     # and apply a filter
     @task
@@ -86,7 +91,6 @@ class Searcher(ShopwareUser):
         ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
         self.visitRandomProductDetailPagesFromListing(ajaxResponse)
 
-
 class PaginationSurfer(ShopwareUser):
     weight = 30
     wait_time = constant(2)
@@ -96,8 +100,7 @@ class PaginationSurfer(ShopwareUser):
     def detail_page(self):
         url = random.choice(listings)
         self.visitProductListingPageAndUseThePagination(
-            url, random.randint(0, 3))
-
+            url, random.randint(0, self.environment.parsed_options.max_pagination_surfing))
 
 class Registerer(ShopwareUser):
     @task
@@ -105,16 +108,13 @@ class Registerer(ShopwareUser):
         self.auth.clearCookies()
         self.auth.register(writeToFixture=True)
 
-
 class Surfer(ShopwareUser):
     weight = 30
     wait_time = constant(2)
 
     def on_start(self):
         self.auth.clearCookies()
-        # Percentage of users that are authenticated
-        probability = 0.5
-        if bool(random.random() < probability) is True:
+        if random.randint(0, 100) <= self.environment.parsed_options.recurring_user_rate:
             self.auth.register()
         else:
             logging.info("Anonymous Surfer starting")
@@ -130,8 +130,9 @@ class Surfer(ShopwareUser):
         url = random.choice(details)
         self.visitProduct(url)
 
-
 class FancySurferThatDoesALotOfThings(ShopwareUser):
+    weight = 20
+
     @task
     def browseAroundFromHomepageAndAddToAnonymousCart(self):
         self.auth.clearCookies()
@@ -181,8 +182,9 @@ class FancySurferThatDoesALotOfThings(ShopwareUser):
             )
             self.checkoutOrder()
 
-
 class DebugUser(ShopwareUser):
+    weight = 0
+
     @task
     def browseAroundFromHomepageAndAddToAnonymousCartAndCheckout(self):
         self.auth.clearCookies()
@@ -195,10 +197,8 @@ class DebugUser(ShopwareUser):
 
         self.checkoutOrder()
 
-
 listings = getListings()
 details = getProductDetails()
-
 
 if __name__ == "__main__":
     DebugUser.host = "https://shopware64.tideways.io"
