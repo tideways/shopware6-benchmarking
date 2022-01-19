@@ -50,9 +50,9 @@ class RunCommand extends Command
             '--headless',
             '--host=' . $config->scenario->host,
             '-u',
-            10,
+            $config->scenario->concurrentUsers,
             '-r',
-            1,
+            $config->scenario->userSpawnRate,
             '-t',
             $config->scenario->duration,
             '--autostart',
@@ -67,6 +67,11 @@ class RunCommand extends Command
             'SWBENCH_NAME' => $config->getName(),
             'LOCUST_TIDEWAYS_APIKEY' => $config->tideways->apiKey,
             'LOCUST_TIDEWAYS_TRACE_RATE' => $config->tideways->traceSampleRate,
+            'LOCUST_RECURRING_USER_RATE' => $config->scenario->recurringUserRate,
+            'LOCUST_FILTERER_MIN_FILTERS' => $config->scenario->filtererMinFilters,
+            'LOCUST_FILTERER_MAX_FILTERS' => $config->scenario->filtererMaxFilters,
+            'LOCUST_FILTERER_VISIT_PRODUCT_RATIO' => $config->scenario->filtererVisitProductRatio,
+            'LOCUST_MAX_PAGINATION_SURFING' => $config->scenario->maxPaginationSurfing,
         ]);
         $locustProcess->setWorkingDirectory(__DIR__ . '/../../');
         $locustProcess->setTimeout(null);
