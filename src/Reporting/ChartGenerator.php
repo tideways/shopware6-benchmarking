@@ -135,6 +135,7 @@ class ChartGenerator
         $nAxis->position = ezcGraph::BOTTOM;
         $nAxis->chartPosition = 1;
         $nAxis->min = 0;
+        $nAxis->axisSpace = 0.07;
         $nAxis->axisLabelRenderer = new \ezcGraphAxisCenteredLabelRenderer();
         $nAxis->axisLabelRenderer->showZeroValue = true;
 
@@ -148,6 +149,7 @@ class ChartGenerator
         }
 
         $graph->options->font->maxFontSize = 6;
+        $graph->options->font->color = '#666666';
         $graph->options->fillLines = false;
         $graph->background->color = '#ffffff';
         $graph->legend = false;
