@@ -43,11 +43,11 @@ class ChartGenerator
 
     private function transformTidewaysStatsToChartDataSet(TidewaysStats $stats): array
     {
-        $dataSets = ["Response Time" => [], "Requests" => [], "Errors" => []];
+        $dataSets = ["Response Times" => [], "Requests" => [], "Errors" => []];
 
         foreach ($stats->byTime as $formattedDate => $data) {
             $date = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $formattedDate)->format('Y-m-d H:i:s');
-            $dataSets['Response Time'][$date] = $data['percentile_95p'];
+            $dataSets['Response Times'][$date] = $data['percentile_95p'];
             $dataSets['Requests'][$date] = $data['requests'];
             $dataSets['Errors'][$date] = $data['errors'];
         }
@@ -108,7 +108,6 @@ class ChartGenerator
         $dates = array_keys(current($dataSets));
 
         $graph->xAxis = new \ezcGraphChartElementDateAxis();
-        $graph->xAxis->font->maxFontSize = 12;
         $graph->xAxis->majorGrid = '#cccccc';
         $graph->xAxis->dateFormat = "H:i";
         $graph->xAxis->startDate = strtotime(array_shift($dates));
@@ -117,7 +116,6 @@ class ChartGenerator
         $graph->yAxis->label = 'ms';
         $graph->yAxis->axisSpace = 0.07;
         $graph->yAxis->min = 0;
-        $graph->yAxis->font->maxFontSize = 8;
         $graph->yAxis->majorGrid = '#cccccc';
         $graph->yAxis->axisLabelRenderer = new \ezcGraphAxisCenteredLabelRenderer();
         $graph->yAxis->axisLabelRenderer->showZeroValue = true;
@@ -128,16 +126,15 @@ class ChartGenerator
         $graph->palette->dataSetColor = ['#00c0ef', '#cccccc', '#ff0000'];
         foreach ($dataSets as $label => $data) {
             $graph->data[$label] = new \ezcGraphArrayDataSet($data);
+            $graph->data[$label]->fillLines = 210; // HACK: This only works with custom ezcGraph change
         }
 
-        $additionalLabels = ['Response Times', 'Requests', 'Errors'];
+        $additionalLabels = ['Requests', 'Errors'];
 
         $nAxis = new ezcGraphChartElementNumericAxis();
         $nAxis->position = ezcGraph::BOTTOM;
         $nAxis->chartPosition = 1;
         $nAxis->min = 0;
-        $nAxis->font->maxFontSize = 8;
-        $nAxis->font->color = '#cccccc';
         $nAxis->axisLabelRenderer = new \ezcGraphAxisCenteredLabelRenderer();
         $nAxis->axisLabelRenderer->showZeroValue = true;
 
@@ -146,10 +143,12 @@ class ChartGenerator
                 $graph->additionalAxis[$label] = $nAxis;
                 $graph->data[$label]->yAxis = $nAxis;
                 $graph->data[$label]->displayType = ezcGraph::LINE;
+                $graph->data[$label]->fillLines = false; // HACK: This only works with custom ezcGraph change
             }
         }
 
-        $graph->options->fillLines = $lineWidth;
+        $graph->options->font->maxFontSize = 6;
+        $graph->options->fillLines = false;
         $graph->background->color = '#ffffff';
         $graph->legend = false;
 
