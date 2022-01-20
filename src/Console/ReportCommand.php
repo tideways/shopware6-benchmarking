@@ -46,6 +46,7 @@ class ReportCommand extends Command
 
         $loader = new FilesystemLoader(__DIR__ . '/../../templates');
         $twig = new Environment($loader, [
+            'debug' => true,
             'cache' => sys_get_temp_dir() . '/.swbench-twig-cache',
         ]);
 
@@ -103,6 +104,8 @@ class ReportCommand extends Command
                 $tidewaysDataRangeEnd
             );
         }
+
+        $templateVariables['tideways'] = $tidewaysData;
 
         $chartGenerator->generateChartsFromLocustStats($locustStats->pagePercentiles, $locustStats->startDate, $locustStats->endDate);
         $chartGenerator->generateChartsFromTidewaysStats($tidewaysData, $locustStats->startDate, $locustStats->endDate);

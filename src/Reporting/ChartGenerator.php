@@ -6,6 +6,9 @@ class ChartGenerator
 {
     public function __construct(private string $dataDir) {}
 
+    /**
+     * @param array<string,TidewaysStats> $tidewaysStats
+     */
     public function generateChartsFromTidewaysStats(
         array              $tidewaysStats,
         \DateTimeImmutable $start,
@@ -35,18 +38,18 @@ class ChartGenerator
         }
     }
 
-    private function transformTidewaysStatsToChartDataSet(array $stats): array
+    private function transformTidewaysStatsToChartDataSet(TidewaysStats $stats): array
     {
         return array_combine(
             array_map(
                 function(string $formattedDate) {
                     return \DateTimeImmutable::createFromFormat('Y-m-d H:i', $formattedDate)->format('Y-m-d H:i:s');
                 },
-                array_keys($stats)
+                array_keys($stats->byTime)
             ),
             array_map(
                 fn(array $values) => $values['percentile_95p'],
-                array_values($stats)
+                array_values($stats->byTime)
             ),
         );
     }
