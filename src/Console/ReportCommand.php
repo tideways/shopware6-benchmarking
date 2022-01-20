@@ -65,10 +65,14 @@ class ReportCommand extends Command
             $config->getDataDirectory() . '/' . $config->getName() . '_stats_history.csv'
         );
 
+        var_dump($locustStats->startDate);
+        var_dump($locustStats->endDate);
+
         $tidewaysDataRangeStart = $locustStats->startDate->setTime(
             intval($locustStats->startDate->format('H')),
             intval($locustStats->startDate->format('i'))
         );
+        var_dump($tidewaysDataRangeStart);
 
         $tidewaysDataRangeEnd = $locustStats->endDate->setTime(
             intval($locustStats->endDate->format('H')),

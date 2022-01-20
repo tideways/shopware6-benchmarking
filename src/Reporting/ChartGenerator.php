@@ -2,6 +2,9 @@
 
 namespace Tideways\Shopware6Benchmarking\Reporting;
 
+use ezcGraph;
+use ezcGraphChartElementNumericAxis;
+
 class ChartGenerator
 {
     public function __construct(private string $dataDir) {}
@@ -16,9 +19,9 @@ class ChartGenerator
     ): void
     {
         foreach ($tidewaysStats as $page => $data) {
-            $data = $this->transformTidewaysStatsToChartDataSet($data);
-            $data = $this->cropDataToChartRange($data, $start, $end);
-            $this->generatePngChart($data, $this->dataDir . '/tideways/' . $page . '_performance.png', $start, $end);
+            $dataSets = $this->transformTidewaysStatsToChartDataSet($data);
+            $dataSets = $this->cropDataToChartRange($dataSets, $start, $end);
+            $this->generatePngChart($dataSets, $this->dataDir . '/tideways/' . $page . '_performance.png', $start, $end);
         }
     }
 
@@ -40,23 +43,21 @@ class ChartGenerator
 
     private function transformTidewaysStatsToChartDataSet(TidewaysStats $stats): array
     {
-        return array_combine(
-            array_map(
-                function(string $formattedDate) {
-                    return \DateTimeImmutable::createFromFormat('Y-m-d H:i', $formattedDate)->format('Y-m-d H:i:s');
-                },
-                array_keys($stats->byTime)
-            ),
-            array_map(
-                fn(array $values) => $values['percentile_95p'],
-                array_values($stats->byTime)
-            ),
-        );
+        $dataSets = ["Response Time" => [], "Requests" => [], "Errors" => []];
+
+        foreach ($stats->byTime as $formattedDate => $data) {
+            $date = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $formattedDate)->format('Y-m-d H:i:s');
+            $dataSets['Response Time'][$date] = $data['percentile_95p'];
+            $dataSets['Requests'][$date] = $data['requests'];
+            $dataSets['Errors'][$date] = $data['errors'];
+        }
+
+        return $dataSets;
     }
 
     private function transformLocustStatsToChartDataSet(array $stats): array
     {
-        return array_combine(
+        return ["Response Times" => array_combine(
             array_map(
                 fn(int $timestamp) => (new \DateTimeImmutable('@' . $timestamp))->format('Y-m-d H:i:s'),
                 array_keys($stats)
@@ -65,28 +66,32 @@ class ChartGenerator
                 fn(string $value) => intval($value),
                 array_values($stats)
             ),
-        );
+        )];
     }
 
-    private function cropDataToChartRange(array $data, \DateTimeImmutable $start, \DateTimeImmutable $end): array
+    private function cropDataToChartRange(array $dataSets, \DateTimeImmutable $start, \DateTimeImmutable $end): array
     {
-        $keys = array_keys($data);
-        $firstKey = $keys[0];
-        $lastKey = $keys[count($keys) - 1];
+        foreach ($dataSets as $label => $data) {
+            $keys = array_keys($data);
+            $firstKey = $keys[0];
+            $lastKey = $keys[count($keys) - 1];
 
-        $data[$start->format("Y-m-d H:i:s")] = $data[$firstKey];
-        $data[$end->format("Y-m-d H:i:s")] = $data[$lastKey];
+            $data[$start->format("Y-m-d H:i:s")] = $data[$firstKey];
+            $data[$end->format("Y-m-d H:i:s")] = $data[$lastKey];
 
-        unset($data[$firstKey]);
-        unset($data[$lastKey]);
+            unset($data[$firstKey]);
+            unset($data[$lastKey]);
 
-        ksort($data);
+            ksort($data);
 
-        return $data;
+            $dataSets[$label] = $data;
+        }
+
+        return $dataSets;
     }
 
     private function generatePngChart(
-        array              $data,
+        array              $dataSets,
         string             $ouputFilePath,
         \DateTimeImmutable $start,
         \DateTimeImmutable $end
@@ -98,19 +103,21 @@ class ChartGenerator
         $graph->options->font = __DIR__ . '/../../templates/font.ttf';
 
         $graph->palette->majorGridColor = '#cccccc';
+        $graph->palette->axisColor = '#cccccc';
+
+        $dates = array_keys(current($dataSets));
 
         $graph->xAxis = new \ezcGraphChartElementDateAxis();
-        $graph->xAxis->label = 'UTC';
         $graph->xAxis->font->maxFontSize = 12;
         $graph->xAxis->majorGrid = '#cccccc';
         $graph->xAxis->dateFormat = "H:i";
-        $graph->xAxis->startDate = $start->getTimestamp();
-        $graph->xAxis->endDate = $end->getTimestamp();
+        $graph->xAxis->startDate = strtotime(array_shift($dates));
+        $graph->xAxis->endDate = strtotime(array_pop($dates));
 
         $graph->yAxis->label = 'ms';
         $graph->yAxis->axisSpace = 0.07;
         $graph->yAxis->min = 0;
-        $graph->yAxis->font->maxFontSize = 12;
+        $graph->yAxis->font->maxFontSize = 8;
         $graph->yAxis->majorGrid = '#cccccc';
         $graph->yAxis->axisLabelRenderer = new \ezcGraphAxisCenteredLabelRenderer();
         $graph->yAxis->axisLabelRenderer->showZeroValue = true;
@@ -118,8 +125,30 @@ class ChartGenerator
         $graph->renderer->options->shortAxis = true;
         $graph->renderer->options->axisEndStyle = \ezcGraph::NO_SYMBOL;
 
-        $graph->palette->dataSetColor = ['#00c0ef'];
-        $graph->data["Response Time"] = new \ezcGraphArrayDataSet($data);
+        $graph->palette->dataSetColor = ['#00c0ef', '#cccccc', '#ff0000'];
+        foreach ($dataSets as $label => $data) {
+            $graph->data[$label] = new \ezcGraphArrayDataSet($data);
+        }
+
+        $additionalLabels = ['Response Times', 'Requests', 'Errors'];
+
+        $nAxis = new ezcGraphChartElementNumericAxis();
+        $nAxis->position = ezcGraph::BOTTOM;
+        $nAxis->chartPosition = 1;
+        $nAxis->min = 0;
+        $nAxis->font->maxFontSize = 8;
+        $nAxis->font->color = '#cccccc';
+        $nAxis->axisLabelRenderer = new \ezcGraphAxisCenteredLabelRenderer();
+        $nAxis->axisLabelRenderer->showZeroValue = true;
+
+        foreach ($additionalLabels as $label) {
+            if (isset($dataSets[$label])) {
+                $graph->additionalAxis[$label] = $nAxis;
+                $graph->data[$label]->yAxis = $nAxis;
+                $graph->data[$label]->displayType = ezcGraph::LINE;
+            }
+        }
+
         $graph->options->fillLines = $lineWidth;
         $graph->background->color = '#ffffff';
         $graph->legend = false;
