@@ -43,7 +43,7 @@ class ChartGenerator
 
     private function transformTidewaysStatsToChartDataSet(TidewaysStats $stats): array
     {
-        $dataSets = ["Response Times" => [], "Requests" => [], "Errors" => []];
+        $dataSets = ['Response Times' => [], 'Requests' => [], 'Errors' => []];
 
         foreach ($stats->byTime as $formattedDate => $data) {
             $date = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $formattedDate)->format('Y-m-d H:i:s');

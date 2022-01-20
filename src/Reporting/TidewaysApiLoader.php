@@ -40,7 +40,7 @@ class TidewaysApiLoader
         \DateTimeImmutable $end
     ): TidewaysStats
     {
-        $url = $this->getPerformanceApiUrl('transaction-by-name/' . $transactionName, $start, $end);
+        $url = $this->getPerformanceApiUrl('transaction-by-name/' . $transactionName, $end, $start);
         $response = $this->client->request('GET', $url);
         $data = json_decode($response->getBody(), true);
 
