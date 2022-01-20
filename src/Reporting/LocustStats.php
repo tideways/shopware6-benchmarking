@@ -7,6 +7,7 @@ class LocustStats
     public function __construct(
         public \DateTimeImmutable $startDate,
         public \DateTimeImmutable $endDate,
-        public array $pagePercentiles = [],
+        public array              $pageByTime = [],
+        public array              $pageSummary = [],
     ) {}
 }

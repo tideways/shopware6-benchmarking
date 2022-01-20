@@ -19,7 +19,7 @@
                 width: 100%;
             }
             th, td {
-                border: solid #999 0px;
+                border: solid lightgray 0px;
                 border-collapse: collapse;
                 padding-bottom: 10px;
                 vertical-align: top;
@@ -30,18 +30,65 @@
             h1 {
                 padding: 0px;
             }
+            h2, h3, h4 {
+                margin: 0px; padding: 0px;
+            }
+            h4 {
+                color: gray;
+                font-weight: normal;
+                font-size: 10pt;
+            }
         </style>
     </head>
 
+    {% macro chart_row(title, slug, tideways, locust) %}
+        <tr>
+            <td colspan="2"><h3>{{ title }}</h3></td>
+        </tr>
+        <tr>
+            <td width="50%">
+                <h4>User Performance <span style="color: red">
+                        {{ attribute(attribute(locust.pageSummary, slug), '95%') }}ms,
+                        {{ attribute(attribute(locust.pageSummary, slug), 'Request Count') }} req
+                    </span>
+                </h4>
+
+                <img src="./locust/{{ slug }}_response_times.png" width="520" />
+            </td>
+
+            <td width="50%">
+                <h4>PHP Performance <span style="color: red">
+                        {{ attribute(tideways, slug).responseTime }}ms,
+                        {{ attribute(tideways, slug).requests }} req
+                    </span>
+                </h4>
+
+                <img src="./tideways/{{ slug }}_performance.png" width="520" />
+            </td>
+        </tr>
+    {% endmacro %}
+
     <body>
         <div id="content">
-            <h1><img height="36" src="./shopware_logo_blue.svg" /> Benchmark by <img height="36" src="./tideways.png" /></h1>
-            <h2>Scenario: {{ config.scenario.title }}</h2>
+
 
             <table>
                 <tr>
+                    <td width="80%">
+                        <h1>Shopware 6 Benchmark</h1>
+
+                        <h2>Scenario: {{ config.scenario.title }}</h2>
+                    </td>
+                    <td width="20%" align="left" style="line-height: 60px;">
+                        <img height="50" src="./shopware_logo_blue.svg"  /><br />
+                        <img height="50" src="./tideways.png" />
+                    </td>
+                </tr>
+            </table>
+            <table>
+                <tr>
                     <td width="50%">
-                        <h3>Overall User-Facing Performance</h3>
+                        <h3>Overall User Performance  <span style="color: red">{{ attribute(locust.pageSummary.Aggregated, '95%') }}ms</span></h3>
 
                         <img src="./locust/Aggregated_response_times.png" width="520" />
 
@@ -55,37 +102,10 @@
                     </td>
                 </tr>
 
-                <tr>
-                    <td width="50%">
-                        <h3>Category User-Facing Performance</h3>
+                {{ _self.chart_row("Category Page", "listing-page", tideways, locust) }}
 
-                        <img src="./locust/listing-page_response_times.png" width="520" />
+                {{ _self.chart_row("Product Details Page", "product-detail-page", tideways, locust) }}
 
-                    </td>
-
-                    <td width="50%">
-
-                        <h3>Category Page <span style="color: red">{{ tideways.listing-page.responseTime }}ms</span></h3>
-
-                        <img src="./tideways/listing-page_performance.png" width="520" />
-
-                    </td>
-                </tr>
-
-                <tr>
-                    <td width="50%">
-                        <h3>Product Detail User-Facing Performance</h3>
-
-                        <img src="./locust/product-detail-page_response_times.png" width="520" />
-                    </td>
-
-                    <td width="50%">
-
-                        <h3>Product Detail Page <span style="color: red">{{ tideways.product-detail-page.responseTime }}ms</span></h3>
-
-                        <img src="./tideways/product-detail-page_performance.png" width="520" />
-                    </td>
-                </tr>
                 <tr>
                     <td width="50%">
                         <h3>Scenario Description</h3>
@@ -131,7 +151,7 @@
                             </tr>
                             <tr>
                                 <td width="50%">Purchasers/Hour</td>
-                                <td width="50%" style="color: red">tbd</td>
+                                <td width="50%" style="color: red; font-weight: bold">{{ purchases_per_hour }}</td>
                             </tr>
                         </table>
 
@@ -157,112 +177,32 @@
                         </table>
                     </td>
                 </tr>
+                <tr>
+                    <td colspan="2" style="font-size: 6pt; color: gray;">
+                        Legend<br />
+                        - The left y-axis depicts the Response Times calculated as 95% percentile<br />
+                        - The right y-axis depicts the number of requests and errors<br />
+
+                        <p>Disclaimer: Only benchmarks performed against real production environment, software and data
+                            will provide realistic and reliable results of future production behavior.
+                            This benchmark focuses of server-side performance from the browser and PHP point of view.
+                            Its results can only partially explain real user performance in the browser.
+                        </p>
+
+                        <p>The code for this benchmark is open-source and available under <a href="https://github.com/tideways/shopware6-benchmarking">https://github.com/tideways/shopware6-benchmarking</a>.</p>
+                    </td>
+                </tr>
             </table>
 
             <h2 class="new-page">Performance of All Pages</h2>
 
             <table>
-                <tr>
-                    <td width="50%">
-                        <h3>Homepage User-Facing Performance</h3>
-
-                        <img src="./locust/homepage_response_times.png" width="520" />
-
-                    </td>
-
-                    <td width="50%">
-
-                        <h3>Homepage <span style="color: red">{{ tideways.homepage.responseTime }}ms</span></h3>
-
-                        <img src="./tideways/homepage_performance.png" width="520" />
-
-                    </td>
-                </tr>
-
-                <tr>
-                    <td width="50%">
-                        <h3>Search User-Facing Performance</h3>
-
-                        <img src="./locust/search_response_times.png" width="520" />
-
-                    </td>
-
-                    <td width="50%">
-
-                        <h3>Search <span style="color: red">{{ tideways.search.responseTime }}ms</span></h3>
-
-                        <img src="./tideways/search_performance.png" width="520" />
-
-                    </td>
-                </tr>
-
-                <tr>
-                    <td width="50%">
-                        <h3>Order User-Facing Performance</h3>
-
-                        <img src="./locust/order_response_times.png" width="520" />
-
-                    </td>
-
-                    <td width="50%">
-
-                        <h3>Order <span style="color: red">{{ tideways.order.responseTime }}ms</span></h3>
-
-                        <img src="./tideways/order_performance.png" width="520" />
-
-                    </td>
-                </tr>
-
-                <tr>
-                    <td width="50%">
-                        <h3>Add Item to Cart User-Facing Performance</h3>
-
-                        <img src="./locust/add-to-cart_response_times.png" width="520" />
-
-                    </td>
-
-                    <td width="50%">
-
-                        <h3>Add Item to Cart <span style="color: red">{{ tideways.add-to-cart.responseTime }}ms</span></h3>
-
-                        <img src="./tideways/add-to-cart_performance.png" width="520" />
-
-                    </td>
-                </tr>
-
-                <tr>
-                    <td width="50%">
-                        <h3>Cart Page User-Facing Performance</h3>
-
-                        <img src="./locust/cart-page_response_times.png" width="520" />
-
-                    </td>
-
-                    <td width="50%">
-
-                        <h3>Cart Page PHP Performance <span style="color: red">{{ tideways.cart-page.responseTime }}ms</span></h3>
-
-                        <img src="./tideways/cart-page_performance.png" width="520" />
-
-                    </td>
-                </tr>
-
-                <tr>
-                    <td width="50%">
-                        <h3>Register User-Facing Performance</h3>
-
-                        <img src="./locust/register_response_times.png" width="520" />
-
-                    </td>
-
-                    <td width="50%">
-
-                        <h3>Register PHP Performance <span style="color: red">{{ tideways.register.responseTime }}ms</span></h3>
-
-                        <img src="./tideways/register_performance.png" width="520" />
-
-                    </td>
-                </tr>
+                {{ _self.chart_row("Homepage", "homepage", tideways, locust) }}
+                {{ _self.chart_row("Search", "search", tideways, locust) }}
+                {{ _self.chart_row("Order", "order", tideways, locust) }}
+                {{ _self.chart_row("Add Item To Cart", "add-to-cart", tideways, locust) }}
+                {{ _self.chart_row("Cart Page", "cart-page", tideways, locust) }}
+                {{ _self.chart_row("Register", "register", tideways, locust) }}
             </table>
         </div>
     </body>

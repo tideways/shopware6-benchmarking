@@ -8,5 +8,6 @@ class TidewaysStats
         public array $byTime = [],
         public int $responseTime = 0,
         public int $requests = 0,
+        public float $errors = 0,
     ) {}
 }

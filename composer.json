@@ -14,7 +14,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Tideways\\Shopware6Benchmarking\\": "src/",
+            "Tideways\\Shopware6Benchmarking\\": "src/"
         }
     }
 }
