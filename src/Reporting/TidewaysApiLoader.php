@@ -31,6 +31,7 @@ class TidewaysApiLoader
             byTime: $data['application']['by_time'],
             responseTime: $data['application']['total']['response_time'],
             requests: $data['application']['total']['requests'],
+            errors: $data['application']['total']['error_rate'],
         );
     }
 
@@ -48,6 +49,7 @@ class TidewaysApiLoader
             byTime: $data['transaction']['by_time'],
             responseTime: $data['transaction']['total']['response_time'],
             requests: $data['transaction']['total']['requests'],
+            errors: $data['transaction']['total']['error_rate'],
         );
     }
 

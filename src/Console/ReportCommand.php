@@ -62,6 +62,7 @@ class ReportCommand extends Command
         }
 
         $locustStats = $statsParser->parseLocustStats(
+            $config->getDataDirectory() . '/' . $config->getName() . '_stats.csv',
             $config->getDataDirectory() . '/' . $config->getName() . '_stats_history.csv'
         );
 
@@ -91,24 +92,29 @@ class ReportCommand extends Command
             'confirm-page' => 'Shopware\Storefront\Controller\CheckoutController::confirmPage',
         ];
 
-        $tidewaysData = [];
-        $tidewaysData['overall'] = $tidewaysLoader->fetchOverallPerformanceData(
+        $tidewaysStats = [];
+        $tidewaysStats['overall'] = $tidewaysLoader->fetchOverallPerformanceData(
             $tidewaysDataRangeStart,
             $tidewaysDataRangeEnd
         );
 
         foreach ($pageMappings as $locustPage => $tidewaysTransaction) {
-            $tidewaysData[$locustPage] = $tidewaysLoader->fetchTransactionPerformanceData(
+            $tidewaysStats[$locustPage] = $tidewaysLoader->fetchTransactionPerformanceData(
                 $tidewaysTransaction,
                 $tidewaysDataRangeStart,
                 $tidewaysDataRangeEnd
             );
         }
 
-        $templateVariables['tideways'] = $tidewaysData;
+        $templateVariables['purchases_per_hour'] = round(
+            $tidewaysStats['order']->requests / (($tidewaysDataRangeEnd->getTimestamp() - $tidewaysDataRangeStart->getTimestamp()) / 60) * 60,
+            0
+        );
+        $templateVariables['tideways'] = $tidewaysStats;
+        $templateVariables['locust'] = $locustStats;
 
-        $chartGenerator->generateChartsFromLocustStats($locustStats->pagePercentiles, $locustStats->startDate, $locustStats->endDate);
-        $chartGenerator->generateChartsFromTidewaysStats($tidewaysData, $locustStats->startDate, $locustStats->endDate);
+        $chartGenerator->generateChartsFromLocustStats($locustStats->pageByTime, $locustStats->startDate, $locustStats->endDate);
+        $chartGenerator->generateChartsFromTidewaysStats($tidewaysStats, $locustStats->startDate, $locustStats->endDate);
 
         $reportHtml = $twig->render('report.html.twig', $templateVariables);
 
