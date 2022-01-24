@@ -56,6 +56,22 @@
     chdir: "/var/www/shopware6"
     creates: "/var/www/shopware6/install.lock"
 
+- name: "Setup Shopware Composer Repository"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "composer config repositories.shopware composer https://packages.shopware.com/"
+    chdir: "/var/www/shopware6"
+  when: shopware_package_token | length > 0
+
+- name: "Configure Shopware Package Repository Authentication"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "composer config bearer.packages.shopware.com \"{{ shopware_package_token }}\""
+    chdir: "/var/www/shopware6"
+  when: shopware_package_token | length > 0
+
 - name: "Install Composer Packages"
   become_user: shopware
   become: yes
