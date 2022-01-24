@@ -8,3 +8,6 @@ loadtesting.shopware6-1
 
 [redis]
 loadtesting.shopware6-1
+
+[elastic]
+loadtesting.shopware6-1

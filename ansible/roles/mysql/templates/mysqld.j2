@@ -1,0 +1,21 @@
+[mysqld]
+user		= mysql
+port		= 3306
+
+bind-address		= 127.0.0.1,{{ ansible_all_ipv4_addresses | ipaddr('private') | first }}
+mysqlx-bind-address	= 127.0.0.1
+
+key_buffer_size		= 16M
+max_allowed_packet	= 64M
+thread_stack		= 256K
+
+thread_cache_size       = -1
+
+# This replaces the startup script and checks MyISAM tables if needed
+# the first time they are touched
+myisam-recover-options  = BACKUP
+
+max_connections        = 151
+table_open_cache       = 4000
+
+log_error = /var/log/mysql/error.log

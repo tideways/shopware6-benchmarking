@@ -1,0 +1,13 @@
+---
+- name: "Install Redis"
+  apt: pkg=redis-server
+  notify: Restart Redis
+
+- name: Redis Daemon Configuration
+  template: >
+    src=redis.j2
+    dest=/etc/redis/redis.conf
+    owner=root
+    group=root
+    mode=0644
+  notify: Restart Redis

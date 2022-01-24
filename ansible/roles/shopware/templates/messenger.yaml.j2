@@ -1,0 +1,11 @@
+# config/packages/messenger.yaml
+framework:
+  messenger:
+    buses:
+      messenger.bus.shopware:
+        middleware:
+          - "Shopware\\Core\\Framework\\MessageQueue\\Middleware\\RetryMiddleware"
+          - "Tideways\\SymfonyMessenger\\TidewaysMiddleware"
+
+services:
+  "Tideways\\SymfonyMessenger\\TidewaysMiddleware": ~

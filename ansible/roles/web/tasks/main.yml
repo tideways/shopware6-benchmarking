@@ -1,0 +1,53 @@
+---
+- apt: 
+    pkg: ["curl", "git"]
+    update_cache: yes
+
+- name: Add ondrej/php ppa
+  apt_repository: >
+      repo=ppa:ondrej/php
+      state=present
+      update_cache=yes
+
+- name: Install PHP
+  apt: pkg=php{{ php_version }} state=present
+
+- name: Build a list of all the additional PHP packages
+  set_fact:
+    php_packages: "{{ php_packages }} + [ 'php{{ php_version }}-{{ item }}' ]"
+  with_items: "{{ php_extensions }}"
+
+- name: Install PHP extensions
+  apt: pkg='{{ php_packages }}' state=present
+  notify: Restart PHP-FPM
+
+- name: Configure php.ini
+  template:
+    src: phpini.j2
+    dest: /etc/php/{{ php_version }}/mods-available/custom.ini
+  notify: Restart PHP-FPM
+
+- name: Update custom phpenmod module
+  shell: phpenmod -v ALL custom
+
+- name: Setup fpm pool
+  template:
+    src: phpfpm.j2
+    dest: /etc/php/{{ php_version }}/fpm/pool.d/www.conf
+
+- name: Install apache
+  apt:
+    pkg: ["apache2"]
+
+- name: Configure Apache Vhost
+  template:
+    src: apache.j2
+    dest: /etc/apache2/sites-enabled/000-default.conf
+  notify: Restart Apache
+
+- name: "Install Composer"
+  get_url:
+    dest: "/usr/local/bin/composer"
+    url: "https://getcomposer.org/download/latest-stable/composer.phar"
+    mode: "0755"
+    validate_certs: no

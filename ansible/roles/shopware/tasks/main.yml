@@ -1,0 +1,82 @@
+---
+- name: "Add Shopware User"
+  user:
+    name: "shopware"
+    home: "/var/www/shopware6"
+    shell: "/bin/bash"
+    state: present
+
+- name: "Checkout Shopware Production Template"
+  git:
+    repo: "https://github.com/shopware/production"
+    dest: "/var/www/shopware6"
+    version: "{{ shopware_version }}"
+    force: no
+  ignore_errors: yes
+
+- name: "Give www-data ownership of shopware"
+  file:
+    path: "/var/www/shopware6"
+    owner: "shopware"
+    group: "www-data"
+    recurse: yes
+
+- name: "Create JWT Key directory"
+  file:
+    path: "/var/www/shopware6/config/jwt"
+    state: directory
+    owner: "shopware"
+    group: "www-data"
+
+- name: "Copy generated JWT Private and Public Keys (run php jwt_generator.php)"
+  copy:
+    src: "{{ item }}"
+    dest: "/var/www/shopware6/config/jwt/{{ item }}"
+  with_items:
+    - "private.pem"
+    - "public.pem"
+
+- name: "Composer Install"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "/usr/local/bin/composer install -n -o"
+    chdir: "/var/www/shopware6"
+
+- name: "Shopware .env"
+  template:
+    src: "dotenv.j2"
+    dest: "/var/www/shopware6/.env"
+
+- name: "Install Shopware"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "php -dmemory_limit=2g bin/console system:install --basic-setup --shop-name=Benchmarking --shop-currency=EUR"
+    chdir: "/var/www/shopware6"
+    creates: "/var/www/shopware6/install.lock"
+
+- name: "Install Composer Packages"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "composer require {{ item }}"
+    chdir: "/var/www/shopware6"
+    creates: "/var/www/shopware6/{{ item }}"
+  with_items:
+    - "tideways/symfony-messenger-middleware"
+
+- name: "Copy configuration files"
+  template:
+    src: "{{ item }}.j2"
+    dest: "/var/www/shopware6/config/packages/{{ item }}"
+  with_items:
+    - "messenger.yaml"
+    - "shopware.yaml"
+
+- name: "cache clear"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "bin/console cache:clear"
+    chdir: "/var/www/shopware6"

@@ -1,0 +1,6 @@
+---
+shopware_version: "v6.4.7.0"
+shopware_url: "https://shopware-demo.tideways.io"
+shopware_es_enabled: 0
+shopware_http_cache_enabled: 1
+shopware_http_cache_ttl: 7200
