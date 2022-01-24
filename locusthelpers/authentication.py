@@ -6,11 +6,8 @@ import uuid
 import os
 import logging
 import random
-<<<<<<< HEAD
-=======
 from requests.models import Response
 from locusthelpers.form import getFormFieldOptionValues 
->>>>>>> hco-wip
 
 class Authentication:
     def __init__(self, client: HttpSession):
