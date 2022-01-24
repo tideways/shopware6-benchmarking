@@ -6,27 +6,33 @@ import uuid
 import os
 import logging
 import random
+<<<<<<< HEAD
+=======
+from requests.models import Response
+from locusthelpers.form import getFormFieldOptionValues 
+>>>>>>> hco-wip
 
 class Authentication:
-    countryId = 1
-    salutationId = 1
-
     def __init__(self, client: HttpSession):
         self.client = client
 
     def clearCookies(self):
         self.client.cookies.clear()
 
-    def initRegister(self):
-        dataDir = os.getenv('SWBENCH_DATA_DIR', os.path.dirname(os.path.realpath(__file__)) + '/../fixtures')
-        path = dataDir + '/register.json'
-        with open(path) as file:
-            data = json.load(file)
-            self.countryId = data['countryId']
-            self.salutationId = data['salutationId']
+    def __readSalutationIdFromRegisterPage(self, registerPageResponse: Response) -> str:
+        salutationIdOptions = getFormFieldOptionValues(
+            registerPageResponse, "/account/register", "salutationId", filterEmpty=True
+        )
+        return salutationIdOptions[0]
+
+    def __readCountryIdFromRegisterPage(self, registerPageResponse: Response) -> str:
+        countryIdOptions = getFormFieldOptionValues(
+            registerPageResponse, "/account/register", "billingAddress[countryId]", filterEmpty=True
+        )
+        return countryIdOptions[0]
+
 
     def register(self, writeToFixture: bool = False):
-        self.initRegister()
         # @TODO missing cart request
         response = self.client.get('/account/register', name='register-page')
         root = etree.fromstring(response.content, etree.HTMLParser())
@@ -38,9 +44,10 @@ class Authentication:
         logging.info("Registering user " + userMailAddress)
         password = 'shopware'
 
+    
         register = {
             'redirectTo': 'frontend.account.home.page',
-            'salutationId': self.salutationId,
+            'salutationId': self.__readSalutationIdFromRegisterPage(response),
             'firstName': 'Firstname',
             'lastName': 'Lastname',
             'email': userMailAddress,
@@ -48,7 +55,7 @@ class Authentication:
             'billingAddress[street]': 'Test street',
             'billingAddress[zipcode]': '11111',
             'billingAddress[city]': 'Test city',
-            'billingAddress[countryId]': self.countryId,
+            'billingAddress[countryId]': self.__readCountryIdFromRegisterPage(response),
             '_csrf_token': csrfElement.attrib.get('value')
         }
 
