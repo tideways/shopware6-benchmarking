@@ -7,3 +7,5 @@ shopware_http_cache_ttl: 7200
 shopware_package_token: ""
 shopware_admin_username: "shopadmin"
 shopware_admin_password: "shopadmin22"
+shopware_worker_per_host: 2
+shopware_plugins: []

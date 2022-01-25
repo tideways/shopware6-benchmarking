@@ -1,6 +1,11 @@
-<VirtualHost *:80>
+<VirtualHost *:443>
     ServerName "{{ shopware_url|default("https://shopware-demo.tideways.io") }}"
     DocumentRoot /var/www/shopware6/public
+
+    SSLEngine on
+
+    SSLCertificateFile    /etc/apache2/server.crt
+    SSLCertificateKeyFile /etc/apache2/server.key
 
     <Directory /var/www/shopware6/public>
         Options Indexes FollowSymLinks MultiViews

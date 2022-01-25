@@ -1,0 +1,7 @@
+# /etc/systemd/system/shopware-consumers.target
+[Unit]
+Description=Shopware Message Queue Consumers
+Requires={% for index in range(1, shopware_worker_per_host) %}shopware-consumer@{{ index }}.service {% endfor %}
+
+[Install]
+WantedBy=multi-user.target

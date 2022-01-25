@@ -34,6 +34,27 @@
   apt:
     pkg: ["apache2"]
 
+- name: "Enable Apache modules"
+  command:
+    cmd: "a2enmod ssl headers"
+    creates: "/etc/apache2/mods-enabled/ssl.conf"
+
+- name: create self-signed SSL cert
+  command: >
+    openssl req -new -nodes -x509 -subj "/C=DE/ST=Northrhine-Westfalia/L=Bonn/O=IT/CN={{ shopware_url|default("shopware-demo.tideways.io")|replace("https://", "") }}" -days 3650 -keyout /etc/apache2/server.key -out /etc/apache2/server.crt -extensions v3_ca
+     creates=/etc/apache2/server.crt
+  notify: Restart Apache
+
+- name: "create diffie-hellman group"
+  command:
+    cmd: "openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048"
+    creates: "/etc/ssl/certs/dhparam.pem"
+
+- name: "copy ssl params config"
+  copy:
+    src: "ssl-params.conf"
+    dest: "/etc/apache2/conf-enabled/ssl-params.conf"
+
 - name: Configure Apache Vhost
   template:
     src: apache.j2

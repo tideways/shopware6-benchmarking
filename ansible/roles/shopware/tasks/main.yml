@@ -78,7 +78,7 @@
   command:
     cmd: "composer require {{ item }}"
     chdir: "/var/www/shopware6"
-    creates: "/var/www/shopware6/{{ item }}"
+    creates: "/var/www/shopware6/vendor/{{ item }}"
   with_items:
     - "tideways/symfony-messenger-middleware"
 
@@ -89,6 +89,30 @@
   with_items:
     - "messenger.yaml"
     - "shopware.yaml"
+
+- name: "Install Plugins"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "php bin/console store:download -p {{ item }}"
+    chdir: "/var/www/shopware6"
+    creates: "/var/www/shopware6/custom/plugins/{{ item }}"
+  with_items: "{{ shopware_plugins }}"
+
+- name: "Refresh Plugins"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "php bin/console plugin:refresh"
+    chdir: "/var/www/shopware6"
+
+- name: "Activate Plugins"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "php bin/console plugin:install --activate {{ item }}"
+    chdir: "/var/www/shopware6"
+  with_items: "{{ shopware_plugins }}"
 
 - name: "cache clear"
   become_user: shopware
@@ -104,3 +128,21 @@
     cmd: "php bin/console user:create {{ shopware_admin_username }} --admin --email=shopadmin@example.com --password={{ shopware_admin_password }}"
     chdir: "/var/www/shopware6"
   ignore_errors: yes
+
+- name: "Setup systemd services for worker/scheduled-tasks"
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+  with_items:
+    - "shopware-consumers.target"
+    - "shopware-consumer@.service"
+    - "shopware-scheduled-tasks.service"
+
+- name: "Enable systemd services"
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
+    - "shopware-consumers.target"
+    - "shopware-scheduled-tasks.service"
