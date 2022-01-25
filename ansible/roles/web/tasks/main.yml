@@ -4,10 +4,10 @@
     update_cache: yes
 
 - name: Add ondrej/php ppa
-  apt_repository: >
-      repo=ppa:ondrej/php
-      state=present
-      update_cache=yes
+  apt_repository:
+    repo: "ppa:ondrej/php"
+    state: present
+    update_cache: yes
 
 - name: Install PHP
   apt: pkg=php{{ php_version }} state=present
@@ -19,21 +19,16 @@
 
 - name: Install PHP extensions
   apt: pkg='{{ php_packages }}' state=present
-  notify: Restart PHP-FPM
+  notify: Restart Apache
 
 - name: Configure php.ini
   template:
     src: phpini.j2
     dest: /etc/php/{{ php_version }}/mods-available/custom.ini
-  notify: Restart PHP-FPM
+  notify: Restart Apache
 
 - name: Update custom phpenmod module
   shell: phpenmod -v ALL custom
-
-- name: Setup fpm pool
-  template:
-    src: phpfpm.j2
-    dest: /etc/php/{{ php_version }}/fpm/pool.d/www.conf
 
 - name: Install apache
   apt:
@@ -51,3 +46,29 @@
     url: "https://getcomposer.org/download/latest-stable/composer.phar"
     mode: "0755"
     validate_certs: no
+
+- name: "Add Tideways Repository Key"
+  apt_key:
+    url: "https://packages.tideways.com/key.gpg"
+    state: present
+
+- name: "Add Tideways Debian Repository to sources.list.d"
+  apt_repository:
+    filename: tideways
+    repo: "deb [arch=amd64] https://packages.tideways.com/apt-packages-main any-version main"
+    state: present
+
+- name: "Add  TidewaysDebian Repository (beta) to sources.list.d"
+  apt_repository:
+    filename: tideways-beta
+    repo: "deb [arch=amd64] https://packages.tideways.com/apt-packages-beta any-version main"
+    state: present
+
+- name: "Install Tideways Packages"
+  apt: 
+    pkg: 
+      - tideways-php
+      - tideways-daemon
+    state: latest
+    update_cache: yes
+  notify: Restart Apache

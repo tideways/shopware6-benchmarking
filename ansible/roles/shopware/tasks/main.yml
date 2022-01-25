@@ -94,5 +94,13 @@
   become_user: shopware
   become: yes
   command:
-    cmd: "bin/console cache:clear"
+    cmd: "php bin/console cache:clear"
     chdir: "/var/www/shopware6"
+
+- name: "create admin user"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "php bin/console user:create {{ shopware_admin_username }} --admin --email=shopadmin@example.com --password={{ shopware_admin_password }}"
+    chdir: "/var/www/shopware6"
+  ignore_errors: yes

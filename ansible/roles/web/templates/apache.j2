@@ -1,5 +1,5 @@
 <VirtualHost *:80>
-    ServerName "shopware6-loadtest.tideways.io"
+    ServerName "{{ shopware_url|default("https://shopware-demo.tideways.io") }}"
     DocumentRoot /var/www/shopware6/public
 
     <Directory /var/www/shopware6/public>

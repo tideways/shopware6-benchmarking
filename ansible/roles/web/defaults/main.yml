@@ -4,7 +4,6 @@ php_extensions:
   - common
   - dev
   - cli
-  - fpm
   - curl
   - mysql
   - gd
@@ -18,3 +17,5 @@ php_extensions:
   - imagick
   - soap
 php_packages: []
+tideways_api_key: ""
+tideways_sample_rate: 5
