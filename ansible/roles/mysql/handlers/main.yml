@@ -1,0 +1,3 @@
+---
+- name: Restart MySQL
+  systemd: name=mysql state=restarted

@@ -1,0 +1,21 @@
+---
+php_version: 8.0
+php_extensions:
+  - common
+  - dev
+  - cli
+  - curl
+  - mysql
+  - gd
+  - sqlite3
+  - mbstring
+  - xml
+  - intl
+  - zip
+  - memcache
+  - memcached
+  - imagick
+  - soap
+php_packages: []
+tideways_api_key: ""
+tideways_sample_rate: 5

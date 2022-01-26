@@ -1,0 +1,10 @@
+---
+- name: Restart PHP-FPM
+  systemd: 
+    name: php{{ php_version }}-fpm
+    state: restarted
+
+- name: Restart Apache
+  systemd:
+    name: apache2
+    state: restarted

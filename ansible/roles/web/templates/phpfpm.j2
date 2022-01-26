@@ -1,0 +1,11 @@
+[www]
+user=www-data
+group=www-data
+
+listen=/var/run/php/php8.0-fpm.sock
+listen.owner=www-data
+listen.group=www-data
+listen.mode=0600
+
+pm=static
+pm.max_children=20

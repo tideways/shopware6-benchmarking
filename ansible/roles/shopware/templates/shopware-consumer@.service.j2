@@ -1,0 +1,11 @@
+[Unit]
+Description=Shopware Message Queue Consumer (%i)
+# Default queue backend is based on MySQL
+After=mysql.service
+PartOf=shopware-consumers.target
+
+[Service]
+User=www-data
+Restart=always
+RestartSec=2
+ExecStart=/usr/bin/php /var/www/shopware6/bin/console messenger:consume

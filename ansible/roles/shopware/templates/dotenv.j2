@@ -1,0 +1,20 @@
+APP_ENV="prod"
+APP_URL="{{ shopware_url }}"
+APP_SECRET="def00000094c61128b5c55f04e09dad322ff0172b4123d0808a2d2944f77b0968e98c5d1e0f6592325520df847a32ba9f2f6cb12ddb52cd6d16762a3dd9420f1c2333f0a"
+INSTANCE_ID="8vlWi1IapV3sApM1XwERS8KMtp6Kyan5"
+
+DATABASE_URL="mysql://root:{{ mysql_root_password|default('root') }}@{{ hostvars[groups['mysql'][0]].ansible_all_ipv4_addresses| ipaddr('private') | first }}:3306/shopware6"
+DATABASE_SSL_DONT_VERIFY_SERVER_CERT="1"
+
+SHOPWARE_ES_HOSTS="{{ hostvars[groups['elastic'][0]].ansible_all_ipv4_addresses| ipaddr('private') | first}}:9200"
+SHOPWARE_ES_ENABLED="{{ shopware_es_enabled }}"
+SHOPWARE_ES_INDEXING_ENABLED="{{ shopware_es_enabled }}"
+SHOPWARE_ES_INDEX_PREFIX="sw"
+SHOPWARE_HTTP_CACHE_ENABLED="{{ shopware_http_cache_enabled }}"
+SHOPWARE_HTTP_DEFAULT_TTL="{{ shopware_http_cache_ttl }}"
+SHOPWARE_CDN_STRATEGY_DEFAULT="id"
+
+BLUE_GREEN_DEPLOYMENT="0"
+
+MAILER_URL="native://default"
+COMPOSER_HOME="/var/www/shopware6/var/cache/composer"

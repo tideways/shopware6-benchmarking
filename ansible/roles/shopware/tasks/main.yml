@@ -1,0 +1,148 @@
+---
+- name: "Add Shopware User"
+  user:
+    name: "shopware"
+    home: "/var/www/shopware6"
+    shell: "/bin/bash"
+    state: present
+
+- name: "Checkout Shopware Production Template"
+  git:
+    repo: "https://github.com/shopware/production"
+    dest: "/var/www/shopware6"
+    version: "{{ shopware_version }}"
+    force: no
+  ignore_errors: yes
+
+- name: "Give www-data ownership of shopware"
+  file:
+    path: "/var/www/shopware6"
+    owner: "shopware"
+    group: "www-data"
+    recurse: yes
+
+- name: "Create JWT Key directory"
+  file:
+    path: "/var/www/shopware6/config/jwt"
+    state: directory
+    owner: "shopware"
+    group: "www-data"
+
+- name: "Copy generated JWT Private and Public Keys (run php jwt_generator.php)"
+  copy:
+    src: "{{ item }}"
+    dest: "/var/www/shopware6/config/jwt/{{ item }}"
+  with_items:
+    - "private.pem"
+    - "public.pem"
+
+- name: "Composer Install"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "/usr/local/bin/composer install -n -o"
+    chdir: "/var/www/shopware6"
+
+- name: "Shopware .env"
+  template:
+    src: "dotenv.j2"
+    dest: "/var/www/shopware6/.env"
+
+- name: "Install Shopware"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "php -dmemory_limit=2g bin/console system:install --basic-setup --shop-name=Benchmarking --shop-currency=EUR"
+    chdir: "/var/www/shopware6"
+    creates: "/var/www/shopware6/install.lock"
+
+- name: "Setup Shopware Composer Repository"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "composer config repositories.shopware composer https://packages.shopware.com/"
+    chdir: "/var/www/shopware6"
+  when: shopware_package_token | length > 0
+
+- name: "Configure Shopware Package Repository Authentication"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "composer config bearer.packages.shopware.com \"{{ shopware_package_token }}\""
+    chdir: "/var/www/shopware6"
+  when: shopware_package_token | length > 0
+
+- name: "Install Composer Packages"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "composer require {{ item }}"
+    chdir: "/var/www/shopware6"
+    creates: "/var/www/shopware6/vendor/{{ item }}"
+  with_items:
+    - "tideways/symfony-messenger-middleware"
+
+- name: "Copy configuration files"
+  template:
+    src: "{{ item }}.j2"
+    dest: "/var/www/shopware6/config/packages/{{ item }}"
+  with_items:
+    - "messenger.yaml"
+    - "shopware.yaml"
+
+- name: "Install Plugins"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "php bin/console store:download -p {{ item }}"
+    chdir: "/var/www/shopware6"
+    creates: "/var/www/shopware6/custom/plugins/{{ item }}"
+  with_items: "{{ shopware_plugins }}"
+
+- name: "Refresh Plugins"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "php bin/console plugin:refresh"
+    chdir: "/var/www/shopware6"
+
+- name: "Activate Plugins"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "php bin/console plugin:install --activate {{ item }}"
+    chdir: "/var/www/shopware6"
+  with_items: "{{ shopware_plugins }}"
+
+- name: "cache clear"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "php bin/console cache:clear"
+    chdir: "/var/www/shopware6"
+
+- name: "create admin user"
+  become_user: shopware
+  become: yes
+  command:
+    cmd: "php bin/console user:create {{ shopware_admin_username }} --admin --email=shopadmin@example.com --password={{ shopware_admin_password }}"
+    chdir: "/var/www/shopware6"
+  ignore_errors: yes
+
+- name: "Setup systemd services for worker/scheduled-tasks"
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+  with_items:
+    - "shopware-consumers.target"
+    - "shopware-consumer@.service"
+    - "shopware-scheduled-tasks.service"
+
+- name: "Enable systemd services"
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
+    - "shopware-consumers.target"
+    - "shopware-scheduled-tasks.service"

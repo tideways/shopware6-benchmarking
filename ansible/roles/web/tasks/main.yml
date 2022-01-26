@@ -1,0 +1,95 @@
+---
+- apt: 
+    pkg: ["curl", "git"]
+    update_cache: yes
+
+- name: Add ondrej/php ppa
+  apt_repository:
+    repo: "ppa:ondrej/php"
+    state: present
+    update_cache: yes
+
+- name: Install PHP
+  apt: pkg=php{{ php_version }} state=present
+
+- name: Build a list of all the additional PHP packages
+  set_fact:
+    php_packages: "{{ php_packages }} + [ 'php{{ php_version }}-{{ item }}' ]"
+  with_items: "{{ php_extensions }}"
+
+- name: Install PHP extensions
+  apt: pkg='{{ php_packages }}' state=present
+  notify: Restart Apache
+
+- name: Configure php.ini
+  template:
+    src: phpini.j2
+    dest: /etc/php/{{ php_version }}/mods-available/custom.ini
+  notify: Restart Apache
+
+- name: Update custom phpenmod module
+  shell: phpenmod -v ALL custom
+
+- name: Install apache
+  apt:
+    pkg: ["apache2"]
+
+- name: "Enable Apache modules"
+  command:
+    cmd: "a2enmod ssl headers rewrite"
+    creates: "/etc/apache2/mods-enabled/ssl.conf"
+
+- name: create self-signed SSL cert
+  command: >
+    openssl req -new -nodes -x509 -subj "/C=DE/ST=Northrhine-Westfalia/L=Bonn/O=IT/CN={{ shopware_url|default("shopware-demo.tideways.io")|replace("https://", "") }}" -days 3650 -keyout /etc/apache2/server.key -out /etc/apache2/server.crt -extensions v3_ca
+     creates=/etc/apache2/server.crt
+  notify: Restart Apache
+
+- name: "create diffie-hellman group"
+  command:
+    cmd: "openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048"
+    creates: "/etc/ssl/certs/dhparam.pem"
+
+- name: "copy ssl params config"
+  copy:
+    src: "ssl-params.conf"
+    dest: "/etc/apache2/conf-enabled/ssl-params.conf"
+
+- name: Configure Apache Vhost
+  template:
+    src: apache.j2
+    dest: /etc/apache2/sites-enabled/000-default.conf
+  notify: Restart Apache
+
+- name: "Install Composer"
+  get_url:
+    dest: "/usr/local/bin/composer"
+    url: "https://getcomposer.org/download/latest-stable/composer.phar"
+    mode: "0755"
+    validate_certs: no
+
+- name: "Add Tideways Repository Key"
+  apt_key:
+    url: "https://packages.tideways.com/key.gpg"
+    state: present
+
+- name: "Add Tideways Debian Repository to sources.list.d"
+  apt_repository:
+    filename: tideways
+    repo: "deb [arch=amd64] https://packages.tideways.com/apt-packages-main any-version main"
+    state: present
+
+- name: "Add  TidewaysDebian Repository (beta) to sources.list.d"
+  apt_repository:
+    filename: tideways-beta
+    repo: "deb [arch=amd64] https://packages.tideways.com/apt-packages-beta any-version main"
+    state: present
+
+- name: "Install Tideways Packages"
+  apt: 
+    pkg: 
+      - tideways-php
+      - tideways-daemon
+    state: latest
+    update_cache: yes
+  notify: Restart Apache

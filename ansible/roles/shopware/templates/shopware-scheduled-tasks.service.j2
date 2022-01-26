@@ -1,0 +1,13 @@
+[Unit]
+Description=Shopware Scheduled Tasks Worker
+# Default queue backend is based on MySQL
+After=mysql.service
+
+[Service]
+User=www-data
+Restart=always
+RestartSec=2
+ExecStart=/usr/bin/php /var/www/shopware6-demo/bin/console scheduled-task:run
+
+[Install]
+WantedBy=multi-user.target
