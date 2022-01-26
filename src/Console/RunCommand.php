@@ -8,6 +8,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use Tideways\Shopware6Benchmarking\Configuration;
+use Tideways\Shopware6Benchmarking\ExecutionMode;
+use Tideways\Shopware6Benchmarking\GlobalConfiguration;
 use Tideways\Shopware6Benchmarking\Services\RegisterJsonUpdater;
 use Tideways\Shopware6Benchmarking\Services\SitemapFixturesDownloader;
 
@@ -42,12 +44,10 @@ class RunCommand extends Command
         $sitemapDownloader = new SitemapFixturesDownloader();
         $sitemapDownloader->download($config);
 
-        $locustProcess = new Process([
-            'docker-compose',
-            'run',
-            'master',
-            '-f',
-            '/mnt/locust/locustfile.py',
+        $globalConfiguration = GlobalConfiguration::createFromGlobalDirectory();
+        $command = $this->getLocustCommandBasedOnExecutionMode($globalConfiguration->executionMode, $workingDir);
+
+        $locustProcess = new Process(array_merge($command, [
             '--headless',
             '--host=' . $config->scenario->host,
             '-u',
@@ -63,9 +63,10 @@ class RunCommand extends Command
             '--csv-full-history',
             '--html=' . $config->getName(),
             '--print-stats',
-        ]);
+        ]));
         $locustProcess->setEnv([
             'SWBENCH_NAME' => $config->getName(),
+            'SWBENCH_DATA_DIR' => $config->getDataDirectory(),
             'LOCUST_TIDEWAYS_APIKEY' => $config->tideways->apiKey,
             'LOCUST_TIDEWAYS_TRACE_RATE' => $config->tideways->traceSampleRate,
             'LOCUST_RECURRING_USER_RATE' => $config->scenario->recurringUserRate,
@@ -95,5 +96,25 @@ class RunCommand extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    private function getLocustCommandBasedOnExecutionMode(ExecutionMode $executionMode, string $workingDir)
+    {
+        switch ($executionMode) {
+            case ExecutionMode::DOCKER:
+                return [
+                    'docker-compose',
+                    'run',
+                    'master',
+                    '-f',
+                    '/mnt/locust/locustfile.py',
+                ];
+            case ExecutionMode::LOCAL:
+                return [
+                    'locust',
+                    '-f',
+                    $workingDir . '/locustfile.py',
+                ];
+        }
     }
 }
