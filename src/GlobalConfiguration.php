@@ -36,4 +36,11 @@ class GlobalConfiguration
 
         return new self(...$vars);
     }
+
+    public function save() : void
+    {
+        $file = self::getGlobalDirectory() . '/config.json';
+
+        file_put_contents($file, json_encode($this, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT) . "\n");
+    }
 }
