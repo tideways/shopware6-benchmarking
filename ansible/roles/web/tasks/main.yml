@@ -36,7 +36,7 @@
 
 - name: "Enable Apache modules"
   command:
-    cmd: "a2enmod ssl headers"
+    cmd: "a2enmod ssl headers rewrite"
     creates: "/etc/apache2/mods-enabled/ssl.conf"
 
 - name: create self-signed SSL cert
