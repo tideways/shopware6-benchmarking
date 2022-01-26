@@ -30,6 +30,7 @@ class RunCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $config = Configuration::fromFile($input->getOption('config'));
+        $workingDir = __DIR__ . '/../../';
 
         $output->writeln('Update register.json fixture data');
 
@@ -73,7 +74,7 @@ class RunCommand extends Command
             'LOCUST_FILTERER_VISIT_PRODUCT_RATIO' => $config->scenario->filtererVisitProductRatio,
             'LOCUST_MAX_PAGINATION_SURFING' => $config->scenario->maxPaginationSurfing,
         ]);
-        $locustProcess->setWorkingDirectory(__DIR__ . '/../../');
+        $locustProcess->setWorkingDirectory($workingDir);
         $locustProcess->setTimeout(null);
 
         $output->writeln("Running benchmark for " . $config->scenario->duration . "...");
@@ -86,6 +87,12 @@ class RunCommand extends Command
         $locustDurationSeconds = $endTime - $locustProcess->getStartTime();
 
         $output->writeln(sprintf("Complete after %.0f seconds.", $locustDurationSeconds));
+
+        $resultFiles = ["_exceptions.csv", "_failures.csv", "_stats.csv", "_stats_history.csv"];
+        foreach ($resultFiles as $resultFile) {
+            $fileName = $config->getName() . '_' . $resultFile;
+            @copy($workingDir . '/' . $fileName, $config->getDataDirectory() . '/'. $fileName);
+        }
 
         return Command::SUCCESS;
     }
