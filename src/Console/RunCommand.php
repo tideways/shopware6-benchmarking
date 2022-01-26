@@ -98,23 +98,21 @@ class RunCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function getLocustCommandBasedOnExecutionMode(ExecutionMode $executionMode, string $workingDir)
+    private function getLocustCommandBasedOnExecutionMode(ExecutionMode $executionMode, string $workingDir) : array
     {
-        switch ($executionMode) {
-            case ExecutionMode::DOCKER:
-                return [
+        return match ($executionMode) {
+            ExecutionMode::DOCKER => [
                     'docker-compose',
                     'run',
                     'master',
                     '-f',
                     '/mnt/locust/locustfile.py',
-                ];
-            case ExecutionMode::LOCAL:
-                return [
+                ],
+            ExecutionMode::LOCAL => [
                     'locust',
                     '-f',
                     $workingDir . '/locustfile.py',
-                ];
-        }
+                ],
+        };
     }
 }
