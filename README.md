@@ -25,3 +25,16 @@ The following fixture data is loaded:
 
 To generate a useful report, you also have to modify the config file to put in
 information about versions, plugins, server hardware and more.
+
+### Execution Mode
+
+You can run locust in two different execution modes: docker or local. By
+default the locust command is run through a Docker container to provide
+isolation and greatest possible support accross Linux and Mac platforms.
+
+Change the execution mode:
+
+```
+php8.1 bin/sw-bench global-config executionMode local
+php8.1 bin/sw-bench global-config executionMode docker
+```
