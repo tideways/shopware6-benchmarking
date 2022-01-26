@@ -2,9 +2,10 @@
 - name: "Add Shopware User"
   user:
     name: "shopware"
-    home: "/var/www/shopware6"
+    home: "/var/www"
     shell: "/bin/bash"
     state: present
+  ignore_errors: yes
 
 - name: "Checkout Shopware Production Template"
   git:
@@ -42,6 +43,7 @@
   command:
     cmd: "/usr/local/bin/composer install -n -o"
     chdir: "/var/www/shopware6"
+  ignore_errors: yes
 
 - name: "Shopware .env"
   template:
@@ -87,6 +89,7 @@
     src: "{{ item }}.j2"
     dest: "/var/www/shopware6/config/packages/{{ item }}"
   with_items:
+    - "framework.yaml"
     - "messenger.yaml"
     - "shopware.yaml"
 

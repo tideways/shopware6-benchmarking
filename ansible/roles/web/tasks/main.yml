@@ -30,6 +30,13 @@
 - name: Update custom phpenmod module
   shell: phpenmod -v ALL custom
 
+- name: "Add Shopware User"
+  user:
+    name: "shopware"
+    home: "/var/www/"
+    shell: "/bin/bash"
+    state: present
+
 - name: Install apache
   apt:
     pkg: ["apache2"]
@@ -38,6 +45,13 @@
   command:
     cmd: "a2enmod ssl headers rewrite"
     creates: "/etc/apache2/mods-enabled/ssl.conf"
+
+- name: "Set shopware as APACHE_RUN_USER"
+  lineinfile:
+    path: /etc/apache2/envvars
+    regexp: "^export APACHE_RUN_USER"
+    line: "export APACHE_RUN_USER=shopware"
+  notify: Restart Apache
 
 - name: create self-signed SSL cert
   command: >

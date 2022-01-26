@@ -16,6 +16,7 @@ php_extensions:
   - memcached
   - imagick
   - soap
+  - redis
 php_packages: []
 tideways_api_key: ""
 tideways_sample_rate: 5

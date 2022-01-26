@@ -4,8 +4,8 @@
 
 daemonize yes
 pidfile /var/run/redis/redis-server.pid
+bind {{ hostvars[groups['redis'][0]].ansible_all_ipv4_addresses| ipaddr('private') | first }}
 port {{ redis_port }}
-bind {{ redis_bind_ip }}
 timeout 0
 tcp-keepalive 0
 loglevel notice
