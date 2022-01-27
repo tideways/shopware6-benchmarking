@@ -7,7 +7,7 @@ After=mysql.service
 User=www-data
 Restart=always
 RestartSec=2
-ExecStart=/usr/bin/php /var/www/shopware6-demo/bin/console scheduled-task:run
+ExecStart=/usr/bin/php /var/www/shopware6/bin/console scheduled-task:run --time-limit=1800
 
 [Install]
 WantedBy=multi-user.target

@@ -2,5 +2,10 @@
 memory_limit=128M
 display_errors=off
 
+opcache.memory_consumption=128
+opcache.max_accelerated_files=30000
+
 tideways.api_key={{ tideways_api_key }}
 tideways.sample_rate={{ tideways_sample_rate }}
+tideways.enable_cli=1
+tideways.dynamic_tracepoints.enable_cli=1

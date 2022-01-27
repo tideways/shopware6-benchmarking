@@ -8,4 +8,4 @@ PartOf=shopware-consumers.target
 User=www-data
 Restart=always
 RestartSec=2
-ExecStart=/usr/bin/php /var/www/shopware6/bin/console messenger:consume
+ExecStart=/usr/bin/php /var/www/shopware6/bin/console messenger:consume --time-limit=1800 --limit=1000
