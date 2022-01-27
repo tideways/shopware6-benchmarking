@@ -23,7 +23,7 @@ def _(parser):
 
 class Purchaser(ShopwareUser):
     weight = 2
-    wait_time = constant(5)
+    wait_time = constant(10)
 
     # Visit random product listing page
     # add up to five products to cart
@@ -56,7 +56,7 @@ class Purchaser(ShopwareUser):
 
 class Filterer(ShopwareUser):
     weight = 30
-    wait_time = constant(2)
+    wait_time = constant(10)
 
     # Visit random product listing page
     # and apply a filter
@@ -74,7 +74,7 @@ class Filterer(ShopwareUser):
 
 class Searcher(ShopwareUser):
     weight = 20
-    wait_time = constant(2)
+    wait_time = constant(10)
 
     # Visit random product listing page
     # and apply a filter
@@ -101,7 +101,7 @@ class Searcher(ShopwareUser):
 
 class PaginationSurfer(ShopwareUser):
     weight = 30
-    wait_time = constant(2)
+    wait_time = constant(10)
 
     # Visit a random product listing page and paginate through 1-3 additional pages
     @task()
@@ -118,7 +118,7 @@ class Registerer(ShopwareUser):
 
 class Surfer(ShopwareUser):
     weight = 30
-    wait_time = constant(2)
+    wait_time = constant(10)
 
     def on_start(self):
         self.auth.clearCookies()
