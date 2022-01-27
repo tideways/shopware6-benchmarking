@@ -116,6 +116,32 @@ class ReportCommand extends Command
         $chartGenerator->generateChartsFromLocustStats($locustStats->pageByTime, $locustStats->startDate, $locustStats->endDate);
         $chartGenerator->generateChartsFromTidewaysStats($tidewaysStats, $locustStats->startDate, $locustStats->endDate);
 
+        if (file_exists($htmlFilePath)) {
+            @copy(
+                $htmlFilePath,
+                str_replace(
+                    '.html',
+                    '',
+                    $htmlFilePath
+                ) . '-' .
+                date('Y-m-d-H:i', filemtime($htmlFilePath)) .
+                '.html'
+            );
+        }
+
+        if (file_exists($pdfFilePath)) {
+            @copy(
+                $pdfFilePath,
+                str_replace(
+                    '.pdf',
+                    '',
+                    $pdfFilePath
+                ) . '-' .
+                date('Y-m-d-H:i', filemtime($pdfFilePath)) .
+                '.pdf'
+            );
+        }
+
         $reportHtml = $twig->render('report.html.twig', $templateVariables);
 
         copy(__DIR__ . '/../../templates/shopware_logo_blue.svg', $config->getDataDirectory() . '/shopware_logo_blue.svg');
