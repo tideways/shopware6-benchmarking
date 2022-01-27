@@ -44,6 +44,10 @@ class RunCommand extends Command
         $sitemapDownloader = new SitemapFixturesDownloader();
         $sitemapDownloader->download($config);
 
+        if ($sitemapDownloader->isCachedSitemapEmpty($config)) {
+            throw new \RuntimeException("The category and product urls from the sitemap are empty. Was the sitemap generated on Shopware side?");
+        }
+
         $globalConfiguration = GlobalConfiguration::createFromGlobalDirectory();
         $command = $this->getLocustCommandBasedOnExecutionMode($globalConfiguration->executionMode, $workingDir);
 

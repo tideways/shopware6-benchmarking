@@ -60,4 +60,19 @@ class SitemapFixturesDownloader
         fclose($productHandle);
         fclose($listingHandle);
     }
+
+    public function isCachedSitemapEmpty(Configuration $configuration) : bool
+    {
+        if (file_exists($configuration->getDataDirectory() . '/listing_urls.csv') &&
+            count(file($configuration->getDataDirectory() . '/listing_urls.csv')) < 2) {
+            return true;
+        }
+
+        if (file_exists($configuration->getDataDirectory() . '/product_urls.csv') &&
+            count(file($configuration->getDataDirectory() . '/product_urls.csv')) < 2) {
+            return true;
+        }
+
+        return false;
+    }
 }
