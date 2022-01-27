@@ -36,7 +36,7 @@ class Purchaser(ShopwareUser):
             self.auth.loginRandomUserFromFixture()
         else:
             self.auth.register()
-        url = random.choice(listings)
+        url = randomWithNTopPages(listings, 10)
         productUrls = self.visitProductListingPageAndRetrieveProductUrls(
             productListingUrl=url
         )
@@ -106,7 +106,7 @@ class PaginationSurfer(ShopwareUser):
     # Visit a random product listing page and paginate through 1-3 additional pages
     @task()
     def detail_page(self):
-        url = random.choice(listings)
+        url = randomWithNTopPages(listings, 10)
         self.visitProductListingPageAndUseThePagination(
             url, random.randint(0, self.environment.parsed_options.max_pagination_surfing))
 
@@ -129,13 +129,13 @@ class Surfer(ShopwareUser):
 
     @task(10)
     def listing_page(self):
-        url = random.choice(listings)
+        url = randomWithNTopPages(listings, 10)
         self.visitProductListingPageAndRetrieveProductUrls(
             productListingUrl=url)
 
     @task(4)
     def detail_page(self):
-        url = random.choice(details)
+        url = randomWithNTopPages(details, 25)
         self.visitProduct(url)
 
 class FancySurferThatDoesALotOfThings(ShopwareUser):
@@ -146,7 +146,7 @@ class FancySurferThatDoesALotOfThings(ShopwareUser):
     def browseAroundFromHomepageAndAddToAnonymousCart(self):
         self.auth.clearCookies()
         self.visitHomepage()
-        response = self.visitProductListingPage(random.choice(listings))
+        response = self.visitProductListingPage(randomWithNTopPages(listings, 10))
         productDetailResponses = self.visitRandomProductDetailPagesFromListing(
             response)
         if len(productDetailResponses) > 0:
@@ -158,7 +158,7 @@ class FancySurferThatDoesALotOfThings(ShopwareUser):
     def browseAroundFromHomepageAndAddToAnonymousCartAndCheckout(self):
         self.auth.clearCookies()
         self.visitHomepage()
-        response = self.visitProductListingPage(random.choice(listings))
+        response = self.visitProductListingPage(randomWithNTopPages(listings, 10))
         productDetailResponses = self.visitRandomProductDetailPagesFromListing(
             response)
         if len(productDetailResponses) > 0:
@@ -208,6 +208,11 @@ class DebugUser(ShopwareUser):
 
 listings = getListings()
 details = getProductDetails()
+
+def randomWithNTopPages(pages, numTopPages):
+    randomPage = random.choice(pages)
+    topPage = random.choice(pages[:numTopPages])
+    return random.choice([randomPage, topPage])
 
 if __name__ == "__main__":
     DebugUser.host = "https://shopware64.tideways.io"
