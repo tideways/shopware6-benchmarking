@@ -4,8 +4,12 @@ import random
 from locust import constant, task, events
 from locusthelpers.shopware_user import ShopwareUser
 
+import locust.stats
+
 from locusthelpers.fixtures import getListings, getProductDetails, getRandomWordFromFixture, getRandomWordFromOperatingSystem
 from locust_plugins import run_single_user
+
+locust.stats.STATS_AUTORESIZE = False
 
 @events.init_command_line_parser.add_listener
 def _(parser):
@@ -19,7 +23,7 @@ def _(parser):
 
 class Purchaser(ShopwareUser):
     weight = 2
-    wait_time = constant(15)
+    wait_time = constant(5)
 
     # Visit random product listing page
     # add up to five products to cart
@@ -52,6 +56,8 @@ class Purchaser(ShopwareUser):
 
 class Filterer(ShopwareUser):
     weight = 30
+    wait_time = constant(2)
+
     # Visit random product listing page
     # and apply a filter
     @task
@@ -68,6 +74,8 @@ class Filterer(ShopwareUser):
 
 class Searcher(ShopwareUser):
     weight = 20
+    wait_time = constant(2)
+
     # Visit random product listing page
     # and apply a filter
     @task
@@ -132,6 +140,7 @@ class Surfer(ShopwareUser):
 
 class FancySurferThatDoesALotOfThings(ShopwareUser):
     weight = 20
+    wait_time = constant(10)
 
     @task
     def browseAroundFromHomepageAndAddToAnonymousCart(self):

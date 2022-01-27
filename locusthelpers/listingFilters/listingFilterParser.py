@@ -38,7 +38,7 @@ class ListingFilterParser:
             else:
                 logging.debug("Found attributes: ",
                               filterElement.attrib.keys())
-                raise Exception("Could not find filter options")
+                continue
 
             listingFilters.append(
                 ListingFilter(

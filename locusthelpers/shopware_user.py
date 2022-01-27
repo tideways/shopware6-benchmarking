@@ -113,12 +113,19 @@ class ShopwareUser(HttpUserWithResources):
 
         # for a random number of times, visit a random page
         for i in range(numberOfTimesToPaginate):
+            if len(pages) == 0:
+                return
+
             pages = self.visitProductListingPageAndRetrievePageNumbers(
                 productListingUrl=productListingUrl + "?p=" + random.choice(pages))
 
     def applyRandomFilterOnProductListingPage(self, response: Response):
         listingFilterParser = ListingFilterParser(response.content)
         filters = listingFilterParser.findFilters()
+
+        if len(filters) == 0:
+            return None
+
         filter = random.choice(filters)
         filterValue = random.choice(filter.possibleValues)
 
@@ -197,6 +204,9 @@ class ShopwareUser(HttpUserWithResources):
         return pages
 
     def visitRandomProductDetailPagesFromListing(self, response: Response, maxNumberOfProducts: int = 5, minNumberOfProducts: int = 0) -> list[Response]:
+        if response == None:
+            return []
+
         productUrls = self.findProductUrlsFromProductListing(response)
 
         if len(productUrls) == 0:
