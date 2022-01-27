@@ -4,7 +4,8 @@ Description=Shopware Scheduled Tasks Worker
 After=mysql.service
 
 [Service]
-User=www-data
+User=shopware
+Group=www-data
 Restart=always
 RestartSec=2
 ExecStart=/usr/bin/php /var/www/shopware6/bin/console scheduled-task:run --time-limit=1800

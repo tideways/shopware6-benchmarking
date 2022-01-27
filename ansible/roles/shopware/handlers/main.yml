@@ -1,0 +1,9 @@
+---
+- name: "Restart Shopware Workers"
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: restarted
+  with_items:
+    - "shopware-consumers.target"
+    - "shopware-scheduled-tasks.service"

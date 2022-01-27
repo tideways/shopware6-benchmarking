@@ -140,12 +140,4 @@
     - "shopware-consumers.target"
     - "shopware-consumer@.service"
     - "shopware-scheduled-tasks.service"
-
-- name: "Enable systemd services"
-  systemd:
-    name: "{{ item }}"
-    enabled: yes
-    state: started
-  with_items:
-    - "shopware-consumers.target"
-    - "shopware-scheduled-tasks.service"
+  notify: "Restart Shopware Workers"
