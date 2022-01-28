@@ -102,9 +102,9 @@ class RunCommand extends Command
 
         $output->writeln(sprintf("Complete after %.0f seconds.", $locustDurationSeconds));
 
-        $resultFiles = ["_exceptions.csv", "_failures.csv", "_stats.csv", "_stats_history.csv"];
+        $resultFiles = ["_exceptions.csv", "_failures.csv", "_stats.csv", "_stats_history.csv", "_requests.csv"];
         foreach ($resultFiles as $resultFile) {
-            $fileName = $config->getName() . '_' . $resultFile;
+            $fileName = $config->getName() . $resultFile;
             @copy($workingDir . '/' . $fileName, $config->getDataDirectory() . '/'. $fileName);
         }
 
