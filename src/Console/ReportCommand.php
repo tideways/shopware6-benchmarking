@@ -106,9 +106,18 @@ class ReportCommand extends Command
             );
         }
 
+        $minutes = (($tidewaysDataRangeEnd->getTimestamp() - $tidewaysDataRangeStart->getTimestamp()) / 60);
         $templateVariables['purchases_per_hour'] = round(
-            $tidewaysStats['order']->requests / (($tidewaysDataRangeEnd->getTimestamp() - $tidewaysDataRangeStart->getTimestamp()) / 60) * 60,
+            $tidewaysStats['order']->requests / $minutes * 60,
             0
+        );
+        $templateVariables['requests_per_minute'] = round(
+            $locustStats->getTotalRequests() / $minutes,
+            1
+        );
+        $templateVariables['php_requests_per_minute'] = round(
+            $tidewaysStats['overall']->requests / $minutes,
+            1
         );
         $templateVariables['tideways'] = $tidewaysStats;
         $templateVariables['locust'] = $locustStats;

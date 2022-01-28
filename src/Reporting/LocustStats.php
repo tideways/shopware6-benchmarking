@@ -10,4 +10,9 @@ class LocustStats
         public array              $pageByTime = [],
         public array              $pageSummary = [],
     ) {}
+
+    public function getTotalRequests() : int
+    {
+        return array_sum(array_map(fn (array $row) => $row['Request Count'], $this->pageSummary));
+    }
 }

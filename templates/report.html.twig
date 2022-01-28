@@ -116,8 +116,8 @@
                                 <td width="50%">{{ config.scenario.duration }}</td>
                             </tr>
                             <tr>
-                                <td width="50%">Concurrent Users</td>
-                                <td width="50%">{{ config.scenario.concurrentUsers }}</td>
+                                <td width="50%">Concurrent Threads</td>
+                                <td width="50%">{{ config.scenario.concurrentThreads }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">Shopware Version</td>
@@ -150,7 +150,15 @@
                                 <td width="50%">{{ counts.listings | number_format(0, '.', ',')}}</td>
                             </tr>
                             <tr>
-                                <td width="50%">Purchasers/Hour</td>
+                                <td width="50%">Requests/Minute</td>
+                                <td width="50%" style="color: red; font-weight: bold">{{ requests_per_minute }}</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">PHP Requests/Minute</td>
+                                <td width="50%" style="color: red; font-weight: bold">{{ php_requests_per_minute }}</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Orders/Hour</td>
                                 <td width="50%" style="color: red; font-weight: bold">{{ purchases_per_hour }}</td>
                             </tr>
                         </table>
@@ -187,6 +195,11 @@
                             will provide realistic and reliable results of future production behavior.
                             This benchmark focuses of server-side performance from the browser and PHP point of view.
                             Its results can only partially explain real user performance in the browser.
+                        </p>
+
+                        <p>
+                            Each thread in the benchmark is a <a href="http://docs.locust.io/en/stable/writing-a-locustfile.html#">Locust user</a>, each with different behaviors:
+                            For example: Purchaser, Random Surfer, Searching user, category pagination and filtering user.
                         </p>
 
                         <p>The code for this benchmark is open-source and available under <a href="https://github.com/tideways/shopware6-benchmarking">https://github.com/tideways/shopware6-benchmarking</a>.</p>

@@ -55,7 +55,7 @@ class RunCommand extends Command
             '--headless',
             '--host=' . $config->scenario->host,
             '-u',
-            $config->scenario->concurrentUsers,
+            $config->scenario->concurrentThreads,
             '-r',
             $config->scenario->userSpawnRate,
             '-t',

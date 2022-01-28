@@ -8,7 +8,7 @@ class ScenarioConfiguration
         public string $title,
         public string $duration,
         public string $host,
-        public int $concurrentUsers = 10,
+        public int $concurrentThreads = 10,
         public int $userSpawnRate = 1,
         public int $recurringUserRate = 50,
         public int $filtererMinFilters = 3,
