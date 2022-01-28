@@ -1,5 +1,6 @@
 import logging
 import random
+import time
 
 from locust import constant, task, events
 from locusthelpers.shopware_user import ShopwareUser
@@ -50,7 +51,9 @@ class Purchaser(ShopwareUser):
 
         for detailPageUrl in random.sample(productUrls, random.randint(1, maxProducts)):
             self.visitProduct(detailPageUrl)
+            time.sleep(2)
             self.addProductToCart(detailPageUrl)
+            time.sleep(2)
 
         self.checkoutOrder()
 
@@ -65,12 +68,15 @@ class Filterer(ShopwareUser):
         url = random.choice(listings)
         numberOfFiltersToApply = random.randint(self.environment.parsed_options.filterer_min_filters, self.environment.parsed_options.filterer_max_filters)
         response = self.visitProductListingPage(productListingUrl=url)
+        time.sleep(1)
 
         for _ in range(numberOfFiltersToApply):
             ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
+            time.sleep(1)
             # In 10 percent of cases, try to visit a few products
             if random.randint(1, 100) <= self.environment.parsed_options.filterer_visit_product_ratio:
                 self.visitRandomProductDetailPagesFromListing(ajaxResponse)
+                time.sleep(1)
 
 class Searcher(ShopwareUser):
     weight = 20
@@ -82,21 +88,27 @@ class Searcher(ShopwareUser):
     def search(self):
         self.visitPage("/")
         response = self.search.search(getRandomWordFromFixture())
+        time.sleep(1)
         self.visitRandomProductDetailPagesFromListing(response)
 
     @task
     def searchAndFilter(self):
         self.visitPage("/")
         response = self.search.search(getRandomWordFromFixture())
+        time.sleep(1)
         ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
+        time.sleep(1)
         self.visitRandomProductDetailPagesFromListing(ajaxResponse)
 
     @task
     def searchForWordFromWordlist(self):
         self.visitPage("/")
         response = self.search.search(getRandomWordFromOperatingSystem())
+        time.sleep(1)
         self.visitRandomProductDetailPagesFromListing(response)
+        time.sleep(1)
         ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
+        time.sleep(1)
         self.visitRandomProductDetailPagesFromListing(ajaxResponse)
 
 class PaginationSurfer(ShopwareUser):
@@ -146,9 +158,15 @@ class FancySurferThatDoesALotOfThings(ShopwareUser):
     def browseAroundFromHomepageAndAddToAnonymousCart(self):
         self.auth.clearCookies()
         self.visitHomepage()
+        time.sleep(1)
+
         response = self.visitProductListingPage(randomWithNTopPages(listings, 10))
+        time.sleep(1)
+
         productDetailResponses = self.visitRandomProductDetailPagesFromListing(
             response)
+        time.sleep(1)
+
         if len(productDetailResponses) > 0:
             self.addProductToCart(
                 random.choice(productDetailResponses).url
@@ -158,37 +176,57 @@ class FancySurferThatDoesALotOfThings(ShopwareUser):
     def browseAroundFromHomepageAndAddToAnonymousCartAndCheckout(self):
         self.auth.clearCookies()
         self.visitHomepage()
+        time.sleep(1)
+
         response = self.visitProductListingPage(randomWithNTopPages(listings, 10))
+        time.sleep(1)
+
         productDetailResponses = self.visitRandomProductDetailPagesFromListing(
             response)
+        time.sleep(1)
+
         if len(productDetailResponses) > 0:
             self.addProductToCart(
                 random.choice(productDetailResponses).url
             )
 
+        time.sleep(1)
+
         self.auth.registerOrLogin()
+        time.sleep(1)
+
         if len(productDetailResponses) > 0:
             self.checkoutOrder()
 
     @task
     def authenticatedSearchAfterHomepageAndAddToCartAndCheckout(self):
         self.auth.clearCookies()
+
         self.auth.registerOrLogin()
+        time.sleep(1)
+
         self.visitHomepage()
+        time.sleep(1)
 
         # in 50% of the cases do a bogus search first
         if random.randint(0, 1) == 0:
             self.search.search(getRandomWordFromOperatingSystem())
 
         response = self.search.search(getRandomWordFromFixture())
+        time.sleep(1)
+
         ajaxResponse = self.applyRandomFilterOnProductListingPage(response)
         productDetailResponses = self.visitRandomProductDetailPagesFromListing(
             ajaxResponse)
+
+        time.sleep(1)
 
         if len(productDetailResponses) > 0:
             self.addProductToCart(
                 random.choice(productDetailResponses).url
             )
+            time.sleep(1)
+
             self.checkoutOrder()
 
 class DebugUser(ShopwareUser):
