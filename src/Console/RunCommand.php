@@ -27,6 +27,14 @@ class RunCommand extends Command
             'Scenario configuration file',
             getcwd() . '/default.json'
         );
+
+        $this->addOption(
+            'duration',
+            'd',
+            InputOption::VALUE_REQUIRED,
+            'Custom duration that overwrite the one defined in scenario configuration file.',
+            null
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -50,6 +58,7 @@ class RunCommand extends Command
 
         $globalConfiguration = GlobalConfiguration::createFromGlobalDirectory();
         $command = $this->getLocustCommandBasedOnExecutionMode($globalConfiguration->executionMode, $workingDir);
+        $duration = $input->getOption('duration') ?: $config->scenario->duration;
 
         $locustProcess = new Process(array_merge($command, [
             '--headless',
@@ -59,7 +68,7 @@ class RunCommand extends Command
             '-r',
             $config->scenario->userSpawnRate,
             '-t',
-            $config->scenario->duration,
+            $duration,
             '--autostart',
             '--autoquit',
             5,
@@ -82,7 +91,7 @@ class RunCommand extends Command
         $locustProcess->setWorkingDirectory($workingDir);
         $locustProcess->setTimeout(null);
 
-        $output->writeln("Running benchmark for " . $config->scenario->duration . "...");
+        $output->writeln("Running benchmark for " . $duration . "...");
 
         $locustProcess->run(function ($type, $buffer) use ($output) {
             $output->write($buffer);
