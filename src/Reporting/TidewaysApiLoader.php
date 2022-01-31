@@ -44,7 +44,6 @@ class TidewaysApiLoader
         $url = $this->getPerformanceApiUrl('transaction-by-name/' . $transactionName, $end, $start);
         $response = $this->client->request('GET', $url);
         $data = json_decode($response->getBody(), true);
-        var_dump($data['transaction']['total']['histogram']);die;
 
         return new TidewaysStats(
             byTime: $data['transaction']['by_time'],

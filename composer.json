@@ -10,7 +10,8 @@
         "ext-curl": "*",
         "guzzlehttp/guzzle": "7.4.x-dev",
         "symfony/console": "^6.0",
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5",
+        "beberlei/hdrhistogram-php-stubs": "^1.0"
     },
     "autoload": {
         "psr-4": {

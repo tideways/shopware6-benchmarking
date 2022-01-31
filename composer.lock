@@ -4,8 +4,40 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "81fca025b79265a886c67e6e7ba30def",
+    "content-hash": "dadb2a458b0c9f6740150f0023f74acf",
     "packages": [
+        {
+            "name": "beberlei/hdrhistogram-php-stubs",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/beberlei/hdrhistogram-php-stubs.git",
+                "reference": "d60457f063c10d38331973306a77cb49e8c3dbf1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/beberlei/hdrhistogram-php-stubs/zipball/d60457f063c10d38331973306a77cb49e8c3dbf1",
+                "reference": "d60457f063c10d38331973306a77cb49e8c3dbf1",
+                "shasum": ""
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Tobias Olry",
+                    "email": "tobias@tideways-gmbh.com"
+                }
+            ],
+            "description": "IDE stubs for beberlei/hdrhistogram-php",
+            "support": {
+                "issues": "https://github.com/beberlei/hdrhistogram-php-stubs/issues",
+                "source": "https://github.com/beberlei/hdrhistogram-php-stubs/tree/master"
+            },
+            "time": "2019-05-14T13:18:11+00:00"
+        },
         {
             "name": "doctrine/instantiator",
             "version": "1.4.0",
@@ -3556,7 +3588,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.0",
+        "php": ">=8.1",
         "ext-json": "*",
         "ext-dom": "*",
         "ext-zlib": "*",
