@@ -12,6 +12,8 @@ class LocustStatsParser
         $maxTimestamp = null;
         $headers = fgetcsv($handle);
 
+        $operationNames = ['order', 'listing-page', 'product-detail-page', 'homepage', 'search', 'add-to-cart', 'cart-page', 'register'];
+
         $operations = [];
 
         while (($data = fgetcsv($handle)) !== false) {
@@ -30,13 +32,23 @@ class LocustStatsParser
                 $operations[$page] = ['summary' => hdr_init(1, 60000, 2), 'byTime' => []];
             }
 
+            if (!isset($operations['overall'])) {
+                $operations['overall'] = ['summary' => hdr_init(1, 60000, 2), 'byTime' => []];
+            }
+
             hdr_record_value($operations[$page]['summary'], $duration);
+            hdr_record_value($operations['overall']['summary'], $duration);
 
             if (!isset($operations[$page]['byTime'][$time])) {
                 $operations[$page]['byTime'][$time] = hdr_init(1, 60000, 2);
             }
 
+            if (!isset($operations['overall']['byTime'][$time])) {
+                $operations['overall']['byTime'][$time] = hdr_init(1, 60000, 2);
+            }
+
             hdr_record_value($operations[$page]['byTime'][$time], $duration);
+            hdr_record_value($operations['overall']['byTime'][$time], $duration);
         }
 
         $maxTimestamp = $maxTimestamp->modify('+1 minute');
