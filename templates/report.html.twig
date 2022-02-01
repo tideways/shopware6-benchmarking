@@ -48,8 +48,8 @@
         <tr>
             <td width="50%">
                 <h4>User Performance <span style="color: red">
-                        {{ attribute(attribute(locust.pageSummary, slug), '95%') }}ms,
-                        {{ attribute(attribute(locust.pageSummary, slug), 'Request Count') }} req
+                        {{ attribute(locust.pageSummary, slug).get95PercentileResponseTime() }}ms,
+                        {{ attribute(locust.pageSummary, slug).getRequestCount() }} req
                     </span>
                 </h4>
 
@@ -88,7 +88,7 @@
             <table>
                 <tr>
                     <td width="50%">
-                        <h3>Overall User Performance  <span style="color: red">{{ attribute(locust.pageSummary.Aggregated, '95%') }}ms</span></h3>
+                        <h3>Overall User Performance  <span style="color: red">{{ locust.pageSummary.overall.get95PercentileResponseTime() }}ms</span></h3>
 
                         <img src="./locust/Aggregated_response_times.png" width="520" />
 

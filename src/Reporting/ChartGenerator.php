@@ -63,7 +63,7 @@ class ChartGenerator
                 array_keys($stats)
             ),
             array_map(
-                fn(string $value) => intval($value),
+                fn(HdrHistogram $value) => $value->get95PercentileResponseTime(),
                 array_values($stats)
             ),
         )];

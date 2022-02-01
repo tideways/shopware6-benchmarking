@@ -61,9 +61,8 @@ class ReportCommand extends Command
             mkdir($config->getDataDirectory() . '/locust', 0755, true);
         }
 
-        $locustStats = $statsParser->parseLocustStats(
-            $config->getDataDirectory() . '/' . $config->getName() . '_stats.csv',
-            $config->getDataDirectory() . '/' . $config->getName() . '_stats_history.csv'
+        $locustStats = $statsParser->parse(
+            $config->getDataDirectory() . '/' . $config->getName() . '_requests.csv',
         );
 
         $tidewaysDataRangeStart = $locustStats->startDate->setTime(
