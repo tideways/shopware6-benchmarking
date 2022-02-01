@@ -7,7 +7,9 @@ class LocustStats
     public function __construct(
         public ?\DateTimeImmutable $startDate = null,
         public ?\DateTimeImmutable $endDate = null,
+        /** @var array<string, array<string, HdrHistogram>> */
         public array               $pageByTime = [],
+        /** @var array<string, HdrHistogram> */
         public array               $pageSummary = [],
     ) {}
 

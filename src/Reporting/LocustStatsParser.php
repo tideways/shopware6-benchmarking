@@ -29,26 +29,26 @@ class LocustStatsParser
             $maxTimestamp = $date;
 
             if (!isset($operations[$page])) {
-                $operations[$page] = ['summary' => hdr_init(1, 60000, 2), 'byTime' => []];
+                $operations[$page] = ['summary' => new HdrHistogram(), 'byTime' => []];
             }
 
             if (!isset($operations['overall'])) {
-                $operations['overall'] = ['summary' => hdr_init(1, 60000, 2), 'byTime' => []];
+                $operations['overall'] = ['summary' => new HdrHistogram(), 'byTime' => []];
             }
 
-            hdr_record_value($operations[$page]['summary'], $duration);
-            hdr_record_value($operations['overall']['summary'], $duration);
+            $operations[$page]['summary']->record($duration);
+            $operations['overall']['summary']->record($duration);
 
             if (!isset($operations[$page]['byTime'][$time])) {
-                $operations[$page]['byTime'][$time] = hdr_init(1, 60000, 2);
+                $operations[$page]['byTime'][$time] = new HdrHistogram();
             }
 
             if (!isset($operations['overall']['byTime'][$time])) {
-                $operations['overall']['byTime'][$time] = hdr_init(1, 60000, 2);
+                $operations['overall']['byTime'][$time] = new HdrHistogram();
             }
 
-            hdr_record_value($operations[$page]['byTime'][$time], $duration);
-            hdr_record_value($operations['overall']['byTime'][$time], $duration);
+            $operations[$page]['byTime'][$time]->record($duration);
+            $operations['overall']['byTime'][$time]->record($duration);
         }
 
         $maxTimestamp = $maxTimestamp->modify('+1 minute');
@@ -63,26 +63,18 @@ class LocustStatsParser
         $period = new \DatePeriod($minTimestamp, new \DateInterval('PT1M'), $maxTimestamp);
 
         foreach ($operations as $operation => $operationStats) {
-            $stats->pageSummary[$operation] = [
-                'response_time_median' => hdr_value_at_percentile($operationStats['summary'], 0.50),
-                'response_time_95p' => hdr_value_at_percentile($operationStats['summary'], 0.95),
-                'requests' => hdr_total_count($operationStats['summary']),
-            ];
-
-            foreach ($period as $everyMinute) {
-                $stats->pageByTime[$operation][$everyMinute->format('Y-m-d H:i')] = [
-                    'response_time_median' => null,
-                    'response_time_95p' => null,
-                    'requests' => 0,
-                ];
-            }
+            $stats->pageSummary[$operation] = $operationStats['summary'];
 
             foreach ($operationStats['byTime'] as $time => $timeStats) {
-                $stats->pageByTime[$operation][$time] = [
-                    'response_time_median' => hdr_value_at_percentile($timeStats, 0.50),
-                    'response_time_95p' => hdr_value_at_percentile($timeStats, 0.95),
-                    'requests' => hdr_total_count($timeStats),
-                ];
+                $stats->pageByTime[$operation][$time] = $timeStats;
+            }
+
+            foreach ($period as $everyMinute) {
+                if (isset($stats->pageByTime[$operation][$everyMinute->format('Y-m-d H:i')])) {
+                    continue;
+                }
+
+                $stats->pageByTime[$operation][$everyMinute->format('Y-m-d H:i')] = new HdrHistogram();
             }
         }
 

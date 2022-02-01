@@ -1,9 +1,8 @@
 <?php
 
-namespace Reporting;
+namespace Tideways\Shopware6Benchmarking\Reporting;
 
 use PHPUnit\Framework\TestCase;
-use Tideways\Shopware6Benchmarking\Reporting\LocustStatsParser;
 
 class LocustStatsParserTest extends TestCase
 {
@@ -12,22 +11,22 @@ class LocustStatsParserTest extends TestCase
         $parser = new LocustStatsParser();
         $stats = $parser->parse(__DIR__ . '/../fixtures/loadtesting1_requests.csv');
 
-        $this->assertEquals(1191, $stats->pageSummary['order']['response_time_95p']);
-        $this->assertEquals(1191, $stats->pageSummary['order']['response_time_median']);
-        $this->assertEquals(4, $stats->pageSummary['order']['requests']);
+        $this->assertEquals(1447, $stats->pageSummary['order']->get95PercentileResponseTime());
+        $this->assertEquals(1319, $stats->pageSummary['order']->getMedianResponseTime());
+        $this->assertEquals(4, $stats->pageSummary['order']->getRequestCount());
 
-        $this->assertEquals(72, $stats->pageSummary['overall']['response_time_95p']);
-        $this->assertEquals(71, $stats->pageSummary['overall']['response_time_median']);
-        $this->assertEquals(469, $stats->pageSummary['overall']['requests']);
+        $this->assertEquals(871, $stats->pageSummary['overall']->get95PercentileResponseTime());
+        $this->assertEquals(235, $stats->pageSummary['overall']->getMedianResponseTime());
+        $this->assertEquals(469, $stats->pageSummary['overall']->getRequestCount());
 
         $this->assertCount(2, $stats->pageByTime['overall']);
 
-        $this->assertEquals(72, $stats->pageByTime['overall']['2022-01-28 15:38']['response_time_95p']);
-        $this->assertEquals(71, $stats->pageByTime['overall']['2022-01-28 15:38']['response_time_median']);
-        $this->assertEquals(409, $stats->pageByTime['overall']['2022-01-28 15:38']['requests']);
+        $this->assertEquals(883, $stats->pageByTime['overall']['2022-01-28 15:38']->get95PercentileResponseTime());
+        $this->assertEquals(234, $stats->pageByTime['overall']['2022-01-28 15:38']->getMedianResponseTime());
+        $this->assertEquals(409, $stats->pageByTime['overall']['2022-01-28 15:38']->getRequestCount());
 
-        $this->assertEquals(97, $stats->pageByTime['overall']['2022-01-28 15:39']['response_time_95p']);
-        $this->assertEquals(97, $stats->pageByTime['overall']['2022-01-28 15:39']['response_time_median']);
-        $this->assertEquals(60, $stats->pageByTime['overall']['2022-01-28 15:39']['requests']);
+        $this->assertEquals(835, $stats->pageByTime['overall']['2022-01-28 15:39']->get95PercentileResponseTime());
+        $this->assertEquals(263, $stats->pageByTime['overall']['2022-01-28 15:39']->getMedianResponseTime());
+        $this->assertEquals(60, $stats->pageByTime['overall']['2022-01-28 15:39']->getRequestCount());
     }
 }
