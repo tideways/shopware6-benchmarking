@@ -74,7 +74,6 @@ class RunCommand extends Command
             5,
             '--csv=' . $config->getName(),
             '--csv-full-history',
-            '--html=' . $config->getName(),
             '--print-stats',
         ]));
         $locustProcess->setEnv([

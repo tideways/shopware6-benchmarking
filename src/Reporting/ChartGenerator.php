@@ -57,16 +57,14 @@ class ChartGenerator
 
     private function transformLocustStatsToChartDataSet(array $stats): array
     {
-        return ["Response Times" => array_combine(
-            array_map(
-                fn(int $timestamp) => (new \DateTimeImmutable('@' . $timestamp))->format('Y-m-d H:i:s'),
-                array_keys($stats)
-            ),
-            array_map(
-                fn(HdrHistogram $value) => $value->get95PercentileResponseTime(),
-                array_values($stats)
-            ),
-        )];
+        $dataSets = ['Response Times' => [], 'Requests' => []];
+
+        foreach ($stats as $date => $histogram) {
+            $dataSets['Response Times'][$date . ':00'] = $histogram->get95PercentileResponseTime();
+            $dataSets['Requests'][$date . ':00'] = $histogram->getRequestCount();
+        }
+
+        return $dataSets;
     }
 
     private function cropDataToChartRange(array $dataSets, \DateTimeImmutable $start, \DateTimeImmutable $end): array

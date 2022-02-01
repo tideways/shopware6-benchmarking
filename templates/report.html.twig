@@ -48,7 +48,8 @@
         <tr>
             <td width="50%">
                 <h4>User Performance <span style="color: red">
-                        {{ attribute(locust.pageSummary, slug).get95PercentileResponseTime() }}ms,
+                        95p: {{ attribute(locust.pageSummary, slug).get95PercentileResponseTime() }}ms,
+                        Median: {{ attribute(locust.pageSummary, slug).getMedianResponseTime() }}ms,
                         {{ attribute(locust.pageSummary, slug).getRequestCount() }} req
                     </span>
                 </h4>
@@ -58,7 +59,7 @@
 
             <td width="50%">
                 <h4>PHP Performance <span style="color: red">
-                        {{ attribute(tideways, slug).responseTime }}ms,
+                        95p: {{ attribute(tideways, slug).responseTime }}ms,
                         {{ attribute(tideways, slug).requests }} req
                     </span>
                 </h4>
@@ -86,21 +87,7 @@
                 </tr>
             </table>
             <table>
-                <tr>
-                    <td width="50%">
-                        <h3>Overall User Performance  <span style="color: red">{{ locust.pageSummary.overall.get95PercentileResponseTime() }}ms</span></h3>
-
-                        <img src="./locust/Aggregated_response_times.png" width="520" />
-
-                    </td>
-
-                    <td width="50%">
-
-                        <h3>Overall PHP Performance <span style="color: red">{{ tideways.overall.responseTime }}ms</span></h3>
-
-                        <img src="./tideways/overall_performance.png" width="520" />
-                    </td>
-                </tr>
+                {{ _self.chart_row("Overall", "overall", tideways, locust) }}
 
                 {{ _self.chart_row("Category Page", "listing-page", tideways, locust) }}
 

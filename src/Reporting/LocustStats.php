@@ -17,6 +17,6 @@ class LocustStats
 
     public function getTotalRequests() : int
     {
-        return array_sum(array_map(fn (array $row) => $row['Request Count'], $this->pageSummary));
+        return $this->pageSummary['overall']->getRequestCount();
     }
 }

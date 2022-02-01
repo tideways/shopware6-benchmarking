@@ -9,6 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use Tideways\Shopware6Benchmarking\Configuration;
 use Tideways\Shopware6Benchmarking\Reporting\ChartGenerator;
+use Tideways\Shopware6Benchmarking\Reporting\HistogramGenerator;
 use Tideways\Shopware6Benchmarking\Reporting\LocustStatsParser;
 use Tideways\Shopware6Benchmarking\Reporting\TidewaysApiLoader;
 use Twig\Environment;
@@ -52,6 +53,7 @@ class ReportCommand extends Command
 
         $statsParser = new LocustStatsParser();
         $chartGenerator = new ChartGenerator($config->getDataDirectory());
+        $histogramGenerator = new HistogramGenerator($config->getDataDirectory());
         $tidewaysLoader = new TidewaysApiLoader($config->tideways->project, $config->tideways->apiToken);
 
         if (!is_dir($config->getDataDirectory() . '/tideways')) {
@@ -123,6 +125,8 @@ class ReportCommand extends Command
 
         $chartGenerator->generateChartsFromLocustStats($locustStats->pageByTime, $locustStats->startDate, $locustStats->endDate);
         $chartGenerator->generateChartsFromTidewaysStats($tidewaysStats, $locustStats->startDate, $locustStats->endDate);
+
+        $histogramGenerator->generateChartsFromLocustStats($locustStats);
 
         if (file_exists($htmlFilePath)) {
             @copy(
