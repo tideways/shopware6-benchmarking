@@ -39,7 +39,7 @@ class HdrHistogram
 
         $step = $this->estimateOptimalStep($max);
 
-        $buckets = [];
+        $buckets = ['Excellent' => 0, 'Good' => 0, 'Acceptable' => 0, 'Degraded' => 0, 'Unacceptable' => 0];
 
         $iter = hdr_iter_init($this->hdr);
 
@@ -47,11 +47,19 @@ class HdrHistogram
             if ($row['value'] > $max) {
                 break;
             }
-            $start = $row['value'] - ($row['value'] % $step);
-            $label = $start . '-' . ($start+$step);
-            if (!isset($buckets[$label])) {
-                $buckets[$label] = 0;
+
+            if ($row['value'] < 512) {
+                $label = 'Excellent';
+            } else if ($row['value'] < 1024) {
+                $label = 'Good';
+            } else if ($row['value'] < 2048) {
+                $label = 'Acceptable';
+            } else if ($row['value'] < 4096) {
+                $label = 'Degraded';
+            } else {
+                $label = 'Unacceptable';
             }
+
             $buckets[$label] += $row['count_at_index'];
         }
 

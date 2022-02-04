@@ -22,8 +22,6 @@ class HistogramGenerator
 
     private function generatePngChart(array $dataSet, string $ouputFilePath,): bool
     {
-        $dataSet = array_slice($dataSet, 0, 10);
-
         $graph = new ezcGraphBarChart();
         $graph->options->font = __DIR__ . '/../../templates/font.ttf';
         $graph->options->font->maxFontSize = 6;
@@ -35,8 +33,30 @@ class HistogramGenerator
         $graph->palette->majorGridColor = '#cccccc';
         $graph->palette->axisColor = '#cccccc';
 
-        $graph->data['ms'] = new ezcGraphArrayDataSet($dataSet);
-        $graph->xAxis->labelCount = count($graph->data['ms']);
+        $total = array_sum($dataSet);
+        $dataSet = array_map(fn ($value) => $value / $total * 100, $dataSet);
+
+        $colors = ['2ce574', 'cdf03a', 'ffe500', 'ffe500', 'ff9600', 'ff9600'];
+
+        $i = $sum = 0;
+        $color = 4;
+        foreach ($dataSet as $value) {
+            $sum += $value;
+
+            if ($sum > 95) {
+                $color = $colors[$i];
+                break;
+            }
+            $i++;
+        }
+        $graph->palette->dataSetColor = ['#' . $color];
+
+        $graph->data['Counts'] = new ezcGraphArrayDataSet($dataSet);
+        $graph->data['Counts']->highlight = true;
+        foreach ($dataSet as $label => $value) {
+            $graph->data['Counts']->highlightValue[$label] = sprintf('%3.1f%%', $value);
+        }
+        $graph->yAxis->labelCallback = fn ($value, $value2) => sprintf('%s%%', $value);
 
         $graph->driver = new ezcGraphGdDriver();
         $graph->render(520, 160, $ouputFilePath);

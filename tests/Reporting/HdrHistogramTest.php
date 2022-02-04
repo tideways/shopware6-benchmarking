@@ -23,24 +23,16 @@ class HdrHistogramTest extends TestCase
     {
         $histogram = new HdrHistogram();
 
-        for ($i = 1; $i <= 100; $i++) {
+        for ($i = 1; $i <= 4000; $i++) {
             $histogram->record($i);
         }
 
         $this->assertEquals([
-            '0-8' => 7,
-            '8-16' => 8,
-            '16-24' => 8,
-            '24-32' => 8,
-            '32-40' => 8,
-            '40-48' => 8,
-            '48-56' => 8,
-            '56-64' => 8,
-            '64-72' => 8,
-            '72-80' => 8,
-            '80-88' => 8,
-            '88-96' => 8,
-            '96-104' => 5,
+            'Excellent' => 511,
+            'Good' => 512,
+            'Acceptable' => 1024,
+            'Degraded' => 1953,
+            'Unacceptable' => 0,
         ], $histogram->exportAsBuckets());
     }
 }
