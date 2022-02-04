@@ -217,6 +217,33 @@
                 {{ _self.chart_row("Cart Page", "cart-page", tideways, locust) }}
                 {{ _self.chart_row("Register", "register", tideways, locust) }}
             </table>
+
+            <h2 class="new-page">Slowest Traces</h2>
+
+            <table>
+            {% for page, pageTraces in traces %}
+                {% for trace in pageTraces %}
+                    <tr class="odd summary">
+                        <td width="100" class="number short"><span class="unit response-time">{{ trace.responseTimeMs }}&nbsp;ms</span></td>
+                        <td class="operation">
+                            <a class="profile-list-item" href="{{ trace.htmlUrl }}">
+                                <strong><span class="string word-break">{{ trace.transactionName }}</span></strong>
+                            </a>
+                        </td>
+                        <td width="100" class="number width-22p">{{ trace.date|date('d.m, H:i') }}</td>
+                    </tr>
+                    <tr class="odd details">
+                        <td colspan="1" class="number short"><span class="unit memory">{{ trace.memoryMb }} MB</span></td>
+                        <td colspan="2" class="title word">
+                            <div class="profile-list-item-metadata"><small>
+                                <span class="label label-danger">{{ trace.httpStatusCode }}</span>
+                                <small><span class="string word-break">{{ trace.httpMethod }} {{ trace.url }}/</span></small>
+                                </small></div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+            </table>
         </div>
     </body>
 </html>
