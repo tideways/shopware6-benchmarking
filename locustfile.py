@@ -1,6 +1,7 @@
 import logging
 import random
 import time
+import os
 
 from locust import constant, task, events
 from locusthelpers.shopware_user import ShopwareUser
@@ -9,6 +10,7 @@ import locust.stats
 
 from locusthelpers.fixtures import getListings, getProductDetails, getRandomWordFromFixture, getRandomWordFromOperatingSystem
 from locust_plugins import run_single_user
+from locust_plugins import jmeter_listener
 
 locust.stats.STATS_AUTORESIZE = False
 
@@ -243,6 +245,14 @@ class DebugUser(ShopwareUser):
         self.auth.register()
 
         self.checkoutOrder()
+
+@events.init.add_listener
+def on_locust_init(environment, **_kwargs):
+    jmeter_listener.JmeterListener(
+        env=environment,
+        testplan="examplePlan",
+        results_filename=os.getenv('SWBENCH_NAME', "results") + "_requests.csv"
+    )
 
 listings = getListings()
 details = getProductDetails()
