@@ -69,19 +69,21 @@ class TidewaysApiLoader
     ) : iterable
     {
         $query = [
-            'has_callgraph' => true,
             'transaction_name' => $transactionName,
             'min_date' => $start->format('Y-m-d H:i'),
             'max_date' => $end->format('Y-m-d H:i'),
+            'sort_by' => 'response_time',
+            'sort_order' => 'DESC',
+            'limit' => 1,
         ];
-        $response = $this->client->request('GET', '/traces?' . http_build_query($query));
-
-        if ($response->getStatusCode() === 403) {
+        try {
+            $response = $this->client->request('GET', 'traces?' . http_build_query($query));
+        } catch (GuzzleHttp\Exception\RequestException $e) {
             return [];
         }
 
-        return TidewaysTrace::createListFromApiPayload(
+        return iterator_to_array(TidewaysTrace::createListFromApiPayload(
             json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR)
-        );
+        ));
     }
 }

@@ -10,7 +10,7 @@ class TidewaysTraceTest extends TestCase
     public function testCreateFromApiPAyload()
     {
         $payload = json_decode(file_get_contents(__DIR__ . '/../fixtures/tideways_traces.json'), true, flags: JSON_THROW_ON_ERROR);
-        $traces = iterator_to_array(TidewaysTrace::createListFromApiPayload($payload));
+        $traces = TidewaysTrace::createListFromApiPayload($payload);
 
         $this->assertCount(2, $traces);
         $this->assertContainsOnly(TidewaysTrace::class, $traces);
