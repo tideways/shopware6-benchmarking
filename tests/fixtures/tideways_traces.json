@@ -1,0 +1,100 @@
+{
+  "traces": [
+    {
+      "_links": {
+        "html_url": "https://app.tideways.io/o/demos-tideways/Shopware6/trace/chp_vn4B2WPJVWcL29bJ/quick?s=web&env=production"
+      },
+      "bottlenecks": [],
+      "date": "2022-02-03 07:32",
+      "environment": "production",
+      "has_callgraph": true,
+      "http": {
+        "method": "GET",
+        "status_code": 200,
+        "url": "shopware-demo.tideways.io/Aerodynamic-Cotton-Dino-Diamonds/4c07616867334cf4ac04bd8ac61f9956"
+      },
+      "id": "chp_vn4B2WPJVWcL29bJ",
+      "layers": [
+        {
+          "count": 2,
+          "latency_sum_ms": 6,
+          "name": "Autoloading",
+          "perc": 15.932687103281996
+        },
+        {
+          "count": 1,
+          "latency_sum_ms": 0,
+          "name": "PHP File I/O",
+          "perc": 0.8979973429119716
+        },
+        {
+          "count": 11,
+          "latency_max_ms": 1,
+          "latency_sum_ms": 2,
+          "name": "Redis",
+          "perc": 5.373222457314373
+        },
+        {
+          "count": 4,
+          "latency_max_ms": 1,
+          "latency_sum_ms": 3,
+          "name": "Database",
+          "perc": 7.011760074792107
+        }
+      ],
+      "memory_kb": 5745,
+      "response_time_ms": 41,
+      "server": "loadtesting.shopware6-1",
+      "service": "web",
+      "transaction_name": "Shopware\\Storefront\\Controller\\ProductController::index"
+    },
+    {
+      "_links": {
+        "html_url": "https://app.tideways.io/o/demos-tideways/Shopware6/trace/-Y5_vn4BsSpQoyXl3Ppy/quick?s=web&env=production"
+      },
+      "bottlenecks": [],
+      "date": "2022-02-03 07:32",
+      "environment": "production",
+      "has_callgraph": true,
+      "http": {
+        "method": "GET",
+        "status_code": 200,
+        "url": "shopware-demo.tideways.io/widgets/checkout/info"
+      },
+      "id": "Y5_vn4BsSpQoyXl3Ppy",
+      "layers": [
+        {
+          "count": 2,
+          "latency_sum_ms": 14,
+          "name": "Autoloading",
+          "perc": 15.647633679492658
+        },
+        {
+          "count": 1,
+          "latency_sum_ms": 1,
+          "name": "PHP File I/O",
+          "perc": 1.558294539615798
+        },
+        {
+          "count": 17,
+          "latency_max_ms": 1,
+          "latency_sum_ms": 4,
+          "name": "Redis",
+          "perc": 4.352597350090679
+        },
+        {
+          "count": 13,
+          "latency_max_ms": 1,
+          "latency_sum_ms": 10,
+          "name": "Database",
+          "perc": 11.803301412745903
+        }
+      ],
+      "memory_kb": 9507,
+      "response_time_ms": 87,
+      "server": "loadtesting.shopware6-1",
+      "service": "web",
+      "transaction_name": "Shopware\\Storefront\\Controller\\CheckoutController::info"
+    }
+  ]
+}
