@@ -38,13 +38,51 @@
                 font-weight: normal;
                 font-size: 10pt;
             }
+            .score {
+                text-align: center;
+                display: inline-block;
+                padding: 10px;
+                margin: auto;
+                color: #000;
+                font-size: 10pt;
+                font-weight: bold;
+            }
         </style>
     </head>
 
-    {% macro chart_row(title, slug, tideways, locust) %}
+    {% macro chart_row(title, slug, tideways, locust, histogram = false) %}
         <tr>
             <td colspan="2"><h3>{{ title }}</h3></td>
         </tr>
+        {% if histogram %}
+            <tr>
+                <td>
+                    <img src="./locust/{{ slug }}_histogram.png" width="520" />
+                </td>
+                <td>
+                    <p>The {{ title }} performance score is:</p>
+
+                    {% set val = attribute(locust.pageSummary, slug).get95PercentileResponseTime() %}
+                    <div class="score" style="background-color:
+                         {% if val < 512 %}#2ce574
+                         {% elseif val < 1024 %}#cdf03a
+                         {% elseif val < 2048 %}#ffe500
+                         {% elseif val < 1024 %}#ff9600
+                         {% elseif val < 1024 %}#ff3924{% endif %};"
+                    >
+
+                    {% if val < 512 %}Excellent (A)
+                    {% elseif val < 1024 %}Good (B)
+                    {% elseif val < 2048 %}Acceptable (C)
+                    {% elseif val < 1024 %}Degraded (D)
+                    {% elseif val < 1024 %}Unacceptable (F){% endif %}</div>
+
+                    <p>For 95% of the reqeusts made by users the response time is <strong>{{ val }}ms</strong> or less,
+                        the median response time is <strong>{{ attribute(locust.pageSummary, slug).getMedianResponseTime() }}ms</strong>.
+                    This is based on {{ attribute(locust.pageSummary, slug).getRequestCount() }} requests.</p>
+                </td>
+            </tr>
+        {% endif %}
         <tr>
             <td width="50%">
                 <h4>User Performance <span style="color: red">
@@ -87,7 +125,7 @@
                 </tr>
             </table>
             <table>
-                {{ _self.chart_row("Overall", "overall", tideways, locust) }}
+                {{ _self.chart_row("Overall", "overall", tideways, locust, true) }}
 
                 {{ _self.chart_row("Category Page", "listing-page", tideways, locust) }}
 
@@ -149,44 +187,14 @@
                                 <td width="50%" style="color: red; font-weight: bold">{{ purchases_per_hour }}</td>
                             </tr>
                         </table>
-
-                        <h3>Configuration</h3>
-
-                        <table>
-                            <tr>
-                                <td width="50%">HTTP Cache Lifetime</td>
-                                <td width="50%">{{ config.shopware.httpCacheLifetime }}</td>
-                            </tr>
-                            <tr>
-                                <td width="50%">Cache</td>
-                                <td width="50%">{{ config.shopware.cacheBackend }}</td>
-                            </tr>
-                            <tr>
-                                <td width="50%">Product Search</td>
-                                <td width="50%">{{ config.shopware.productSearchBackend }}</td>
-                            </tr>
-                            <tr>
-                                <td width="50%">Background Queue</td>
-                                <td width="50%">{{ config.shopware.backgroundQueue }}</td>
-                            </tr>
-                        </table>
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2" style="font-size: 6pt; color: gray;">
-                        Legend<br />
-                        - The left y-axis depicts the Response Times calculated as 95% percentile<br />
-                        - The right y-axis depicts the number of requests and errors<br />
-
-                        <p>Disclaimer: Only benchmarks performed against real production environment, software and data
+                    <td colspan="2" style="font-size: 5pt; color: gray;">
+                        <p>Disclaimer: Only benchmarks performed against real production environment hardware, software and data
                             will provide realistic and reliable results of future production behavior.
                             This benchmark focuses of server-side performance from the browser and PHP point of view.
-                            Its results can only partially explain real user performance in the browser.
-                        </p>
-
-                        <p>
-                            Each thread in the benchmark is a <a href="http://docs.locust.io/en/stable/writing-a-locustfile.html#">Locust user</a>, each with different behaviors:
-                            For example: Purchaser, Random Surfer, Searching user, category pagination and filtering user.
+                            The results only partially explain real user performance in the browser.
                         </p>
 
                         <p>The code for this benchmark is open-source and available under <a href="https://github.com/tideways/shopware6-benchmarking">https://github.com/tideways/shopware6-benchmarking</a>.</p>

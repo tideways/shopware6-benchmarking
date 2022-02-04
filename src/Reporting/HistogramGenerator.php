@@ -36,7 +36,7 @@ class HistogramGenerator
         $total = array_sum($dataSet);
         $dataSet = array_map(fn ($value) => $value / $total * 100, $dataSet);
 
-        $colors = ['2ce574', 'cdf03a', 'ffe500', 'ffe500', 'ff9600', 'ff9600'];
+        $colors = ['2ce574', 'cdf03a', 'ffe500', 'ff9600', 'ff3924'];
 
         $i = $sum = 0;
         $color = 4;
@@ -54,6 +54,11 @@ class HistogramGenerator
         $graph->data['Counts'] = new ezcGraphArrayDataSet($dataSet);
         $graph->data['Counts']->highlight = true;
         foreach ($dataSet as $label => $value) {
+            if ($value < 0.1) {
+                // if the percentage of this bucket is < 0.1% don't show a label
+                // because it will be rendered into the label of the bucket.
+                continue;
+            }
             $graph->data['Counts']->highlightValue[$label] = sprintf('%3.1f%%', $value);
         }
         $graph->yAxis->labelCallback = fn ($value, $value2) => sprintf('%s%%', $value);
