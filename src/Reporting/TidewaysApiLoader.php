@@ -60,4 +60,30 @@ class TidewaysApiLoader
 
         return sprintf("%s?ts=%s&m=%d", $path, $until, $duration - 1);
     }
+
+    /** @return TidewaysTrace[] */
+    public function fetchTraces(
+        string             $transactionName,
+        \DateTimeImmutable $start,
+        \DateTimeImmutable $end
+    ) : iterable
+    {
+        $query = [
+            'transaction_name' => $transactionName,
+            'min_date' => $start->format('Y-m-d H:i'),
+            'max_date' => $end->format('Y-m-d H:i'),
+            'sort_by' => 'response_time',
+            'sort_order' => 'DESC',
+            'limit' => 1,
+        ];
+        try {
+            $response = $this->client->request('GET', 'traces?' . http_build_query($query));
+        } catch (GuzzleHttp\Exception\RequestException $e) {
+            return [];
+        }
+
+        return iterator_to_array(TidewaysTrace::createListFromApiPayload(
+            json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR)
+        ));
+    }
 }

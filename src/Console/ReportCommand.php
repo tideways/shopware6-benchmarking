@@ -122,6 +122,15 @@ class ReportCommand extends Command
         );
         $templateVariables['tideways'] = $tidewaysStats;
         $templateVariables['locust'] = $locustStats;
+        $templateVariables['traces'] = [];
+
+        foreach ($pageMappings as $page => $transactionName) {
+            $templateVariables['traces'][$page] = $tidewaysLoader->fetchTraces(
+                $transactionName,
+                $tidewaysDataRangeStart,
+                $tidewaysDataRangeEnd
+            );
+        }
 
         $chartGenerator->generateChartsFromLocustStats($locustStats->pageByTime, $locustStats->startDate, $locustStats->endDate);
         $chartGenerator->generateChartsFromTidewaysStats($tidewaysStats, $locustStats->startDate, $locustStats->endDate);
