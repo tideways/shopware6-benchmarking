@@ -57,6 +57,7 @@ class HistogramGenerator
             if ($value < 0.1) {
                 // if the percentage of this bucket is < 0.1% don't show a label
                 // because it will be rendered into the label of the bucket.
+                $graph->data['Counts']->highlightValue[$label] = ' ';
                 continue;
             }
             $graph->data['Counts']->highlightValue[$label] = sprintf('%3.1f%%', $value);
