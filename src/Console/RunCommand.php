@@ -86,6 +86,7 @@ class RunCommand extends Command
             'LOCUST_FILTERER_MAX_FILTERS' => $config->scenario->filtererMaxFilters,
             'LOCUST_FILTERER_VISIT_PRODUCT_RATIO' => $config->scenario->filtererVisitProductRatio,
             'LOCUST_MAX_PAGINATION_SURFING' => $config->scenario->maxPaginationSurfing,
+            'TZ' => 'UTC', // Set timezone to make sure we know how to work with dates later in reporting.
         ]);
         $locustProcess->setWorkingDirectory($workingDir);
         $locustProcess->setTimeout(null);

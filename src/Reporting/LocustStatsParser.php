@@ -19,8 +19,6 @@ class LocustStatsParser
         while (($data = fgetcsv($handle)) !== false) {
             $row = array_combine($headers, $data);
             $date = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $row['timeStamp']);
-            // @todo how to account for timezone offset between locust jmeter and local machine?
-            $date = $date->modify('-1 hour');
             $time = $date->format('Y-m-d H:i');
             $duration = (int) $row['elapsed'];
             $page = $row['label'];
