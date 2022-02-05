@@ -85,6 +85,7 @@ class LocustStatsParser
 
                 $stats->pageByTime[$operation][$everyMinute->format('Y-m-d H:i')] = new HdrHistogram();
             }
+            ksort($stats->pageByTime[$operation]);
         }
 
         return $stats;
