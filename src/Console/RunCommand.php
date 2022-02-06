@@ -82,7 +82,7 @@ class RunCommand extends Command
             'LOCUST_TIDEWAYS_APIKEY' => $config->tideways->apiKey,
             'LOCUST_TIDEWAYS_TRACE_RATE' => $config->tideways->traceSampleRate,
             'LOCUST_GUEST_RATIO' => $config->scenario->guestRatio,
-            'LOCUST_RECURRING_USER_RATE' => $config->scenario->recurringUserRate,
+            'LOCUST_CHECKOUT_GUEST_RATIO' => $config->scenario->checkoutGuestRatio,
             'LOCUST_FILTERER_MIN_FILTERS' => $config->scenario->filtererMinFilters,
             'LOCUST_FILTERER_MAX_FILTERS' => $config->scenario->filtererMaxFilters,
             'LOCUST_FILTERER_VISIT_PRODUCT_RATIO' => $config->scenario->filtererVisitProductRatio,

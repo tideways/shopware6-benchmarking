@@ -19,7 +19,7 @@ def _(parser):
     parser.add_argument("--tideways-apikey", type=str, env_var="LOCUST_TIDEWAYS_APIKEY", default="", help="The API Key to trigger Tideways callgraph traces with")
     parser.add_argument("--tideways-trace-rate", type=int, env_var="LOCUST_TIDEWAYS_TRACE_RATE", default=1, help="The sample rate for triggering callgraph traces")
     parser.add_argument("--guest-ratio", type=int, env_var="LOCUST_GUEST_RATIO", default=90, help="The percentage of users that browse as guest.")
-    parser.add_argument("--recurring-user-rate", type=int, env_var="LOCUST_RECURRING_USER_RATE", default=50, help="The percentage of users that already have a login and come back")
+    parser.add_argument("--checkout-guest-ratio", type=int, env_var="LOCUST_CHECKOUT_GUEST_RATIO", default=50, help="During checkout, percentage of not logged in users that stay a guest or create a new account")
     parser.add_argument("--filterer-min-filters", type=int, env_var="LOCUST_FILTERER_MIN_FILTERS", default=3, help="Filterer User: Minimum number of filters to apply on a listing page")
     parser.add_argument("--filterer-max-filters", type=int, env_var="LOCUST_FILTERER_MAX_FILTERS", default=5, help="Filterer User: Maximum number of filters to apply on a listing page")
     parser.add_argument("--filterer-visit-product-ratio", type=int, env_var="LOCUST_FILTERER_VISIT_PRODUCT_RATIO", default=10, help="Filterer User: Percentage of times a product is visited after filtering.")
@@ -34,12 +34,8 @@ class Purchaser(ShopwareUser):
     # do checkout
     @task
     def order(self):
-        self.auth.clearCookies()
-        # default 50% chance to login or register
-        if random.randint(0, 100) <= self.environment.parsed_options.recurring_user_rate:
-            self.auth.loginRandomUserFromFixture()
-        else:
-            self.auth.register()
+        loggedIn = self.auth.guestOrLoggedInUser()
+
         url = randomWithNTopPages(listings, 10)
         productUrls = self.visitProductListingPageAndRetrieveProductUrls(
             productListingUrl=url
@@ -57,6 +53,9 @@ class Purchaser(ShopwareUser):
             time.sleep(2)
             self.addProductToCart(detailPageUrl)
             time.sleep(2)
+
+        if loggedIn == False:
+            self.auth.checkoutWithRecurringOrNewAccount()
 
         self.checkoutOrder()
 
@@ -146,11 +145,7 @@ class Surfer(ShopwareUser):
     wait_time = constant(10)
 
     def on_start(self):
-        self.auth.clearCookies()
-        if random.randint(0, 100) <= self.environment.parsed_options.recurring_user_rate:
-            self.auth.register()
-        else:
-            logging.info("Anonymous Surfer starting")
+        self.auth.guestOrLoggedInUser()
 
     @task(10)
     def listing_page(self):

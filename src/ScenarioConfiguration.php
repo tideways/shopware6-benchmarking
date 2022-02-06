@@ -12,8 +12,8 @@ class ScenarioConfiguration
         public int $userSpawnRate = 1,
         /** Percentage of users that are acting as guests. */
         public int $guestRatio = 90,
-        /** During checkout, percentage of users that already has an account and logs into it for buying */
-        public int $recurringUserRate = 50,
+        /** During checkout, percentage of not logged in users that stay a guest or create a new account */
+        public int $checkoutGuestRatio = 50,
         public int $filtererMinFilters = 3,
         public int $filtererMaxFilters = 5,
         public int $filtererVisitProductRatio = 10,
