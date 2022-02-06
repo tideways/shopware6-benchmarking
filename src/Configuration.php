@@ -34,6 +34,16 @@ class Configuration
         );
     }
 
+    public static function createNew(string $title, string $host): Configuration
+    {
+        return new self(
+            scenario: new ScenarioConfiguration(title: $title, duration: "60m", host: $host),
+            shopware: new ShopwareConfiguration(),
+            tideways: new TidewaysConfiguration(),
+            filename: 'empty.json',
+        );
+    }
+
     public function getName(): string
     {
         return $this->name;
@@ -46,5 +56,10 @@ class Configuration
         @mkdir($dataDir, 0777, true);
 
         return $dataDir;
+    }
+
+    public function write(string $file) : void
+    {
+        file_put_contents($file, json_encode($this, JSON_PRETTY_PRINT));
     }
 }
