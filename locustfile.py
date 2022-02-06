@@ -29,16 +29,19 @@ def _(parser):
 
     parser.add_argument('--purchaser-weight', env_var='SWBENCH_PURCHASER_WEIGHT', type=int, default=5, help='Weight for purchasing users')
     parser.add_argument('--browsing-user-weight', env_var='SWBENCH_BROWSING_USER_WEIGHT', type=int, default=95, help='Weight for browsing users')
+    parser.add_argument('--cart-abandonment-weight', env_var='SWBENCH_CART_ABANDONMENT_WEIGHT', type=int, default=95, help='Weight for users abandoning carts')
 
 @events.test_start.add_listener
 def on_test_start(environment, **_kwargs):
     purchaser = Purchaser
     browsing_user = BrowsingUser
+    cart_abandonment_user = AbandoningCartUser
 
     purchaser.weight = environment.parsed_options.purchaser_weight
     browsing_user.weight = environment.parsed_options.browsing_user_weight
+    cart_abandonment_user.weight = environment.parsed_options.cart_abandonment_weight
 
-    environment.user_classes = [ purchaser, browsing_user ]
+    environment.user_classes = [ purchaser, browsing_user, cart_abandonment_user ]
 
 class Purchaser(ShopwareUser):
     weight = 5
