@@ -184,16 +184,16 @@
                                 <td width="50%">{{ config.scenario.concurrentThreads }}</td>
                             </tr>
                             <tr>
-                                <td width="50%">Estimated Conversion Ratio</td>
+                                <td width="50%" style="padding-left: 10px;">Share of Converting Users</td>
                                 <td width="50%">{{ config.scenario.conversionRatio }}%</td>
+                            </tr>
+                            <tr>
+                                <td width="50%" style="padding-left: 10px;">Share of Browsing Users</td>
+                                <td width="50%">{{ 100 - config.scenario.conversionRatio }}%</td>
                             </tr>
                             <tr>
                                 <td width="50%">Shopware Version</td>
                                 <td width="50%">{{ config.shopware.version }}</td>
-                            </tr>
-                            <tr>
-                                <td width="50%">Plugins</td>
-                                <td width="50%">{{ config.shopware.plugins|join(", ") }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">PHP Version</td>
