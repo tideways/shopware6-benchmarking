@@ -22,6 +22,9 @@ class ScenarioConfiguration
         /** Conversion Ratio, Percentage of users that will end their visit with a checkout */
         public int $conversionRatio = 5,
 
+        /** Ratio of users that add a product to the cart and abandon it */
+        public int $cartAbandonmentRatio = 5,
+
         public int $filtererMinFilters = 3,
         public int $filtererMaxFilters = 5,
         public int $filtererVisitProductRatio = 10,

@@ -75,12 +75,12 @@ class Purchaser(ShopwareUser):
         self.checkoutOrder()
 
 class BrowsingUser(ShopwareUser):
-    weight = 95
+    weight = 90
     wait_time = constant(10)
 
     # Visit random product listing page
     # and apply a filter
-    @task
+    @task(10)
     def filter(self):
         self.auth.guestOrLoggedInUser()
 
@@ -99,7 +99,7 @@ class BrowsingUser(ShopwareUser):
 
     # Visit random product listing page
     # and apply a filter
-    @task
+    @task(10)
     def search(self):
         self.auth.guestOrLoggedInUser()
 
@@ -108,7 +108,7 @@ class BrowsingUser(ShopwareUser):
         time.sleep(1)
         self.visitRandomProductDetailPagesFromListing(response)
 
-    @task
+    @task(10)
     def searchAndFilter(self):
         self.auth.guestOrLoggedInUser()
 
@@ -119,7 +119,7 @@ class BrowsingUser(ShopwareUser):
         time.sleep(1)
         self.visitRandomProductDetailPagesFromListing(ajaxResponse)
 
-    @task
+    @task(10)
     def searchForWordFromWordlist(self):
         self.auth.guestOrLoggedInUser()
 
@@ -133,7 +133,7 @@ class BrowsingUser(ShopwareUser):
         self.visitRandomProductDetailPagesFromListing(ajaxResponse)
 
     # Visit a random product listing page and paginate through 1-3 additional pages
-    @task()
+    @task(10)
     def listing_page_pagination(self):
         self.auth.guestOrLoggedInUser()
 
@@ -141,7 +141,7 @@ class BrowsingUser(ShopwareUser):
         self.visitProductListingPageAndUseThePagination(
             url, random.randint(0, self.environment.parsed_options.max_pagination_surfing))
 
-    @task()
+    @task(20)
     def listing_page(self):
         self.auth.guestOrLoggedInUser()
 
@@ -149,12 +149,16 @@ class BrowsingUser(ShopwareUser):
         self.visitProductListingPageAndRetrieveProductUrls(
             productListingUrl=url)
 
-    @task()
+    @task(30)
     def detail_page(self):
         self.auth.guestOrLoggedInUser()
 
         url = randomWithNTopPages(details, 25)
         self.visitProduct(url)
+
+class AbandoningCartUser(ShopwareUser):
+    weight = 5
+    wait_time = constant(10)
 
     @task
     def browseAroundFromHomepageAndAddToAnonymousCart(self):
@@ -176,35 +180,7 @@ class BrowsingUser(ShopwareUser):
             )
 
     @task
-    def browseAroundFromHomepageAndAddToAnonymousCartAndCheckout(self):
-        loggedIn = self.auth.guestOrLoggedInUser()
-
-        self.visitHomepage()
-        time.sleep(1)
-
-        response = self.visitProductListingPage(randomWithNTopPages(listings, 10))
-        time.sleep(1)
-
-        productDetailResponses = self.visitRandomProductDetailPagesFromListing(
-            response)
-        time.sleep(1)
-
-        if len(productDetailResponses) > 0:
-            self.addProductToCart(
-                random.choice(productDetailResponses).url
-            )
-
-        time.sleep(1)
-
-        if not loggedIn:
-            self.auth.decideCheckoutGuestRecurringOrNewAccount()
-            time.sleep(1)
-
-        if len(productDetailResponses) > 0:
-            self.checkoutOrder()
-
-    @task
-    def authenticatedSearchAfterHomepageAndAddToCartAndCheckout(self):
+    def authenticatedSearchAfterHomepageAndAddToCart(self):
         if self.environment.parsed_options.guest_ratio == 100:
             return
 
@@ -233,9 +209,6 @@ class BrowsingUser(ShopwareUser):
             self.addProductToCart(
                 random.choice(productDetailResponses).url
             )
-            time.sleep(1)
-
-            self.checkoutOrder()
 
 class Registerer(ShopwareUser):
     @task
