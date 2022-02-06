@@ -166,6 +166,31 @@
             <table>
                 {{ _self.chart_row("Overall", "overall", tideways, locust, true) }}
 
+                <h2>Summary - Response Times</h2>
+                <table class="summary">
+                    <tr>
+                        <thead>
+                            <tr>
+                                <th>Page</th>
+                                <th>User Performance</th>
+                                <th>PHP Performance</th>
+                                <th>Grade</th>
+                            </tr>
+                        </thead>
+                        <thead>
+                            <tr>
+                                <td>Browsing</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Homepage</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </tr>
+                </table>
+
                 {{ _self.chart_row("Category Page", "listing-page", tideways, locust) }}
 
                 {{ _self.chart_row("Product Details Page", "product-detail-page", tideways, locust) }}
