@@ -19,7 +19,9 @@ def _(parser):
     parser.add_argument("--tideways-apikey", type=str, env_var="LOCUST_TIDEWAYS_APIKEY", default="", help="The API Key to trigger Tideways callgraph traces with")
     parser.add_argument("--tideways-trace-rate", type=int, env_var="LOCUST_TIDEWAYS_TRACE_RATE", default=1, help="The sample rate for triggering callgraph traces")
     parser.add_argument("--guest-ratio", type=int, env_var="LOCUST_GUEST_RATIO", default=90, help="The percentage of users that browse as guest.")
+    parser.add_argument("--accounts-new-ratio", type=int, env_var="LOCUST_ACCOUNTS_NEW_RATIO", default=0, help="The percentage of non-guest users that create a new account instead of logging into an existing.")
     parser.add_argument("--checkout-guest-ratio", type=int, env_var="LOCUST_CHECKOUT_GUEST_RATIO", default=50, help="During checkout, percentage of not logged in users that stay a guest or create a new account")
+    parser.add_argument("--checkout-accounts-new-ratio", type=int, env_var="LOCUST_CHECKOUT_ACCOUNTS_NEW_RATIO", default=0, help="The percentage of non-guest checkout users that create a new account instead of logging into an existing.")
     parser.add_argument("--filterer-min-filters", type=int, env_var="LOCUST_FILTERER_MIN_FILTERS", default=3, help="Filterer User: Minimum number of filters to apply on a listing page")
     parser.add_argument("--filterer-max-filters", type=int, env_var="LOCUST_FILTERER_MAX_FILTERS", default=5, help="Filterer User: Maximum number of filters to apply on a listing page")
     parser.add_argument("--filterer-visit-product-ratio", type=int, env_var="LOCUST_FILTERER_VISIT_PRODUCT_RATIO", default=10, help="Filterer User: Percentage of times a product is visited after filtering.")
@@ -55,7 +57,7 @@ class Purchaser(ShopwareUser):
             time.sleep(2)
 
         if loggedIn == False:
-            self.auth.checkoutWithRecurringOrNewAccount()
+            self.auth.decideCheckoutGuestRecurringOrNewAccount()
 
         self.checkoutOrder()
 
@@ -187,7 +189,7 @@ class FancySurferThatDoesALotOfThings(ShopwareUser):
 
     @task
     def browseAroundFromHomepageAndAddToAnonymousCartAndCheckout(self):
-        self.auth.guestOrLoggedInUser()
+        loggedIn = self.auth.guestOrLoggedInUser()
 
         self.visitHomepage()
         time.sleep(1)
@@ -206,14 +208,18 @@ class FancySurferThatDoesALotOfThings(ShopwareUser):
 
         time.sleep(1)
 
-        self.auth.registerOrLogin()
-        time.sleep(1)
+        if not loggedIn:
+            self.auth.decideCheckoutGuestRecurringOrNewAccount()
+            time.sleep(1)
 
         if len(productDetailResponses) > 0:
             self.checkoutOrder()
 
     @task
     def authenticatedSearchAfterHomepageAndAddToCartAndCheckout(self):
+        if self.environment.parsed_options.guest_ratio == 100:
+            return
+
         self.auth.clearCookies()
 
         self.auth.registerOrLogin()

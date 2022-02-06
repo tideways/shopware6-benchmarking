@@ -35,7 +35,9 @@ class ShopwareUser(HttpUserWithResources):
         self.auth = Authentication(
             self.client,
             guest_ratio=self.environment.parsed_options.guest_ratio,
+            accounts_new_ratio=self.environment.parsed_options.accounts_new_ratio,
             checkout_guest_ratio=self.environment.parsed_options.checkout_guest_ratio,
+            checkout_accounts_new_ratio=self.environment.parsed_options.checkout_accounts_new_ratio,
         )
         self.search = Search(self)
 

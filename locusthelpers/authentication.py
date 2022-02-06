@@ -10,10 +10,12 @@ from requests.models import Response
 from locusthelpers.form import getFormFieldOptionValues 
 
 class Authentication:
-    def __init__(self, client: HttpSession, guest_ratio: int, checkout_guest_ratio: int):
+    def __init__(self, client: HttpSession, guest_ratio: int, accounts_new_ratio: int, checkout_guest_ratio: int, checkout_accounts_new_ratio: int):
         self.client = client
         self.guest_ratio = guest_ratio
+        self.accounts_new_ratio = accounts_new_ratio
         self.checkout_guest_ratio = checkout_guest_ratio
+        self.checkout_accounts_new_ratio = checkout_accounts_new_ratio
 
     def clearCookies(self):
         self.client.cookies.clear()
@@ -31,9 +33,16 @@ class Authentication:
         return countryIdOptions[0]
 
 
-    def register(self, writeToFixture: bool = False):
-        # @TODO missing cart request
-        response = self.client.get('/account/register', name='register-page')
+    def register(self, writeToFixture: bool = False, checkout: bool = False, guest: bool = False):
+        if not checkout:
+            path = '/account/register'
+            pageName = 'register-page'
+            guest = False
+        else:
+            path = '/checkout/register'
+            pageName = 'checkout-register-page'
+
+        response = self.client.get(path, name=pageName)
         root = etree.fromstring(response.content, etree.HTMLParser())
         csrfElement = root.find(
             './/form[@action="/account/register"]/input[@name="_csrf_token"]')
@@ -43,20 +52,26 @@ class Authentication:
         logging.info("Registering user " + userMailAddress)
         password = 'shopware'
 
-    
         register = {
             'redirectTo': 'frontend.account.home.page',
             'salutationId': self.__readSalutationIdFromRegisterPage(response),
             'firstName': 'Firstname',
             'lastName': 'Lastname',
             'email': userMailAddress,
-            'password': password,
             'billingAddress[street]': 'Test street',
             'billingAddress[zipcode]': '11111',
             'billingAddress[city]': 'Test city',
             'billingAddress[countryId]': self.__readCountryIdFromRegisterPage(response),
             '_csrf_token': csrfElement.attrib.get('value')
         }
+
+        if guest:
+           register['guest'] = 'True'
+        else:
+           register['password'] = password
+
+        if checkout:
+            register['redirectTo'] = 'frontend.checkout.confirm.page'
 
         if writeToFixture:
             dataDir = os.getenv('SWBENCH_DATA_DIR', os.path.dirname(os.path.realpath(__file__)) + '/../fixtures')
@@ -97,12 +112,13 @@ class Authentication:
     """
     Login existing user or create a new one during checkout based on configured ratio
     """
-    def checkoutWithRecurringOrNewAccount(self):
-        if random.randint(0, 100) <= self.checkout_guest_ratio:
-            # TODO: /checkout/register/
-            self.loginRandomUserFromFixture()
+    def decideCheckoutGuestRecurringOrNewAccount(self):
+        if random.randint(0, 100) < self.checkout_guest_ratio:
+            self.register(checkout=True, guest=True)
+        elif random.randint(0, 100) < self.checkout_accounts_new_ratio:
+            self.register(checkout=True)
         else:
-            self.register()
+            self.loginRandomUserFromFixture()
 
     def loginRandomUserFromFixture(self):
         dataDir = os.getenv('SWBENCH_DATA_DIR', os.path.dirname(os.path.realpath(__file__)) + '/../fixtures')
@@ -121,7 +137,7 @@ class Authentication:
         """
         Register or login a random user from fixture
         """
-        if random.randint(0, 1) == 0:
-            self.loginRandomUserFromFixture()
-        else:
+        if random.randint(0, 100) < self.accounts_new_ratio:
             self.register()
+        else:
+            self.loginRandomUserFromFixture()
