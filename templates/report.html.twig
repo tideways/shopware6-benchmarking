@@ -4,9 +4,10 @@
         <meta charset="UTF-8">
         <title></title>
         <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
-            <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
 
         <style type="text/css">
+            @import "https://fonts.googleapis.com/css?family=Roboto";
+
             body {
                 font-family: Roboto, sans-serif;
                 -ms-text-size-adjust: 100%;
@@ -46,6 +47,44 @@
                 color: #000;
                 font-size: 10pt;
                 font-weight: bold;
+                border-radius: 5px;
+            }
+            span.bold {
+                font-weight: bold;
+            }
+            span.text-muted {
+                font-size: 8px;
+                color: #999999;
+            }
+            span.label {
+                display: inline-block;
+                padding: 0.2em 0.6em 0.3em;
+                border-radius: 0.25em;
+                color: #fff;
+            }
+            span.label-danger {
+                background-color: #f00;
+            }
+            span.label-success {
+                background-color: #00a65a;
+            }
+            .unit.response-time {
+                color: #34495e;
+            }
+            .unit.memory {
+                color: #00a65a;
+            }
+            tr.even td {
+                background-color: #f9f9f9;
+            }
+            tr.odd td {
+                background-color: #ffffff;
+            }
+            table.traces tbody td {
+                padding: 5px;
+            }
+            table.traces tbody {
+                border-top: 1px solid #ccc;
             }
         </style>
     </head>
@@ -77,8 +116,8 @@
                     {% elseif val < 1024 %}Degraded (D)
                     {% elseif val < 1024 %}Unacceptable (F){% endif %}</div>
 
-                    <p>For 95% of the reqeusts made by users the response time is <strong>{{ val }}ms</strong> or less,
-                        the median response time is <strong>{{ attribute(locust.pageSummary, slug).getMedianResponseTime() }}ms</strong>.
+                    <p>For 95% of the reqeusts made by users the response time is <span class="bold">{{ val }}ms</span> or less,
+                        the median response time is <span class="bold">{{ attribute(locust.pageSummary, slug).getMedianResponseTime() }}ms</span>.
                     This is based on {{ attribute(locust.pageSummary, slug).getRequestCount() }} requests.</p>
                 </td>
             </tr>
@@ -215,27 +254,30 @@
 
             <h2 class="new-page">Slowest Traces</h2>
 
-            <table>
+            <table class="traces">
             {% for page, pageTraces in traces %}
                 {% for trace in pageTraces %}
-                    <tr class="odd summary">
+                <tbody>
+                    <tr class="{% if loop.parent.loop.index is odd %}odd{% else%}even{% endif%} summary">
                         <td width="100" class="number short"><span class="unit response-time">{{ trace.responseTimeMs }}&nbsp;ms</span></td>
                         <td class="operation">
                             <a class="profile-list-item" href="{{ trace.htmlUrl }}">
-                                <strong><span class="string word-break">{{ trace.transactionName }}</span></strong>
+                                <span class="bold string word-break">{{ trace.transactionName }}</span>
                             </a>
                         </td>
                         <td width="100" class="number width-22p">{{ trace.date|date('d.m, H:i') }}</td>
                     </tr>
-                    <tr class="odd details">
+                    <tr class="{% if loop.parent.loop.index is odd %}odd{% else%}even{% endif%} details">
                         <td colspan="1" class="number short"><span class="unit memory">{{ trace.memoryMb }} MB</span></td>
                         <td colspan="2" class="title word">
                             <div class="profile-list-item-metadata"><small>
-                                <span class="label label-danger">{{ trace.httpStatusCode }}</span>
-                                <small><span class="string word-break">{{ trace.httpMethod }} {{ trace.url }}/</span></small>
-                                </small></div>
+                                <span class="label {% if trace.httpStatus >= 500%}label-danger{% else %}label-success{% endif %}">{{ trace.httpStatusCode }}</span>
+                                <small><span class="text-muted word-break">{{ trace.httpMethod }} {{ trace.url }}/</span></small>
+                                </small>
+                            </div>
                         </td>
                     </tr>
+                </tbody>
                 {% endfor %}
             {% endfor %}
             </table>
