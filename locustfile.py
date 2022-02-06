@@ -27,8 +27,21 @@ def _(parser):
     parser.add_argument("--filterer-visit-product-ratio", type=int, env_var="LOCUST_FILTERER_VISIT_PRODUCT_RATIO", default=10, help="Filterer User: Percentage of times a product is visited after filtering.")
     parser.add_argument("--max-pagination-surfing", type=int, env_var="LOCUST_MAX_PAGINATION_SURFING", default=3, help="Random surfer number of maximum pages they paginate through")
 
+    parser.add_argument('--purchaser-weight', env_var='SWBENCH_PURCHASER_WEIGHT', type=int, default=5, help='Weight for purchasing users')
+    parser.add_argument('--browsing-user-weight', env_var='SWBENCH_BROWSING_USER_WEIGHT', type=int, default=95, help='Weight for browsing users')
+
+@events.test_start.add_listener
+def on_test_start(environment, **_kwargs):
+    purchaser = Purchaser
+    browsing_user = BrowsingUser
+
+    purchaser.weight = environment.parsed_options.purchaser_weight
+    browsing_user.weight = environment.parsed_options.browsing_user_weight
+
+    environment.user_classes = [ purchaser, browsing_user ]
+
 class Purchaser(ShopwareUser):
-    weight = 2
+    weight = 5
     wait_time = constant(10)
 
     # Visit random product listing page
@@ -61,8 +74,8 @@ class Purchaser(ShopwareUser):
 
         self.checkoutOrder()
 
-class Filterer(ShopwareUser):
-    weight = 30
+class BrowsingUser(ShopwareUser):
+    weight = 95
     wait_time = constant(10)
 
     # Visit random product listing page
@@ -83,10 +96,6 @@ class Filterer(ShopwareUser):
             if random.randint(1, 100) <= self.environment.parsed_options.filterer_visit_product_ratio:
                 self.visitRandomProductDetailPagesFromListing(ajaxResponse)
                 time.sleep(1)
-
-class Searcher(ShopwareUser):
-    weight = 20
-    wait_time = constant(10)
 
     # Visit random product listing page
     # and apply a filter
@@ -123,33 +132,16 @@ class Searcher(ShopwareUser):
         time.sleep(1)
         self.visitRandomProductDetailPagesFromListing(ajaxResponse)
 
-class PaginationSurfer(ShopwareUser):
-    weight = 30
-    wait_time = constant(10)
-
     # Visit a random product listing page and paginate through 1-3 additional pages
     @task()
-    def detail_page(self):
+    def listing_page_pagination(self):
         self.auth.guestOrLoggedInUser()
 
         url = randomWithNTopPages(listings, 10)
         self.visitProductListingPageAndUseThePagination(
             url, random.randint(0, self.environment.parsed_options.max_pagination_surfing))
 
-class Registerer(ShopwareUser):
-    @task
-    def register(self):
-        self.auth.clearCookies()
-        self.auth.register(writeToFixture=True)
-
-class Surfer(ShopwareUser):
-    weight = 30
-    wait_time = constant(10)
-
-    def on_start(self):
-        self.auth.guestOrLoggedInUser()
-
-    @task(10)
+    @task()
     def listing_page(self):
         self.auth.guestOrLoggedInUser()
 
@@ -157,16 +149,12 @@ class Surfer(ShopwareUser):
         self.visitProductListingPageAndRetrieveProductUrls(
             productListingUrl=url)
 
-    @task(4)
+    @task()
     def detail_page(self):
         self.auth.guestOrLoggedInUser()
 
         url = randomWithNTopPages(details, 25)
         self.visitProduct(url)
-
-class FancySurferThatDoesALotOfThings(ShopwareUser):
-    weight = 20
-    wait_time = constant(10)
 
     @task
     def browseAroundFromHomepageAndAddToAnonymousCart(self):
@@ -248,6 +236,12 @@ class FancySurferThatDoesALotOfThings(ShopwareUser):
             time.sleep(1)
 
             self.checkoutOrder()
+
+class Registerer(ShopwareUser):
+    @task
+    def register(self):
+        self.auth.clearCookies()
+        self.auth.register(writeToFixture=True)
 
 @events.init.add_listener
 def on_locust_init(environment, **_kwargs):
