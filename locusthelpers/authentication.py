@@ -10,8 +10,9 @@ from requests.models import Response
 from locusthelpers.form import getFormFieldOptionValues 
 
 class Authentication:
-    def __init__(self, client: HttpSession):
+    def __init__(self, client: HttpSession, guestRatio: int):
         self.client = client
+        self.guestRatio = guestRatio
 
     def clearCookies(self):
         self.client.cookies.clear()
@@ -80,6 +81,14 @@ class Authentication:
         }
 
         self.client.post('/account/login', data=login, name='login')
+
+    """
+    Used before browsing users to decide weather they are logged in or guests
+    """
+    def guestOrLoggedInUser(self):
+        self.clearCookies()
+        if random.randint(1, 100) >= self.guestRatio:
+            self.loginRandomUserFromFixture()
 
     def loginRandomUserFromFixture(self):
         dataDir = os.getenv('SWBENCH_DATA_DIR', os.path.dirname(os.path.realpath(__file__)) + '/../fixtures')

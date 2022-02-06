@@ -32,7 +32,7 @@ class ShopwareUser(HttpUserWithResources):
         session.trust_env = False
         self.client = session
 
-        self.auth = Authentication(self.client)
+        self.auth = Authentication(self.client, self.environment.parsed_options.guest_ratio)
         self.search = Search(self)
 
     def visitPage(self, url: str, name=None, catch_response=False) -> Response:

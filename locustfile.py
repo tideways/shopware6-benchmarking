@@ -18,6 +18,7 @@ locust.stats.STATS_AUTORESIZE = False
 def _(parser):
     parser.add_argument("--tideways-apikey", type=str, env_var="LOCUST_TIDEWAYS_APIKEY", default="", help="The API Key to trigger Tideways callgraph traces with")
     parser.add_argument("--tideways-trace-rate", type=int, env_var="LOCUST_TIDEWAYS_TRACE_RATE", default=1, help="The sample rate for triggering callgraph traces")
+    parser.add_argument("--guest-ratio", type=int, env_var="LOCUST_GUEST_RATIO", default=90, help="The percentage of users that browse as guest.")
     parser.add_argument("--recurring-user-rate", type=int, env_var="LOCUST_RECURRING_USER_RATE", default=50, help="The percentage of users that already have a login and come back")
     parser.add_argument("--filterer-min-filters", type=int, env_var="LOCUST_FILTERER_MIN_FILTERS", default=3, help="Filterer User: Minimum number of filters to apply on a listing page")
     parser.add_argument("--filterer-max-filters", type=int, env_var="LOCUST_FILTERER_MAX_FILTERS", default=5, help="Filterer User: Maximum number of filters to apply on a listing page")
@@ -67,7 +68,9 @@ class Filterer(ShopwareUser):
     # and apply a filter
     @task
     def filter(self):
-        url = random.choice(listings)
+        self.auth.guestOrLoggedInUser()
+
+        url = randomWithNTopPages(listings, 10)
         numberOfFiltersToApply = random.randint(self.environment.parsed_options.filterer_min_filters, self.environment.parsed_options.filterer_max_filters)
         response = self.visitProductListingPage(productListingUrl=url)
         time.sleep(1)
@@ -88,6 +91,8 @@ class Searcher(ShopwareUser):
     # and apply a filter
     @task
     def search(self):
+        self.auth.guestOrLoggedInUser()
+
         self.visitPage("/")
         response = self.search.search(getRandomWordFromFixture())
         time.sleep(1)
@@ -95,6 +100,8 @@ class Searcher(ShopwareUser):
 
     @task
     def searchAndFilter(self):
+        self.auth.guestOrLoggedInUser()
+
         self.visitPage("/")
         response = self.search.search(getRandomWordFromFixture())
         time.sleep(1)
@@ -104,6 +111,8 @@ class Searcher(ShopwareUser):
 
     @task
     def searchForWordFromWordlist(self):
+        self.auth.guestOrLoggedInUser()
+
         self.visitPage("/")
         response = self.search.search(getRandomWordFromOperatingSystem())
         time.sleep(1)
@@ -120,6 +129,8 @@ class PaginationSurfer(ShopwareUser):
     # Visit a random product listing page and paginate through 1-3 additional pages
     @task()
     def detail_page(self):
+        self.auth.guestOrLoggedInUser()
+
         url = randomWithNTopPages(listings, 10)
         self.visitProductListingPageAndUseThePagination(
             url, random.randint(0, self.environment.parsed_options.max_pagination_surfing))
@@ -143,12 +154,16 @@ class Surfer(ShopwareUser):
 
     @task(10)
     def listing_page(self):
+        self.auth.guestOrLoggedInUser()
+
         url = randomWithNTopPages(listings, 10)
         self.visitProductListingPageAndRetrieveProductUrls(
             productListingUrl=url)
 
     @task(4)
     def detail_page(self):
+        self.auth.guestOrLoggedInUser()
+
         url = randomWithNTopPages(details, 25)
         self.visitProduct(url)
 
@@ -158,7 +173,8 @@ class FancySurferThatDoesALotOfThings(ShopwareUser):
 
     @task
     def browseAroundFromHomepageAndAddToAnonymousCart(self):
-        self.auth.clearCookies()
+        self.auth.guestOrLoggedInUser()
+
         self.visitHomepage()
         time.sleep(1)
 
@@ -176,7 +192,8 @@ class FancySurferThatDoesALotOfThings(ShopwareUser):
 
     @task
     def browseAroundFromHomepageAndAddToAnonymousCartAndCheckout(self):
-        self.auth.clearCookies()
+        self.auth.guestOrLoggedInUser()
+
         self.visitHomepage()
         time.sleep(1)
 
