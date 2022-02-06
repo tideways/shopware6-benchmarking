@@ -231,21 +231,6 @@ class FancySurferThatDoesALotOfThings(ShopwareUser):
 
             self.checkoutOrder()
 
-class DebugUser(ShopwareUser):
-    weight = 0
-
-    @task
-    def browseAroundFromHomepageAndAddToAnonymousCartAndCheckout(self):
-        self.auth.clearCookies()
-        self.visitHomepage()
-
-        self.addProductToCart(
-            "https://shopware64.tideways.io/Sleek-Iron-Federal-Preserve/3073f9e5e8744ba28b7cb649d3e598aa"
-        )
-        self.auth.register()
-
-        self.checkoutOrder()
-
 @events.init.add_listener
 def on_locust_init(environment, **_kwargs):
     jmeter_listener.JmeterListener(
@@ -261,8 +246,3 @@ def randomWithNTopPages(pages, numTopPages):
     randomPage = random.choice(pages)
     topPage = random.choice(pages[:numTopPages])
     return random.choice([randomPage, topPage])
-
-if __name__ == "__main__":
-    DebugUser.host = "https://shopware64.tideways.io"
-    run_single_user(DebugUser, include_length=True,
-                    include_time=True, include_context=True)
