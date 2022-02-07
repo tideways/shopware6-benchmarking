@@ -116,11 +116,11 @@ class ReportCommand extends Command
         );
         $templateVariables['requests_per_minute'] = round(
             $locustStats->getTotalRequests() / $minutes,
-            1
+            0
         );
         $templateVariables['php_requests_per_minute'] = round(
             $tidewaysStats['overall']->requests / $minutes,
-            1
+            0
         );
         $templateVariables['tideways'] = $tidewaysStats;
         $templateVariables['locust'] = $locustStats;

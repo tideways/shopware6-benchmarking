@@ -62,17 +62,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             }
             .score {
                 text-align: center;
-                display: inline-block;
+                width: 70px;
                 padding: 4px;
-                margin: auto;
+                margin: 0 auto;
                 color: #000;
                 font-size: 7pt;
                 font-weight: bold;
                 border-radius: 5px;
             }
             .score-big {
-                font-size: 10pt;
-                padding: 10px;
+                font-size: 18pt;
+                padding: 18px;
+                margin: 0 auto;
+                width: 180px;
             }
             span.bold {
                 font-weight: bold;
@@ -125,6 +127,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             table.summary td.pl-15 {
                 padding-left: 15px;
             }
+            td.pl-30 {
+                padding-left: 30px;
+            }
             table.summary th {
                 background-color: #eee;
             }
@@ -133,6 +138,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             table.summary td, table.summary th {
                 font-size: 10pt;
                 padding: 4px;
+            }
+            table.key-results th, table.key-results td {
+                text-align: center;
+            }
+            .circle {
+                height: 75px;
+                width: 75px;
+                background-color: #bbb;
+                border-radius: 50%;
+                display: block;
+                color: #fff;
+                line-height: 75px;
+                text-align: center;
+                margin: 0 auto;
             }
         </style>
     </head>
@@ -155,42 +174,49 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     {% macro chart_row(title, slug, tideways, locust, histogram = false) %}
         <tr>
-            <td colspan="2"><h3>{{ title }}</h3></td>
+            <td colspan="2"><h3 style="margin-bottom: 0px;"><a id="details_{{ slug }}">{{ title }}</a></h3></td>
         </tr>
         {% if histogram %}
             <tr>
-                <td>
+                <td rowspan="2">
                     <img src="./locust/{{ slug }}_histogram.png" width="520" />
                 </td>
                 <td>
-                    <p>The {{ title }} performance score is:</p>
-
+                    <p>The {{ title }} performance for {{ config.scenario.host }} score is:</p>
+                </td>
+            </tr>
+            <tr>
+                <td>
                     {{ _self.score(attribute(locust.pageSummary, slug).get95PercentileResponseTime(), true) }}
-
-                    <p>For 95% of the reqeusts made by users the response time is <span class="bold">{{ val }}ms</span> or less,
-                        the median response time is <span class="bold">{{ attribute(locust.pageSummary, slug).getMedianResponseTime() }}ms</span>.
-                    This is based on {{ attribute(locust.pageSummary, slug).getRequestCount() }} requests.</p>
                 </td>
             </tr>
         {% endif %}
         <tr>
             <td width="50%">
-                <h4>User Performance <span style="color: red">
-                        95p: {{ attribute(locust.pageSummary, slug).get95PercentileResponseTime() }}ms,
-                        Median: {{ attribute(locust.pageSummary, slug).getMedianResponseTime() }}ms,
-                        {{ attribute(locust.pageSummary, slug).getRequestCount() }} req
-                    </span>
-                </h4>
+                <table>
+                    <tr>
+                        <td><h4 style="margin-bottom: 0;">User Performance</h4></td>
+                        <td class="align-right" style="padding-right: 30px; font-size: 10pt;">
+                            95% Percentile: {{ attribute(locust.pageSummary, slug).get95PercentileResponseTime() }}ms,
+                            Median: {{ attribute(locust.pageSummary, slug).getMedianResponseTime() }}ms,
+                            {{ attribute(locust.pageSummary, slug).getRequestCount() }} requests
+                        </td>
+                    </tr>
+                </table>
 
                 <img src="./locust/{{ slug }}_response_times.png" width="520" />
             </td>
 
             <td width="50%">
-                <h4>PHP Performance <span style="color: red">
-                        95p: {{ attribute(tideways, slug).responseTime }}ms,
-                        {{ attribute(tideways, slug).requests }} req
-                    </span>
-                </h4>
+                <table>
+                    <tr>
+                        <td><h4 style="margin-bottom: 0;">PHP Performance</h4></td>
+                        <td class="align-right" style="padding-right: 30px; font-size: 10pt;">
+                            95% Percentile: {{ attribute(tideways, slug).responseTime }}ms,
+                            {{ attribute(tideways, slug).requests }} requests
+                        </td>
+                    </tr>
+                </table>
 
                 <img src="./tideways/{{ slug }}_performance.png" width="520" />
             </td>
@@ -216,75 +242,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </table>
 
             <table>
-                {{ _self.chart_row("Overall", "overall", tideways, locust, true) }}
+                {{ _self.chart_row("Overall", "overall", tideways, locust, true, _context) }}
             </table>
 
-            <table>
+            <h3 style="margin-top: 30px; margin-bottom: 30px;">Key Results</h3>
+
+            <table class="key-results">
                 <tr>
-                    <td width="50%">
-                        <h3>Scenario Description</h3>
-
-                        <table>
-                            <tr>
-                                <td width="50%">Duration</td>
-                                <td width="50%">{{ config.scenario.duration }}</td>
-                            </tr>
-                            <tr>
-                                <td width="50%">Concurrent Threads</td>
-                                <td width="50%">{{ config.scenario.concurrentThreads }}</td>
-                            </tr>
-                            <tr>
-                                <td width="50%" style="padding-left: 10px;">Share of Browsing Users</td>
-                                <td width="50%">{{ 100 - config.scenario.cartAbandonmentRatio - config.scenario.conversionRatio }}%</td>
-                            </tr>
-                            <tr>
-                                <td width="50%" style="padding-left: 10px;">Share of Converting Users</td>
-                                <td width="50%">{{ config.scenario.conversionRatio }}%</td>
-                            </tr>
-                            <tr>
-                                <td width="50%" style="padding-left: 10px;">Share of Abandoning Cart Users</td>
-                                <td width="50%">{{ config.scenario.cartAbandonmentRatio }}%</td>
-                            </tr>
-                            <tr>
-                                <td width="50%">Shopware Version</td>
-                                <td width="50%">{{ config.shopware.version }}</td>
-                            </tr>
-                            <tr>
-                                <td width="50%">PHP Version</td>
-                                <td width="50%">{{ config.shopware.phpVersion }}</td>
-                            </tr>
-                        </table>
-                    </td>
-                    <td width="50%">
-                        <h3>Shop Variables</h3>
-
-                        <table>
-                            <tr>
-                                <td width="50%">Products</td>
-                                <td width="50%">{{ counts.products | number_format(0, '.', ',') }}</td>
-                            </tr>
-                            <tr>
-                                <td width="50%">Categories</td>
-                                <td width="50%">{{ counts.listings | number_format(0, '.', ',')}}</td>
-                            </tr>
-                            <tr>
-                                <td width="50%">Requests/Minute</td>
-                                <td width="50%" style="color: red; font-weight: bold">{{ requests_per_minute }}</td>
-                            </tr>
-                            <tr>
-                                <td width="50%">PHP Requests/Minute</td>
-                                <td width="50%" style="color: red; font-weight: bold">{{ php_requests_per_minute }}</td>
-                            </tr>
-                            <tr>
-                                <td width="50%">Orders/Hour</td>
-                                <td width="50%" style="color: red; font-weight: bold">{{ purchases_per_hour }}</td>
-                            </tr>
-                        </table>
-                    </td>
+                    <td><div class="circle" style="background-color: #37485e">{{ purchases_per_hour }}</div></td>
+                    <td><div class="circle" style="background-color: #f7b234">{{ requests_per_minute }}</div></td>
+                    <td><div class="circle" style="background-color: #92117e">{{ locust.pageSummary["overall"].get95PercentileResponseTime() }}ms</div></td>
+                    <td><div class="circle" style="background-color: #40a52b">{{ counts.products | number_format(0, '.', ',') }}</div></td>
+                    <td><div class="circle" style="background-color: #026b5c">{{ counts.listings | number_format(0, '.', ',') }}</div></td>
+                </tr>
+                <tr>
+                    <th width="20%">Orders/Hour</th>
+                    <th width="20%">Requests/Minute</th>
+                    <th width="20%">95% Response Times</th>
+                    <th width="20%">Products</th>
+                    <th width="20%">Categories</th>
                 </tr>
             </table>
 
-            <h3>Summary - Response Times</h3>
+            <h3 style="margin-top: 30px;">Page Performance Summary</h3>
             <table class="summary">
                 <thead>
                     <tr>
@@ -353,6 +333,76 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     {{ _self.summary_row("Register", "register", tideways, locust) }}
                     {{ _self.summary_row("Login", "login", tideways, locust) }}
                 </tbody>
+            </table>
+
+            <h2 class="new-page">Scenario Configuration</h2>
+
+            <p>The following options were configured for the benchmarking scenario:</p>
+
+            <table>
+                <tr>
+                    <td width="30%">Duration</td>
+                    <td width="20%">{{ config.scenario.duration }}</td>
+                    <td>How long was this scenario run.</td>
+                </tr>
+                <tr>
+                    <td width="30%">Concurrent Threads</td>
+                    <td width="20%">{{ config.scenario.concurrentThreads }}</td>
+                    <td>How many concurrent users are simulated in this benchmark. Each concurrent user is performing a break of 1 second between each click/action and waits for a few seconds before starting again.</span></td>
+                </tr>
+                <tr>
+                    <td width="30%">Share of Browsing Users</td>
+                    <td width="20%">{{ 100 - config.scenario.cartAbandonmentRatio - config.scenario.conversionRatio }}%</td>
+                    <td>Percentage of users that are browsing categories, products, searching.</td>
+                </tr>
+                <tr>
+                    <td width="30%" class="pl-30">Guests</td>
+                    <td width="20%">{{ config.scenario.browsingGuestRatio }}%</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td width="30%" class="pl-30">Users with existing accounts</td>
+                    <td width="20%">{{ config.scenario.getBrowsingLoggedInRatio() }}%</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td width="30%" class="pl-30">Users with new accounts</td>
+                    <td width="20%">{{ config.scenario.getBrowsingNewAccountRatio() }}%</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td width="30%">Share of Converting Users</td>
+                    <td width="20%">{{ config.scenario.conversionRatio }}%</td>
+                    <td>Percentage of users that are buying products.</td>
+                </tr>
+                <tr>
+                    <td width="30%" class="pl-30">Guest Checkout Ratio</td>
+                    <td width="20%">{{ config.scenario.checkoutGuestRatio }}%</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td width="30%" class="pl-30">Purchasers with existing accounts</td>
+                    <td width="20%">{{ config.scenario.getCheckoutLoggedInRatio() }}%</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td width="30%" class="pl-30">Purchasers creating new accounts</td>
+                    <td width="20%">{{ config.scenario.getCheckoutNewAccountRatio() }}%</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td width="30%">Share of Abandoning Cart Users</td>
+                    <td width="20%">{{ config.scenario.cartAbandonmentRatio }}%</td>
+                    <td>Percentage of users that are abandoning their cart with products in them.</td>
+                </tr>
+                <tr>
+                    <td width="30%">Shopware Version</td>
+                    <td width="20%">{{ config.shopware.version }}</td>
+                </tr>
+                <tr>
+                    <td width="30%">PHP Version</td>
+                    <td width="20%">{{ config.shopware.phpVersion }}</td>
+                </tr>
             </table>
 
             <h2 class="new-page">Performance of Browsing</h2>

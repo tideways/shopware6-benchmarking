@@ -41,9 +41,11 @@ class HistogramGenerator
     {
         $graph = new ezcGraphBarChart();
         $graph->options->font = __DIR__ . '/../../templates/font.ttf';
-        $graph->options->font->maxFontSize = 6;
+        $graph->options->font->maxFontSize = 8;
         $graph->options->font->color = '#666666';
         $graph->options->fillLines = false;
+        $graph->renderer->options->shortAxis = true;
+        $graph->renderer->options->axisEndStyle = \ezcGraph::NO_SYMBOL;
         $graph->background->color = '#ffffff';
         $graph->legend = false;
 
@@ -80,6 +82,7 @@ class HistogramGenerator
             $graph->data['Counts']->highlightValue[$label] = sprintf('%3.1f%%', $value);
         }
         $graph->yAxis->labelCallback = fn ($value, $value2) => sprintf('%s%%', $value);
+        $graph->yAxis->axisSpace = 0.07;
 
         $graph->driver = new ezcGraphGdDriver();
         $graph->render(520, 160, $ouputFilePath);

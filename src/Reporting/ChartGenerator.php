@@ -71,23 +71,7 @@ class ChartGenerator
 
         return $dataSets;
     }
-/**
- * SWBench
- * Copyright (C) 2022 Tideways GmbH
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
     private function transformLocustStatsToChartDataSet(array $stats): array
     {
         $dataSets = ['Response Times' => [], 'Requests' => []];
@@ -154,10 +138,10 @@ class ChartGenerator
         $graph->renderer->options->shortAxis = true;
         $graph->renderer->options->axisEndStyle = \ezcGraph::NO_SYMBOL;
 
-        $graph->palette->dataSetColor = ['#00c0ef', '#cccccc', '#ff0000'];
+        $graph->palette->dataSetColor = ['#3c8dbc', '#cccccc', '#ff0000'];
         foreach ($dataSets as $label => $data) {
             $graph->data[$label] = new \ezcGraphArrayDataSet($data);
-            $graph->data[$label]->fillLines = 210; // HACK: This only works with custom ezcGraph change
+            $graph->data[$label]->fillLines = 180; // HACK: This only works with custom ezcGraph change
         }
 
         $additionalLabels = ['Requests', 'Errors'];
@@ -167,6 +151,7 @@ class ChartGenerator
         $nAxis->chartPosition = 1;
         $nAxis->min = 0;
         $nAxis->axisSpace = 0.07;
+        $nAxis->label = 'reqs';
         $nAxis->axisLabelRenderer = new \ezcGraphAxisCenteredLabelRenderer();
         $nAxis->axisLabelRenderer->showZeroValue = true;
 
@@ -179,7 +164,7 @@ class ChartGenerator
             }
         }
 
-        $graph->options->font->maxFontSize = 6;
+        $graph->options->font->maxFontSize = 8;
         $graph->options->font->color = '#666666';
         $graph->options->fillLines = false;
         $graph->background->color = '#ffffff';

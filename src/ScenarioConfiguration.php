@@ -48,4 +48,24 @@ class ScenarioConfiguration
         public int $filtererVisitProductRatio = 10,
         public int $maxPaginationSurfing = 3,
     ) {}
+
+    public function getBrowsingLoggedInRatio() : float
+    {
+        return (100 - $this->browsingGuestRatio) * (100 - $this->browsingAccountsNewRatio) * 100;
+    }
+
+    public function getBrowsingNewAccountRatio() : float
+    {
+        return (100 - $this->browsingGuestRatio) * ($this->browsingAccountsNewRatio) / 100;
+    }
+
+    public function getCheckoutLoggedInRatio() : float
+    {
+        return (100 - $this->checkoutGuestRatio) * (100 - $this->checkoutAccountsNewRatio) * 100;
+    }
+
+    public function getCheckoutNewAccountRatio() : float
+    {
+        return (100 - $this->checkoutGuestRatio) * ($this->checkoutAccountsNewRatio) / 100;
+    }
 }
