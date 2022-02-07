@@ -6,13 +6,8 @@
   },
   "shopware": {
     "version": "6.4 Community Edition",
-    "plugins": [],
     "phpVersion": "8.0.13",
-    "serverHardware": "Digitalocean, 1x4 CPU cores, 4GB RAM",
-    "httpCacheLifetime": "2 hours",
-    "cacheBackend": "Redis",
-    "productSearchBackend": "MySQL Database",
-    "backgroundQueue": "Database, 1 Worker"
+    "serverHardware": "Digitalocean, 1x4 CPU cores, 4GB RAM"
   },
   "tideways": {"apiToken":  "foobar"}
 }
