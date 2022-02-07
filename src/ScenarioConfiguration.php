@@ -25,6 +25,7 @@ class ScenarioConfiguration
         public string $title,
         public string $duration,
         public string $host,
+        public string $description = '',
         public int $concurrentThreads = 10,
         public int $userSpawnRate = 1,
 
