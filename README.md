@@ -1,9 +1,12 @@
 # Shopware 6 Benchmarking with Locust
 
-This repository contains several components that form our Shopware 6 benchmarking product
-based on the [load-testing tool Locust](https://locust.io).
+> NOTE: This project is currently in beta and it is not recommended to run it
+> against live production environments yet.
 
-Locust is run wrapped through a PHP 8.1 cli tool that performs the necessary initializations
+This repository contains several components for Shopware 6 performance
+benchmarking based on the [load-testing tool Locust](https://locust.io).
+
+Locust is run wrapped through a PHP 8.1 CLI tool that performs the necessary initializations
 and manages the input and output data to the scenario. In addition Docker can be used to run
 Locust in an isolated environment.
 
@@ -24,7 +27,7 @@ The following fixture data is loaded:
 * Fetching individual options for country and salutation from the /account/register page
 
 To generate a useful report, you also have to modify the config file to put in
-information about versions, plugins, server hardware and more.
+information about versions, server hardware and more.
 
 ### Execution Mode
 
@@ -38,3 +41,10 @@ Change the execution mode:
 php8.1 bin/sw-bench global-config executionMode local
 php8.1 bin/sw-bench global-config executionMode docker
 ```
+
+## LICENSE
+
+This project is multi licenses.
+
+- All PHP and Twig code in the `src/`, `tests/` and `templates/` folders is licensed AGPL 3.0 or later.
+- All Python code in `locustfile.py` and `locusthelpers/` folder is MIT licensed.
