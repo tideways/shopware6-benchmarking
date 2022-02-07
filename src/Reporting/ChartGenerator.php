@@ -38,7 +38,7 @@ class ChartGenerator
         foreach ($tidewaysStats as $page => $data) {
             $dataSets = $this->transformTidewaysStatsToChartDataSet($data);
             $dataSets = $this->cropDataToChartRange($dataSets, $start, $end);
-            $this->generatePngChart($dataSets, $this->dataDir . '/tideways/' . $page . '_performance.png', $start, $end);
+            $this->generatePngChart($dataSets, $this->dataDir . '/tideways/' . $page . '_performance.png');
         }
     }
 
@@ -52,8 +52,6 @@ class ChartGenerator
             $this->generatePngChart(
                 $this->transformLocustStatsToChartDataSet($data),
                 $this->dataDir . '/locust/' . $page . '_response_times.png',
-                $start,
-                $end
             );
         }
     }
@@ -108,22 +106,19 @@ class ChartGenerator
     private function generatePngChart(
         array              $dataSets,
         string             $ouputFilePath,
-        \DateTimeImmutable $start,
-        \DateTimeImmutable $end
     ): bool
     {
-        $lineWidth = 210;
-
         $graph = new \ezcGraphLineChart();
         $graph->options->font = __DIR__ . '/../../templates/font.ttf';
 
-        $graph->palette->majorGridColor = '#cccccc';
+        $graph->palette->majorGridColor = '#ffffff';
+        $graph->palette->minorGridColor = '#ffffff';
         $graph->palette->axisColor = '#cccccc';
 
         $dates = array_keys(current($dataSets));
 
         $graph->xAxis = new \ezcGraphChartElementDateAxis();
-        $graph->xAxis->majorGrid = '#cccccc';
+        $graph->xAxis->majorGrid = '#ffffff';
         $graph->xAxis->dateFormat = "H:i";
         $graph->xAxis->startDate = strtotime(array_shift($dates));
         $graph->xAxis->endDate = strtotime(array_pop($dates));
@@ -131,7 +126,7 @@ class ChartGenerator
         $graph->yAxis->label = 'ms';
         $graph->yAxis->axisSpace = 0.07;
         $graph->yAxis->min = 0;
-        $graph->yAxis->majorGrid = '#cccccc';
+        $graph->yAxis->majorGrid = '#ffffff';
         $graph->yAxis->axisLabelRenderer = new \ezcGraphAxisCenteredLabelRenderer();
         $graph->yAxis->axisLabelRenderer->showZeroValue = true;
 
@@ -149,6 +144,7 @@ class ChartGenerator
         $nAxis = new ezcGraphChartElementNumericAxis();
         $nAxis->position = ezcGraph::BOTTOM;
         $nAxis->chartPosition = 1;
+        $nAxis->majorGrid = '#ffffff';
         $nAxis->min = 0;
         $nAxis->axisSpace = 0.07;
         $nAxis->label = 'reqs';
