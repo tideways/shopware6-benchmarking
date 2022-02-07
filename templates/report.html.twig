@@ -157,19 +157,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </head>
 
     {% macro score(val, big = false) %}
-        <div class="score {% if big %}score-big{% endif %}" style="background-color:
+        <div class="score {% if big %}score-big{% endif %}"
+             style="background-color:
                 {% if val < 512 %}#2ce574
                 {% elseif val < 1024 %}#cdf03a
                 {% elseif val < 2048 %}#ffe500
-                {% elseif val < 1024 %}#ff9600
-                {% elseif val < 1024 %}#ff3924{% endif %};"
+                {% elseif val < 4096 %}#ff9600
+                {% elseif val >= 4096 %}#ff3924{% endif %};"
         >
-
             {% if val < 512 %}Excellent (A)
             {% elseif val < 1024 %}Good (B)
             {% elseif val < 2048 %}Acceptable (C)
-            {% elseif val < 1024 %}Degraded (D)
-            {% elseif val < 1024 %}Unacceptable (F){% endif %}</div>
+            {% elseif val < 4096 %}Degraded (D)
+            {% elseif val >= 4096 %}Unacceptable (F){% endif %}
+        </div>
     {% endmacro %}
 
     {% macro chart_row(title, slug, tideways, locust, histogram = false) %}
