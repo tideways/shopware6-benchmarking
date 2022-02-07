@@ -25,6 +25,7 @@ class TidewaysConfiguration
         public string $apiToken = "",
         public string $project = "",
         public string $apiKey = "",
+        public string $environment = "production",
         public int $traceSampleRate = 0,
     ) {}
 }

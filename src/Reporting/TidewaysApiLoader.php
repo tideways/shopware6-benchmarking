@@ -20,6 +20,7 @@
 namespace Tideways\Shopware6Benchmarking\Reporting;
 
 use GuzzleHttp;
+use Tideways\Shopware6Benchmarking\TidewaysConfiguration;
 
 class TidewaysApiLoader
 {
@@ -27,12 +28,14 @@ class TidewaysApiLoader
 
     private string $project;
     private string $apiToken;
+    private string $environment;
     private GuzzleHttp\Client $client;
 
-    public function __construct(string $project, string $apiToken)
+    public function __construct(TidewaysConfiguration $configuration)
     {
-        $this->project = $project;
-        $this->apiToken = $apiToken;
+        $this->project = $configuration->project;
+        $this->apiToken = $configuration->apiToken;
+        $this->environment = $configuration->environment;
 
         $headers = ['Authorization' => sprintf('Bearer %s', $this->apiToken)];
         $this->client = new GuzzleHttp\Client(['base_uri' => self::BASE_URI . $this->project . '/', 'headers' => $headers]);
@@ -75,7 +78,7 @@ class TidewaysApiLoader
         $until = $end->format("Y-m-d H:i");
         $duration = ($end->getTimestamp() - $start->getTimestamp()) / 60;
 
-        return sprintf("%s?ts=%s&m=%d", $path, $until, $duration - 1);
+        return sprintf("%s?ts=%s&m=%d&env=%s", $path, $until, $duration - 1, $this->environment);
     }
 
     /** @return TidewaysTrace[] */
@@ -92,6 +95,7 @@ class TidewaysApiLoader
             'sort_by' => 'response_time',
             'sort_order' => 'DESC',
             'limit' => 1,
+            'env' => $this->environment,
         ];
         try {
             $response = $this->client->request('GET', 'traces?' . http_build_query($query));

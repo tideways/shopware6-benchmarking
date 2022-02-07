@@ -54,7 +54,7 @@ class ReportCommand extends Command
         $statsParser = new LocustStatsParser();
         $chartGenerator = new ChartGenerator($config->getDataDirectory());
         $histogramGenerator = new HistogramGenerator($config->getDataDirectory());
-        $tidewaysLoader = new TidewaysApiLoader($config->tideways->project, $config->tideways->apiToken);
+        $tidewaysLoader = new TidewaysApiLoader($config->tideways);
 
         if (!is_dir($config->getDataDirectory() . '/tideways')) {
             mkdir($config->getDataDirectory() . '/tideways', 0755, true);
