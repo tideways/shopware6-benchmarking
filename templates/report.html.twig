@@ -26,7 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             @import "https://fonts.googleapis.com/css?family=Roboto";
 
             body {
-                font-family: Roboto, sans-serif;
+                font-family: Roboto, Arial, sans-serif;
+                font-size: 12pt;
                 -ms-text-size-adjust: 100%;
                 -webkit-text-size-adjust: 100%
             }
@@ -47,30 +48,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             }
             h1 {
                 padding: 0px;
+                margin: 0px;
+                margin-bottom: 8px;
             }
             h2, h3, h4 {
                 margin: 0px; padding: 0px;
+                margin-bottom: 8px;
             }
             h4 {
                 color: gray;
                 font-weight: normal;
-                font-size: 10pt;
+                font-size: 12pt;
             }
             .score {
                 text-align: center;
                 display: inline-block;
-                padding: 10px;
+                padding: 4px;
                 margin: auto;
                 color: #000;
-                font-size: 10pt;
+                font-size: 7pt;
                 font-weight: bold;
                 border-radius: 5px;
+            }
+            .score-big {
+                font-size: 10pt;
+                padding: 10px;
             }
             span.bold {
                 font-weight: bold;
             }
-            span.text-muted {
-                font-size: 8px;
+            p.text-muted, span.text-muted {
+                font-size: 8pt;
                 color: #999999;
             }
             span.label {
@@ -103,8 +111,47 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             table.traces tbody {
                 border-top: 1px solid #ccc;
             }
+            table.summary {
+                border-left: 1px solid #ccc;
+                border-right: 1px solid #ccc;
+                border-bottom: 1px solid #ccc;
+            }
+            table.summary td, table.summary th {
+                border-top: 1px solid #ccc;
+            }
+            table.summary .border-right {
+                border-right: 1px solid #ccc;
+            }
+            table.summary td.pl-15 {
+                padding-left: 15px;
+            }
+            table.summary th {
+                background-color: #eee;
+            }
+            .align-right { text-align: right; }
+            .align-center { text-align: center; }
+            table.summary td, table.summary th {
+                font-size: 10pt;
+                padding: 4px;
+            }
         </style>
     </head>
+
+    {% macro score(val, big = false) %}
+        <div class="score {% if big %}score-big{% endif %}" style="background-color:
+                {% if val < 512 %}#2ce574
+                {% elseif val < 1024 %}#cdf03a
+                {% elseif val < 2048 %}#ffe500
+                {% elseif val < 1024 %}#ff9600
+                {% elseif val < 1024 %}#ff3924{% endif %};"
+        >
+
+            {% if val < 512 %}Excellent (A)
+            {% elseif val < 1024 %}Good (B)
+            {% elseif val < 2048 %}Acceptable (C)
+            {% elseif val < 1024 %}Degraded (D)
+            {% elseif val < 1024 %}Unacceptable (F){% endif %}</div>
+    {% endmacro %}
 
     {% macro chart_row(title, slug, tideways, locust, histogram = false) %}
         <tr>
@@ -118,20 +165,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <td>
                     <p>The {{ title }} performance score is:</p>
 
-                    {% set val = attribute(locust.pageSummary, slug).get95PercentileResponseTime() %}
-                    <div class="score" style="background-color:
-                         {% if val < 512 %}#2ce574
-                         {% elseif val < 1024 %}#cdf03a
-                         {% elseif val < 2048 %}#ffe500
-                         {% elseif val < 1024 %}#ff9600
-                         {% elseif val < 1024 %}#ff3924{% endif %};"
-                    >
-
-                    {% if val < 512 %}Excellent (A)
-                    {% elseif val < 1024 %}Good (B)
-                    {% elseif val < 2048 %}Acceptable (C)
-                    {% elseif val < 1024 %}Degraded (D)
-                    {% elseif val < 1024 %}Unacceptable (F){% endif %}</div>
+                    {{ _self.score(attribute(locust.pageSummary, slug).get95PercentileResponseTime(), true) }}
 
                     <p>For 95% of the reqeusts made by users the response time is <span class="bold">{{ val }}ms</span> or less,
                         the median response time is <span class="bold">{{ attribute(locust.pageSummary, slug).getMedianResponseTime() }}ms</span>.
@@ -165,14 +199,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <body>
         <div id="content">
-
-
             <table>
                 <tr>
                     <td width="80%">
                         <h1>Shopware 6 Benchmark</h1>
 
                         <h2>Scenario: {{ config.scenario.title }}</h2>
+
+                        <p class="text-muted">{{ config.scenario.description }}</p>
                     </td>
                     <td width="20%" align="left" style="line-height: 60px;">
                         <img height="50" src="./shopware_logo_blue.svg"  /><br />
@@ -180,38 +214,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     </td>
                 </tr>
             </table>
+
             <table>
                 {{ _self.chart_row("Overall", "overall", tideways, locust, true) }}
+            </table>
 
-                <h2>Summary - Response Times</h2>
-                <table class="summary">
-                    <tr>
-                        <thead>
-                            <tr>
-                                <th>Page</th>
-                                <th>User Performance</th>
-                                <th>PHP Performance</th>
-                                <th>Grade</th>
-                            </tr>
-                        </thead>
-                        <thead>
-                            <tr>
-                                <td>Browsing</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Homepage</td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </tr>
-                </table>
-
-                {{ _self.chart_row("Category Page", "listing-page", tideways, locust) }}
-
-                {{ _self.chart_row("Product Details Page", "product-detail-page", tideways, locust) }}
-
+            <table>
                 <tr>
                     <td width="50%">
                         <h3>Scenario Description</h3>
@@ -226,12 +234,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                 <td width="50%">{{ config.scenario.concurrentThreads }}</td>
                             </tr>
                             <tr>
+                                <td width="50%" style="padding-left: 10px;">Share of Browsing Users</td>
+                                <td width="50%">{{ 100 - config.scenario.cartAbandonmentRatio - config.scenario.conversionRatio }}%</td>
+                            </tr>
+                            <tr>
                                 <td width="50%" style="padding-left: 10px;">Share of Converting Users</td>
                                 <td width="50%">{{ config.scenario.conversionRatio }}%</td>
                             </tr>
                             <tr>
-                                <td width="50%" style="padding-left: 10px;">Share of Browsing Users</td>
-                                <td width="50%">{{ 100 - config.scenario.conversionRatio }}%</td>
+                                <td width="50%" style="padding-left: 10px;">Share of Abandoning Cart Users</td>
+                                <td width="50%">{{ config.scenario.cartAbandonmentRatio }}%</td>
                             </tr>
                             <tr>
                                 <td width="50%">Shopware Version</td>
@@ -240,10 +252,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                             <tr>
                                 <td width="50%">PHP Version</td>
                                 <td width="50%">{{ config.shopware.phpVersion }}</td>
-                            </tr>
-                            <tr>
-                                <td width="50%">Hardware</td>
-                                <td width="50%">{{ config.shopware.serverHardware }}</td>
                             </tr>
                         </table>
                     </td>
@@ -274,28 +282,104 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         </table>
                     </td>
                 </tr>
-                <tr>
-                    <td colspan="2" style="font-size: 5pt; color: gray;">
-                        <p>Disclaimer: Only benchmarks performed against real production environment hardware, software and data
-                            will provide realistic and reliable results of future production behavior.
-                            This benchmark focuses of server-side performance from the browser and PHP point of view.
-                            The results only partially explain real user performance in the browser.
-                        </p>
-
-                        <p>The code for this benchmark is open-source and available under <a href="https://github.com/tideways/shopware6-benchmarking">https://github.com/tideways/shopware6-benchmarking</a>.</p>
-                    </td>
-                </tr>
             </table>
 
-            <h2 class="new-page">Performance of All Pages</h2>
+            <h3>Summary - Response Times</h3>
+            <table class="summary">
+                <thead>
+                    <tr>
+                        <th>Page</th>
+                        <th class="border-right">Score</th>
+                        <th colspan="3">User Performance</th>
+                        <th colspan="2">PHP Performance</th>
+                    </tr>
+                </thead>
+                <thead>
+                    <tr>
+                        <td></td>
+                        <td class="border-right"></td>
+                        <td class="align-right">Median</td>
+                        <td class="align-right">95% Perc.</td>
+                        <td class="align-right border-right">Requests</td>
+                        {# <td class="align-right">Median</td> #}
+                        <td class="align-right">95% Perc.</td>
+                        <td class="align-right">Requests</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% macro summary_row(title, slug, tideways, locust) %}
+                        <tr>
+                            <td class="pl-15">{{ title }}</td>
+                            <td class="align-center border-right">
+                                {% if locust.pageSummary[slug].getRequestCount() > 0 %}
+                                    {{ _self.score(locust.pageSummary[slug].get95PercentileResponseTime()) }}
+                                {% endif %}
+                            </td>
+                            <td class="align-right">{{ locust.pageSummary[slug].getMedianResponseTime() }}ms</td>
+                            <td class="align-right">{{ locust.pageSummary[slug].get95PercentileResponseTime() }}ms</td>
+                            <td class="align-right border-right">{{ locust.pageSummary[slug].getRequestCount() }}</td>
+                            {# <td class="align-right">{{ tideways[slug].getMedianResponseTime() }}ms</td>#}
+                            <td class="align-right">{{ tideways[slug].responseTime }}ms</td>
+                            <td class="align-right">{{ tideways[slug].requests }}</td>
+                        </tr>
+                    {% endmacro %}
+
+                    {% set columns = "7" %}
+                    <tr>
+                        <td colspan="{{ columns }}">Browsing</td>
+                    </tr>
+                    {{ _self.summary_row("Homepage", "homepage", tideways, locust) }}
+                    {{ _self.summary_row("Product Details Page", "product-detail-page", tideways, locust) }}
+                    {{ _self.summary_row("Category Page", "listing-page", tideways, locust) }}
+                    {{ _self.summary_row("Category Page Filter", "listing-widget-filtered", tideways, locust) }}
+                    {{ _self.summary_row("Search", "search", tideways, locust) }}
+                    {{ _self.summary_row("Search Suggestions", "search-suggest", tideways, locust) }}
+                    <tr>
+                        <td colspan="{{ columns }}">Cart</td>
+                    </tr>
+                    {{ _self.summary_row("Cart Info Widget", "cart-widget", tideways, locust) }}
+                    {{ _self.summary_row("Add Item To Cart", "add-to-cart", tideways, locust) }}
+                    {{ _self.summary_row("Cart Page", "cart-page", tideways, locust) }}
+                    <tr>
+                        <td colspan="{{ columns }}">Checkout</td>
+                    </tr>
+                    {{ _self.summary_row("Checkout Register Page", "checkout-register-page", tideways, locust) }}
+                    {{ _self.summary_row("Confirm Order Page", "confirm-page", tideways, locust) }}
+                    {{ _self.summary_row("Order", "order", tideways, locust) }}
+                    <tr>
+                        <td colspan="{{ columns }}">Account Management</td>
+                    </tr>
+                    {{ _self.summary_row("Register Page", "register-page", tideways, locust) }}
+                    {{ _self.summary_row("Register", "register", tideways, locust) }}
+                    {{ _self.summary_row("Login", "login", tideways, locust) }}
+                </tbody>
+            </table>
+
+            <h2 class="new-page">Performance of Browsing</h2>
 
             <table>
                 {{ _self.chart_row("Homepage", "homepage", tideways, locust) }}
+                {{ _self.chart_row("Product Details Page", "product-detail-page", tideways, locust) }}
+                {{ _self.chart_row("Category Page", "listing-page", tideways, locust) }}
+                {{ _self.chart_row("Category Page Filter", "listing-widget-filtered", tideways, locust) }}
                 {{ _self.chart_row("Search", "search", tideways, locust) }}
-                {{ _self.chart_row("Order", "order", tideways, locust) }}
-                {{ _self.chart_row("Add Item To Cart", "add-to-cart", tideways, locust) }}
+                {{ _self.chart_row("Search Suggestions", "search-suggest", tideways, locust) }}
+            </table>
+
+            <h2 class="new-page">Performance of Cart</h2>
+
+            <table>
                 {{ _self.chart_row("Cart Page", "cart-page", tideways, locust) }}
+                {{ _self.chart_row("Cart Info Widget", "cart-widget", tideways, locust) }}
+                {{ _self.chart_row("Add Item To Cart", "add-to-cart", tideways, locust) }}
+            </table>
+
+            <h2 class="new-page">Performance of Checkout</h2>
+            <table>
+                {{ _self.chart_row("Confirm Order Page", "confirm-page", tideways, locust) }}
+                {{ _self.chart_row("Order", "order", tideways, locust) }}
                 {{ _self.chart_row("Register", "register", tideways, locust) }}
+                {{ _self.chart_row("Login", "login", tideways, locust) }}
             </table>
 
             <h2 class="new-page">Slowest Traces</h2>
@@ -332,7 +416,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             {% endfor %}
             </table>
 
-            <p></p>
+            <h2 class="new-page">Score / Legend</h2>
+
+            <p>The score is calculated using the 95% percentile of the page or overall performance and comparing it against these thresholds:</p>
+
+            <ul>
+                <li>Excellent (A): 95% of requests have performance below 512ms</li>
+                <li>Good (B): 95% of requests have performance below 1024ms</li>
+                <li>Acceptable (C): 95% of requests have performance below 2048ms</li>
+                <li>Degraded (D): 95% of requests have performance below 4096ms</li>
+                <li>Unacceptable (F): More than 5% of requests are slower than 4096ms</li>
+            </ul>
+
+            <h2>Disclaimer</h2>
+
+            <p>Only benchmarks performed against real production environment hardware, software and data
+                will provide realistic and reliable results of future production behavior.
+                This benchmark focuses of server-side performance from the browser and PHP point of view.
+                The results only partially explain real user performance in the browser.
+            </p>
+
+            <p>The code for this benchmark is open-source and available at <a href="https://github.com/tideways/shopware6-benchmarking">https://github.com/tideways/shopware6-benchmarking</a> under AGPL v3 license.</p>
         </div>
     </body>
 </html>
