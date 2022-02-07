@@ -80,7 +80,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 font-weight: bold;
             }
             p.text-muted, span.text-muted {
-                font-size: 8pt;
+                font-size: 10pt;
                 color: #999999;
             }
             span.label {
@@ -443,22 +443,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 {% for trace in pageTraces %}
                 <tbody>
                     <tr class="{% if loop.parent.loop.index is odd %}odd{% else%}even{% endif%} summary">
-                        <td width="100" class="number short"><span class="unit response-time">{{ trace.responseTimeMs }}&nbsp;ms</span></td>
-                        <td class="operation">
-                            <a class="profile-list-item" href="{{ trace.htmlUrl }}">
-                                <span class="bold string word-break">{{ trace.transactionName }}</span>
+                        <td width="100"><span class="unit response-time">{{ trace.responseTimeMs }}&nbsp;ms</span></td>
+                        <td>
+                            <a href="{{ trace.htmlUrl }}">
+                                <span class="bold">{{ trace.transactionName }}</span>
                             </a>
                         </td>
-                        <td width="100" class="number width-22p">{{ trace.date|date('d.m, H:i') }}</td>
+                        <td width="100">{{ trace.date|date('d.m, H:i') }}</td>
                     </tr>
                     <tr class="{% if loop.parent.loop.index is odd %}odd{% else%}even{% endif%} details">
-                        <td colspan="1" class="number short"><span class="unit memory">{{ trace.memoryMb }} MB</span></td>
-                        <td colspan="2" class="title word">
-                            <div class="profile-list-item-metadata"><small>
-                                <span class="label {% if trace.httpStatus >= 500%}label-danger{% else %}label-success{% endif %}">{{ trace.httpStatusCode }}</span>
-                                <small><span class="text-muted word-break">{{ trace.httpMethod }} {{ trace.url }}/</span></small>
-                                </small>
-                            </div>
+                        <td colspan="1"><span class="unit memory">{{ trace.memoryMb }} MB</span></td>
+                        <td colspan="2">
+                            <span class="label {% if trace.httpStatus >= 500 %}label-danger{% else %}label-success{% endif %}">{{ trace.httpStatusCode }}</span>
+                            <span class="text-muted">{{ trace.httpMethod }} {{ trace.url }}/</span>
                         </td>
                     </tr>
                 </tbody>
@@ -480,7 +477,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             <h2>Disclaimer</h2>
 
-            <p>Only benchmarks performed against real production environment hardware, software and data
+            <p>
+                Only benchmarks performed against real production environment hardware, software and data
                 will provide realistic and reliable results of future production behavior.
                 This benchmark focuses of server-side performance from the browser and PHP point of view.
                 The results only partially explain real user performance in the browser.
