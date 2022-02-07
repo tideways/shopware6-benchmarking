@@ -10,20 +10,26 @@ def initListings():
     dataDir = os.getenv('SWBENCH_DATA_DIR', os.path.dirname(os.path.realpath(__file__)) + '/../fixtures')
     path = dataDir + '/listing_urls.csv'
 
-    with open(path) as file:
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            listings.append(row[0])
+    try:
+        with open(path) as file:
+            reader = csv.reader(file, delimiter=',')
+            for row in reader:
+                listings.append(row[0])
+    except FileNotFoundError as e:
+        return
 
 
 def initProducts():
     dataDir = os.getenv('SWBENCH_DATA_DIR', os.path.dirname(os.path.realpath(__file__)) + '/../fixtures')
     path = dataDir + '/product_urls.csv'
 
-    with open(path) as file:
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            details.append(row[0])
+    try:
+        with open(path) as file:
+            reader = csv.reader(file, delimiter=',')
+            for row in reader:
+                details.append(row[0])
+    except FileNotFoundError as e:
+        return
 
 
 
