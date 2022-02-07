@@ -55,6 +55,4 @@ class HttpTidewaysSession(HttpSession):
         token = hm.hexdigest()
         header = "method=&time=" + str(validUntil) + "&user=&hash=" + token
 
-        print(f'Tideways header: ' + header + '\n')
-
         return {"X-Tideways-Profiler": header}

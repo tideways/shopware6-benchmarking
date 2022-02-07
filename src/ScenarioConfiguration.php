@@ -51,7 +51,7 @@ class ScenarioConfiguration
 
     public function getBrowsingLoggedInRatio() : float
     {
-        return (100 - $this->browsingGuestRatio) * (100 - $this->browsingAccountsNewRatio) * 100;
+        return (100 - $this->browsingGuestRatio) * (100 - $this->browsingAccountsNewRatio) / 100;
     }
 
     public function getBrowsingNewAccountRatio() : float
@@ -61,7 +61,7 @@ class ScenarioConfiguration
 
     public function getCheckoutLoggedInRatio() : float
     {
-        return (100 - $this->checkoutGuestRatio) * (100 - $this->checkoutAccountsNewRatio) * 100;
+        return (100 - $this->checkoutGuestRatio) * (100 - $this->checkoutAccountsNewRatio) / 100;
     }
 
     public function getCheckoutNewAccountRatio() : float
