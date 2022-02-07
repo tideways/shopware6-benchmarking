@@ -275,6 +275,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             <h2 class="new-page">Slowest Traces</h2>
 
+            <p>
+                This list contains the slowest trace for each page/operation that was collected by Tideways during the benchmark.
+            </p>
+
             <table class="traces">
             {% for page, pageTraces in traces %}
                 {% for trace in pageTraces %}
@@ -302,6 +306,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 {% endfor %}
             {% endfor %}
             </table>
+
+            <p></p>
         </div>
     </body>
 </html>
