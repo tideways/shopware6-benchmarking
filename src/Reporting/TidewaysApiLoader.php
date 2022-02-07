@@ -1,8 +1,26 @@
 <?php
+/**
+ * SWBench
+ * Copyright (C) 2022 Tideways GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 namespace Tideways\Shopware6Benchmarking\Reporting;
 
 use GuzzleHttp;
+use Tideways\Shopware6Benchmarking\TidewaysConfiguration;
 
 class TidewaysApiLoader
 {
@@ -10,12 +28,14 @@ class TidewaysApiLoader
 
     private string $project;
     private string $apiToken;
+    private string $environment;
     private GuzzleHttp\Client $client;
 
-    public function __construct(string $project, string $apiToken)
+    public function __construct(TidewaysConfiguration $configuration)
     {
-        $this->project = $project;
-        $this->apiToken = $apiToken;
+        $this->project = $configuration->project;
+        $this->apiToken = $configuration->apiToken;
+        $this->environment = $configuration->environment;
 
         $headers = ['Authorization' => sprintf('Bearer %s', $this->apiToken)];
         $this->client = new GuzzleHttp\Client(['base_uri' => self::BASE_URI . $this->project . '/', 'headers' => $headers]);
@@ -58,7 +78,7 @@ class TidewaysApiLoader
         $until = $end->format("Y-m-d H:i");
         $duration = ($end->getTimestamp() - $start->getTimestamp()) / 60;
 
-        return sprintf("%s?ts=%s&m=%d", $path, $until, $duration - 1);
+        return sprintf("%s?ts=%s&m=%d&env=%s", $path, $until, $duration - 1, $this->environment);
     }
 
     /** @return TidewaysTrace[] */
@@ -75,6 +95,7 @@ class TidewaysApiLoader
             'sort_by' => 'response_time',
             'sort_order' => 'DESC',
             'limit' => 1,
+            'env' => $this->environment,
         ];
         try {
             $response = $this->client->request('GET', 'traces?' . http_build_query($query));

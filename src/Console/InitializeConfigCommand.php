@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Tideways\Shopware6Benchmarking\Configuration;
 
 class InitializeConfigCommand extends Command
 {
@@ -44,23 +45,8 @@ class InitializeConfigCommand extends Command
             throw new \LogicException("Configuration file " . $file . " already exists.");
         }
 
-        file_put_contents($file, json_encode([
-            'scenario' => [
-                'title' => 'Benchmarking ' . $host,
-                'duration' => '1m',
-                'host' => $host,
-            ],
-            'shopware' => [
-                'version' => 'unknown',
-                'plugins' => [],
-                'phpVersion' => 'unknown',
-                'serverHardware' => 'unknown',
-                'httpCacheLifetime' => 'unknown',
-                'cacheBackend' => 'unknown',
-                'productSearchBackend' => 'unknown',
-                'backgroundQueue' => 'unknown',
-            ],
-        ], JSON_PRETTY_PRINT));
+        $config = Configuration::createNew(title: 'Benchmarking ' . $host, host: $host);
+        $config->write($file);
 
         return Command::SUCCESS;
     }

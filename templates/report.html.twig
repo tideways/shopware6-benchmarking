@@ -1,3 +1,20 @@
+{#
+SWBench
+Copyright (C) 2022 Tideways GmbH
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#}
 <!DOCTYPE html>
 <html>
     <head>
@@ -209,12 +226,16 @@
                                 <td width="50%">{{ config.scenario.concurrentThreads }}</td>
                             </tr>
                             <tr>
-                                <td width="50%">Shopware Version</td>
-                                <td width="50%">{{ config.shopware.version }}</td>
+                                <td width="50%" style="padding-left: 10px;">Share of Converting Users</td>
+                                <td width="50%">{{ config.scenario.conversionRatio }}%</td>
                             </tr>
                             <tr>
-                                <td width="50%">Plugins</td>
-                                <td width="50%">{{ config.shopware.plugins|join(", ") }}</td>
+                                <td width="50%" style="padding-left: 10px;">Share of Browsing Users</td>
+                                <td width="50%">{{ 100 - config.scenario.conversionRatio }}%</td>
+                            </tr>
+                            <tr>
+                                <td width="50%">Shopware Version</td>
+                                <td width="50%">{{ config.shopware.version }}</td>
                             </tr>
                             <tr>
                                 <td width="50%">PHP Version</td>
@@ -279,6 +300,10 @@
 
             <h2 class="new-page">Slowest Traces</h2>
 
+            <p>
+                This list contains the slowest trace for each page/operation that was collected by Tideways during the benchmark.
+            </p>
+
             <table class="traces">
             {% for page, pageTraces in traces %}
                 {% for trace in pageTraces %}
@@ -306,6 +331,8 @@
                 {% endfor %}
             {% endfor %}
             </table>
+
+            <p></p>
         </div>
     </body>
 </html>

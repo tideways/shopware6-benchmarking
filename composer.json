@@ -1,4 +1,7 @@
 {
+    "name": "tideways/shopware6-benchmarking",
+    "description": "A tool for benchmarking Shopware 6 applications with Locust and Tideways",
+    "license": "agpl-3.0-or-later",
     "require": {
         "php": ">=8.1",
         "symfony/process": "^6.0",
