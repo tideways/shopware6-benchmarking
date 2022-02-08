@@ -27,26 +27,18 @@ class ChartGenerator
     public function __construct(private string $dataDir) {}
 
     /**
-     * @param array<string,TidewaysStats> $tidewaysStats
+     * @param array<string,TidewaysStats> $stats
      */
-    public function generateChartsFromTidewaysStats(
-        array              $tidewaysStats,
-        \DateTimeImmutable $start,
-        \DateTimeImmutable $end
-    ): void
+    public function generateChartsFromTidewaysStats(array $stats, \DateTimeImmutable $start, \DateTimeImmutable $end): void
     {
-        foreach ($tidewaysStats as $page => $data) {
+        foreach ($stats as $page => $data) {
             $dataSets = $this->transformTidewaysStatsToChartDataSet($data);
             $dataSets = $this->cropDataToChartRange($dataSets, $start, $end);
             $this->generatePngChart($dataSets, $this->dataDir . '/tideways/' . $page . '_performance.png');
         }
     }
 
-    public function generateChartsFromLocustStats(
-        array              $locustStats,
-        \DateTimeImmutable $start,
-        \DateTimeImmutable $end
-    ): void
+    public function generateChartsFromLocustStats(array $locustStats): void
     {
         foreach ($locustStats as $page => $data) {
             $this->generatePngChart(
@@ -103,10 +95,7 @@ class ChartGenerator
         return $dataSets;
     }
 
-    private function generatePngChart(
-        array              $dataSets,
-        string             $ouputFilePath,
-    ): bool
+    private function generatePngChart(array $dataSets, string $ouputFilePath): bool
     {
         $graph = new \ezcGraphLineChart();
         $graph->options->font = __DIR__ . '/../../templates/font.ttf';
@@ -133,7 +122,7 @@ class ChartGenerator
         $graph->renderer->options->shortAxis = true;
         $graph->renderer->options->axisEndStyle = \ezcGraph::NO_SYMBOL;
 
-        $graph->palette->dataSetColor = ['#3c8dbc', '#cccccc', '#ff0000'];
+        $graph->palette->dataSetColor = ['#3c8dbc', '#dddddd', '#ff0000'];
         foreach ($dataSets as $label => $data) {
             $graph->data[$label] = new \ezcGraphArrayDataSet($data);
             $graph->data[$label]->fillLines = 180; // HACK: This only works with custom ezcGraph change
