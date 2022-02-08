@@ -19,7 +19,7 @@
 
 namespace Tideways\Shopware6Benchmarking\Reporting;
 
-class HdrHistogram
+class HdrHistogram implements Histogram
 {
     private $hdr;
     private int $count = 0;
@@ -50,12 +50,10 @@ class HdrHistogram
         return $this->count;
     }
 
+    /** @return array<string, int> */
     public function exportAsBuckets() : array
     {
         $max = hdr_max($this->hdr);
-
-        $step = $this->estimateOptimalStep($max);
-
         $buckets = ['Excellent' => 0, 'Good' => 0, 'Acceptable' => 0, 'Degraded' => 0, 'Unacceptable' => 0];
 
         $iter = hdr_iter_init($this->hdr);
@@ -81,10 +79,5 @@ class HdrHistogram
         }
 
         return $buckets;
-    }
-
-    private function estimateOptimalStep(int $max) : float
-    {
-        return max(pow(2, ceil(log($max)) - 2), 2);
     }
 }

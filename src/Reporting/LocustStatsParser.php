@@ -57,11 +57,11 @@ class LocustStatsParser
             $operations['overall']['summary']->record($duration);
 
             if (!isset($operations[$page]['byTime'][$time])) {
-                $operations[$page]['byTime'][$time] = new HdrHistogram();
+                $operations[$page]['byTime'][$time] = $this->createHistogram();
             }
 
             if (!isset($operations['overall']['byTime'][$time])) {
-                $operations['overall']['byTime'][$time] = new HdrHistogram();
+                $operations['overall']['byTime'][$time] = $this->createHistogram();
             }
 
             $operations[$page]['byTime'][$time]->record($duration);
@@ -100,11 +100,19 @@ class LocustStatsParser
                     continue;
                 }
 
-                $stats->pageByTime[$operation][$everyMinute->format('Y-m-d H:i')] = new HdrHistogram();
+                $stats->pageByTime[$operation][$everyMinute->format('Y-m-d H:i')] = $this->createHistogram();
             }
             ksort($stats->pageByTime[$operation]);
         }
 
         return $stats;
+    }
+
+    private function createHistogram() : Histogram
+    {
+        if (extension_loaded('hdrhistogram')) {
+            return new HdrHistogram();
+        }
+        return new SimpleHistogram();
     }
 }

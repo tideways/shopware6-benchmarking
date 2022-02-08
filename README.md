@@ -21,6 +21,12 @@ php8.1 bin/sw-bench run -c default.json
 sw-bench stores all fixture data necessary to run a benchmark in `$HOME/.swbench`
 using a subdirectory for each configuration file.
 
+Then after running the test you can generate a report with:
+
+```
+php8.1 bin/sw-bench generate-report -c default.json
+```
+
 The following fixture data is loaded:
 
 * Crawling the sitemap.xml for products and listings pages
@@ -28,6 +34,24 @@ The following fixture data is loaded:
 
 To generate a useful report, you also have to modify the config file to put in
 information about versions, server hardware and more.
+
+## Setup Locust Worker machine
+
+A Locust worker machine has the following requirements:
+
+* Locust + locust-plugins (pip package)
+* PHP 8.1 + optionally [hdrhistogram-php](https://github.com/beberlei/hdrhistogram-php) package
+* wkhtmltopdf
+
+Alternatively you can skip Locust requirements if you use Docker as execution mode.
+
+To install these components on Ubuntu:
+
+```
+sudo pip3 install locust locust-plugins
+sudo apt install wkhtmltopdf
+sudo apt install php8.1-cli php8.1-zip php8.1-curl php8.1-xml
+```
 
 ### Execution Mode
 
