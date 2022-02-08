@@ -44,7 +44,7 @@ class GlobalConfiguration
         $vars = [];
 
         if (file_exists($file)) {
-            $vars = json_decode(file_get_contents($file), true, JSON_THROW_ON_ERROR);
+            $vars = json_decode(file_get_contents($file), true, flags: JSON_THROW_ON_ERROR);
         }
 
         $vars = array_merge($defaults, $vars);
