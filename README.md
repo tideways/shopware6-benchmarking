@@ -4,7 +4,9 @@
 > against live production environments yet.
 
 This repository contains several components for Shopware 6 performance
-benchmarking based on the [load-testing tool Locust](https://locust.io).
+benchmarking based on the [load-testing tool Locust](https://locust.io). The
+result is a generated PDF (or HTML) report, offering a high level assessment of
+a Shopware shops performance and scalability.
 
 Locust is run wrapped through a PHP 8.1 CLI tool that performs the necessary initializations
 and manages the input and output data to the scenario. In addition Docker can be used to run
@@ -52,6 +54,9 @@ sudo pip3 install locust locust-plugins
 sudo apt install wkhtmltopdf
 sudo apt install php8.1-cli php8.1-zip php8.1-curl php8.1-xml
 ```
+
+PDF generation may offer better results with [wkhtmltopdf built directly by the
+authors](https://wkhtmltopdf.org/) instead of a distribution.
 
 ### Execution Mode
 
