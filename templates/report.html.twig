@@ -246,7 +246,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 {{ _self.chart_row("Overall", "overall", tideways, locust, true, _context) }}
             </table>
 
-            <h3 style="margin-top: 30px; margin-bottom: 30px;">Key Results</h3>
+            <h3 style="margin-top: 30px; margin-bottom: 30px;">Key Results <span class="text-muted">With {{ config.scenario.concurrentThreads }} concurrent threads</span></h3>
 
             <table class="key-results">
                 <tr>
@@ -290,7 +290,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <tbody>
                     {% macro summary_row(title, slug, tideways, locust) %}
                         <tr>
-                            <td class="pl-15">{{ title }}</td>
+                            <td {% if slug != "overall" %}class="pl-15"{% endif %}>{{ title }}</td>
                             <td class="align-center border-right">
                                 {% if locust.pageSummary[slug].getRequestCount() > 0 %}
                                     {{ _self.score(locust.pageSummary[slug].get95PercentileResponseTime()) }}
@@ -306,6 +306,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     {% endmacro %}
 
                     {% set columns = "7" %}
+                    {{ _self.summary_row("Overall", "overall", tideways, locust) }}
                     <tr>
                         <td colspan="{{ columns }}">Browsing</td>
                     </tr>
