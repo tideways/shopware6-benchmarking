@@ -169,7 +169,7 @@ class ReportCommand extends Command
 
         $reportHtml = $twig->render('report.html.twig', $templateVariables);
 
-        copy(__DIR__ . '/../../templates/shopware_logo_blue.svg', $config->getDataDirectory() . '/shopware_logo_blue.svg');
+        copy(__DIR__ . '/../../templates/shopware_logo_blue.png', $config->getDataDirectory() . '/shopware_logo_blue.png');
         copy(__DIR__ . '/../../templates/tideways.png', $config->getDataDirectory() . '/tideways.png');
 
         file_put_contents($htmlFilePath, $reportHtml);

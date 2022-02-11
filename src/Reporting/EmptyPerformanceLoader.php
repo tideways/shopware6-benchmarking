@@ -19,7 +19,7 @@ class EmptyPerformanceLoader implements PerformanceLoader
         return new \ArrayIterator([]);
     }
 
-    private function createEmptyTimes(\DateTimeImmutable $start, \DateTimeImmutable $end)
+    private function createEmptyTimes(\DateTimeImmutable $start, \DateTimeImmutable $end): array
     {
         $period = new \DatePeriod($start, new \DateInterval('PT1M'), $end);
 
