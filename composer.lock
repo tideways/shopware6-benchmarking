@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dadb2a458b0c9f6740150f0023f74acf",
+    "content-hash": "2c19344da146250968f73f82041a5031",
     "packages": [
         {
             "name": "beberlei/hdrhistogram-php-stubs",
@@ -3496,28 +3496,29 @@
         },
         {
             "name": "zetacomponents/graph",
-            "version": "dev-master",
+            "version": "1.6.0alpha1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zetacomponents/Graph.git",
-                "reference": "004c0186ee54989eec4d3ccabf216e85ee04f90a"
+                "reference": "07956b2eeec170d706aab24008ed4dedd16d3171"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zetacomponents/Graph/zipball/004c0186ee54989eec4d3ccabf216e85ee04f90a",
-                "reference": "004c0186ee54989eec4d3ccabf216e85ee04f90a",
+                "url": "https://api.github.com/repos/zetacomponents/Graph/zipball/07956b2eeec170d706aab24008ed4dedd16d3171",
+                "reference": "07956b2eeec170d706aab24008ed4dedd16d3171",
                 "shasum": ""
             },
             "require": {
                 "zetacomponents/base": "~1.8"
             },
             "require-dev": {
-                "zetacomponents/unit-test": "*"
+                "phpunit/phpunit": "~8.0",
+                "zetacomponents/coding-standard": "dev-main",
+                "zetacomponents/unit-test": "^1.1.5"
             },
             "suggest": {
                 "ext-gd": "Used by the GD driver, one of the choices for generating bitmap images."
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -3573,16 +3574,16 @@
             "homepage": "https://github.com/zetacomponents",
             "support": {
                 "issues": "https://github.com/zetacomponents/Graph/issues",
-                "source": "https://github.com/zetacomponents/Graph/tree/master"
+                "source": "https://github.com/zetacomponents/Graph/tree/1.6.0alpha1"
             },
-            "time": "2021-05-05T16:30:32+00:00"
+            "time": "2022-02-11T09:36:16+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "zetacomponents/graph": 20,
+        "zetacomponents/graph": 15,
         "guzzlehttp/guzzle": 20
     },
     "prefer-stable": false,

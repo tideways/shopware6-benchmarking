@@ -6,7 +6,7 @@
         "php": ">=8.1",
         "symfony/process": "^6.0",
         "twig/twig": "^3.3",
-        "zetacomponents/graph": "dev-master",
+        "zetacomponents/graph": "1.6.0-alpha1",
         "ext-json": "*",
         "ext-dom": "*",
         "ext-zlib": "*",

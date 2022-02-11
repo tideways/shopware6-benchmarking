@@ -125,7 +125,7 @@ class ChartGenerator
         $graph->palette->dataSetColor = ['#3c8dbc', '#dddddd', '#ff0000'];
         foreach ($dataSets as $label => $data) {
             $graph->data[$label] = new \ezcGraphArrayDataSet($data);
-            $graph->data[$label]->fillLines = 180; // HACK: This only works with custom ezcGraph change
+            $graph->data[$label]->fillLine = 180; // HACK: This only works with custom ezcGraph change
         }
 
         $additionalLabels = ['Requests', 'Errors'];
@@ -145,7 +145,7 @@ class ChartGenerator
                 $graph->additionalAxis[$label] = $nAxis;
                 $graph->data[$label]->yAxis = $nAxis;
                 $graph->data[$label]->displayType = ezcGraph::LINE;
-                $graph->data[$label]->fillLines = false; // HACK: This only works with custom ezcGraph change
+                $graph->data[$label]->fillLine = false; // HACK: This only works with custom ezcGraph change
             }
         }
 
