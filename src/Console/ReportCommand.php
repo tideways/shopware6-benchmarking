@@ -31,6 +31,13 @@ class ReportCommand extends Command
             'Scenario configuration file',
             getcwd() . '/default.json'
         );
+
+        $this->addOption(
+            'skip-pdf',
+            'p',
+            InputOption::VALUE_NONE,
+            'Skip generation of PDF file using wkhtmltopdf',
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -174,6 +181,12 @@ class ReportCommand extends Command
 
         file_put_contents($htmlFilePath, $reportHtml);
 
+        $output->writeln('<info>HTML-Report:</info> <href=file://' . $htmlFilePath . '>' . $htmlFilePath . '</>');
+
+        if ($input->getOption('skip-pdf')) {
+            return Command::SUCCESS;
+        }
+
         $process = new Process([
             'wkhtmltopdf',
             '-T', '20mm',
@@ -199,6 +212,8 @@ class ReportCommand extends Command
         if ($exitCode > 0) {
             echo $process->getErrorOutput() . PHP_EOL;
         }
+
+        $output->writeln('<info>PDF-Report:</info> <href=file://' . $pdfFilePath . '>' . $pdfFilePath . '</>');
 
         return $exitCode;
     }
