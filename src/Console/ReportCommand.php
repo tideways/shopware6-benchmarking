@@ -9,8 +9,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use Tideways\Shopware6Benchmarking\Configuration;
 use Tideways\Shopware6Benchmarking\Reporting\ChartGenerator;
+use Tideways\Shopware6Benchmarking\Reporting\EmptyPerformanceLoader;
 use Tideways\Shopware6Benchmarking\Reporting\HistogramGenerator;
 use Tideways\Shopware6Benchmarking\Reporting\LocustStatsParser;
+use Tideways\Shopware6Benchmarking\Reporting\PerformanceLoader;
 use Tideways\Shopware6Benchmarking\Reporting\TidewaysApiLoader;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -54,7 +56,7 @@ class ReportCommand extends Command
         $statsParser = new LocustStatsParser();
         $chartGenerator = new ChartGenerator($config->getDataDirectory());
         $histogramGenerator = new HistogramGenerator($config->getDataDirectory());
-        $tidewaysLoader = new TidewaysApiLoader($config->tideways);
+        $tidewaysLoader = $this->createTidewaysApiLoader($config);
 
         if (!is_dir($config->getDataDirectory() . '/tideways')) {
             mkdir($config->getDataDirectory() . '/tideways', 0755, true);
@@ -199,5 +201,14 @@ class ReportCommand extends Command
         }
 
         return $exitCode;
+    }
+
+    protected function createTidewaysApiLoader(Configuration $config): PerformanceLoader
+    {
+        if (strlen($config->tideways->apiToken) === 0) {
+            return new EmptyPerformanceLoader();
+        }
+
+        return new TidewaysApiLoader($config->tideways);
     }
 }

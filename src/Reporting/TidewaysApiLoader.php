@@ -22,7 +22,7 @@ namespace Tideways\Shopware6Benchmarking\Reporting;
 use GuzzleHttp;
 use Tideways\Shopware6Benchmarking\TidewaysConfiguration;
 
-class TidewaysApiLoader
+class TidewaysApiLoader implements PerformanceLoader
 {
     private const BASE_URI = "https://app.tideways.io/apps/api/";
 
