@@ -52,12 +52,12 @@ class HistogramGenerator
 
         $graph->palette->majorGridColor = '#cccccc';
         $graph->palette->axisColor = '#cccccc';
+        $graph->palette->dataSetColor = ['#2ce574', '#cdf03a', '#ffe500', '#ff9600', '#ff3924'];
 
         $total = array_sum($dataSet);
         $dataSet = array_map(fn ($value) => $value / $total * 100, $dataSet);
 
         $buckets = ['Excellent' => 0, 'Good' => 0, 'Acceptable' => 0, 'Degraded' => 0, 'Unacceptable' => 0];
-        $colors = ['#2ce574', '#cdf03a', '#ffe500', '#ff9600', '#ff3924'];
 
         foreach ($dataSet as $label => $value) {
             $bucketedDataset = $buckets;
@@ -79,7 +79,6 @@ class HistogramGenerator
             $graph->data[$label]->highlightValue[$label] = sprintf('%3.1f%%', $value);
         }
 
-        $graph->palette->dataSetColor = $colors;
         $graph->yAxis->labelCallback = fn ($value, $value2) => sprintf('%s%%', $value);
         $graph->yAxis->axisSpace = 0.07;
 
