@@ -61,10 +61,14 @@ class Authentication:
         if not checkout:
             path = '/account/register'
             pageName = 'register-page'
+            redirectTo = 'frontend.account.login.page'
+            redirectPageName = 'account-profile-page'
             guest = False
         else:
             path = '/checkout/register'
             pageName = 'checkout-register-page'
+            redirectPageName = 'confirm-page'
+            redirectTo = 'frontend.checkout.confirm.page'
 
         response = self.client.get(path, name=pageName)
         root = etree.fromstring(response.content, etree.HTMLParser())
@@ -77,7 +81,7 @@ class Authentication:
         password = 'shopware'
 
         register = {
-            'redirectTo': 'frontend.account.home.page',
+            'redirectTo': redirectTo,
             'salutationId': self.__readSalutationIdFromRegisterPage(response),
             'firstName': 'Firstname',
             'lastName': 'Lastname',
@@ -94,18 +98,18 @@ class Authentication:
         else:
            register['password'] = password
 
-        if checkout:
-            register['redirectTo'] = 'frontend.checkout.confirm.page'
-
         if writeToFixture:
             dataDir = os.getenv('SWBENCH_DATA_DIR', os.path.dirname(os.path.realpath(__file__)) + '/../fixtures')
             path = dataDir + '/users.csv'
             with open(path, 'a') as file:
                 file.write(userMailAddress + ',' + password + '\n')
 
-        self.client.post('/account/register', data=register, name='register')
+        response = self.client.post('/account/register', data=register, name='register', allow_redirects=False)
 
-    def login(self, user: str, password: str):
+        if response.status_code == 301 or response.status_code == 302:
+            self.client.get(response.headers['Location'], name=redirectPageName)
+
+    def login(self, user: str, password: str, checkout: bool = False):
         logging.info("Logging in user " + user)
         # @TODO missing cart request
         response = self.client.get('/account/login', name='login-page')
@@ -113,14 +117,24 @@ class Authentication:
         csrfElement = root.find(
             './/form[@action="/account/login"]/input[@name="_csrf_token"]')
 
+        if checkout == True:
+            redirectTo = 'frontend.checkout.confirm.page'
+            redirectPageName = 'confirm-page'
+        else:
+            redirectTo = 'frontend.account.home.page'
+            redirectPageName = 'account-profile-page'
+
         login = {
             'email': user,
             'password': password,
-            'redirectTo': 'frontend.account.home.page',
+            'redirectTo': redirectTo,
             '_csrf_token': csrfElement.attrib.get('value')
         }
 
-        self.client.post('/account/login', data=login, name='login')
+        response = self.client.post('/account/login', data=login, name='login', allow_redirects=False)
+
+        if response.status_code == 301 or response.status_code == 302:
+            self.client.get(response.headers['Location'], name=redirectPageName)
 
     """
     Used before browsing users to decide weather they are logged in or guests
@@ -142,9 +156,9 @@ class Authentication:
         elif random.randint(0, 100) < self.checkout_accounts_new_ratio:
             self.register(checkout=True)
         else:
-            self.loginRandomUserFromFixture()
+            self.loginRandomUserFromFixture(checkout=True)
 
-    def loginRandomUserFromFixture(self):
+    def loginRandomUserFromFixture(self, checkout: bool = False):
         dataDir = os.getenv('SWBENCH_DATA_DIR', os.path.dirname(os.path.realpath(__file__)) + '/../fixtures')
         path = dataDir + '/users.csv'
 
@@ -155,7 +169,7 @@ class Authentication:
             user = user.split(',')
             userMailAddress = user[0]
             password = user[1].strip()
-            self.login(userMailAddress, password)
+            self.login(userMailAddress, password, checkout)
 
     def registerOrLogin(self):
         """
