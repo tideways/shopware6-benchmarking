@@ -246,7 +246,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 {{ _self.chart_row("Overall", "overall", tideways, locust, true, _context) }}
             </table>
 
-            <h3 style="margin-top: 30px; margin-bottom: 30px;">Key Results <span class="text-muted">With {{ config.scenario.concurrentThreads }} concurrent threads</span></h3>
+            <h3 style="margin-top: 50px; margin-bottom: 50px;">Key Results <span class="text-muted">With {{ config.scenario.concurrentThreads }} concurrent threads</span></h3>
 
             <table class="key-results">
                 <tr>
@@ -265,7 +265,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 </tr>
             </table>
 
-            <h3 style="margin-top: 30px;">Page Performance Summary</h3>
+            <h3 style="margin-top: 50px;">Score / Legend</h3>
+
+            <p>The score is calculated using the 95% percentile of the page or overall performance and comparing it against these thresholds:</p>
+
+            <ul>
+                <li>Excellent (A): 95% of requests have performance below 512ms</li>
+                <li>Good (B): 95% of requests have performance below 1024ms</li>
+                <li>Acceptable (C): 95% of requests have performance below 2048ms</li>
+                <li>Degraded (D): 95% of requests have performance below 4096ms</li>
+                <li>Unacceptable (F): More than 5% of requests are slower than 4096ms</li>
+            </ul>
+
+            <h2>Disclaimer</h2>
+
+            <p>
+                Only benchmarks performed against real production environment hardware, software and data
+                will provide realistic and reliable results of future production behavior.
+                This benchmark focuses of server-side performance from the browser and PHP point of view.
+                The results only partially explain real user performance in the browser.
+            </p>
+
+            <p>The code for this benchmark is open-source and available at <a href="https://github.com/tideways/shopware6-benchmarking">https://github.com/tideways/shopware6-benchmarking</a> under AGPL v3 license.</p>
+
+
+            <h2 class="new-page">Page Performance Summary</h2>
             <table class="summary">
                 <thead>
                     <tr>
@@ -328,12 +352,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     {{ _self.summary_row("Checkout Register Page", "checkout-register-page", tideways, locust) }}
                     {{ _self.summary_row("Confirm Order Page", "confirm-page", tideways, locust) }}
                     {{ _self.summary_row("Order", "order", tideways, locust) }}
+                    {{ _self.summary_row("Finish Checkout Page", "checkout-finish-page", tideways, locust) }}
                     <tr>
                         <td colspan="{{ columns }}">Account Management</td>
                     </tr>
                     {{ _self.summary_row("Register Page", "register-page", tideways, locust) }}
                     {{ _self.summary_row("Register", "register", tideways, locust) }}
                     {{ _self.summary_row("Login", "login", tideways, locust) }}
+                    {{ _self.summary_row("Account Profile Page", "account-profile-page", tideways, locust) }}
                 </tbody>
             </table>
 
@@ -428,10 +454,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             <h2 class="new-page">Performance of Checkout</h2>
             <table>
+                {{ _self.chart_row("Checkout Register Page", "checkout-register-page", tideways, locust) }}
                 {{ _self.chart_row("Confirm Order Page", "confirm-page", tideways, locust) }}
                 {{ _self.chart_row("Order", "order", tideways, locust) }}
+                {{ _self.chart_row("Finish Checkout Page", "checkout-finish-page", tideways, locust) }}
+            </table>
+
+            <h2 class="new-page">Performance of Account Management</h2>
+            <table>
+                {{ _self.chart_row("Register Page", "register-page", tideways, locust) }}
                 {{ _self.chart_row("Register", "register", tideways, locust) }}
                 {{ _self.chart_row("Login", "login", tideways, locust) }}
+                {{ _self.chart_row("Account Profile Page", "account-profile-page", tideways, locust) }}
             </table>
 
             <h2 class="new-page">Slowest Traces</h2>
@@ -464,29 +498,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 {% endfor %}
             {% endfor %}
             </table>
-
-            <h2 class="new-page">Score / Legend</h2>
-
-            <p>The score is calculated using the 95% percentile of the page or overall performance and comparing it against these thresholds:</p>
-
-            <ul>
-                <li>Excellent (A): 95% of requests have performance below 512ms</li>
-                <li>Good (B): 95% of requests have performance below 1024ms</li>
-                <li>Acceptable (C): 95% of requests have performance below 2048ms</li>
-                <li>Degraded (D): 95% of requests have performance below 4096ms</li>
-                <li>Unacceptable (F): More than 5% of requests are slower than 4096ms</li>
-            </ul>
-
-            <h2>Disclaimer</h2>
-
-            <p>
-                Only benchmarks performed against real production environment hardware, software and data
-                will provide realistic and reliable results of future production behavior.
-                This benchmark focuses of server-side performance from the browser and PHP point of view.
-                The results only partially explain real user performance in the browser.
-            </p>
-
-            <p>The code for this benchmark is open-source and available at <a href="https://github.com/tideways/shopware6-benchmarking">https://github.com/tideways/shopware6-benchmarking</a> under AGPL v3 license.</p>
         </div>
     </body>
 </html>

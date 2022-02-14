@@ -125,13 +125,16 @@ class ShopwareUser(HttpUserWithResources):
 
         confirmationPageResponse = self.visitCheckoutConfirmationPage()
 
-        orderResponse = self.client.post('/checkout/order', name='order', data={
+        response = self.client.post('/checkout/order', name='order', data={
             'tos': 'on',
             '_csrf_token': csrf.getCsrfTokenForForm(confirmationPageResponse, '/checkout/order'),
-        })
+        }, allow_redirects=False)
+
+        if response.status_code == 301 or response.status_code == 302:
+            self.client.get(response.headers['Location'], name="checkout-finish-page")
 
         logging.info("Checkout finished with status code " +
-                     str(orderResponse.status_code))
+                     str(response.status_code))
 
     def visitProductListingPage(self, productListingUrl: str) -> Response:
         logging.info("Visit product listing page " + productListingUrl)

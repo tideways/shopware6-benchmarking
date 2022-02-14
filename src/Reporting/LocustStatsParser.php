@@ -36,6 +36,11 @@ class LocustStatsParser
         while (($data = fgetcsv($handle)) !== false) {
             $row = array_combine($headers, $data);
             $date = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $row['timeStamp']);
+
+            if (!$date) {
+                continue;
+            }
+
             $time = $date->format('Y-m-d H:i');
             $duration = (int) $row['elapsed'];
             $page = $row['label'];

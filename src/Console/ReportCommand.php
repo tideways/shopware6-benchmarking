@@ -102,6 +102,8 @@ class ReportCommand extends Command
             'login' => 'Shopware\Storefront\Controller\AuthController::login',
             'order' => 'Shopware\Storefront\Controller\CheckoutController::order',
             'confirm-page' => 'Shopware\Storefront\Controller\CheckoutController::confirmPage',
+            'account-profile-page' => 'Shopware\Storefront\Controller\AccountProfileController::index',
+            'checkout-finish-page' => 'Shopware\Storefront\Controller\CheckoutController::finishPage',
         ];
 
         $tidewaysStats = [];
