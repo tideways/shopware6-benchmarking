@@ -28,4 +28,25 @@ class TidewaysStats
         public int $requests = 0,
         public float $errors = 0,
     ) {}
+
+    public static function createFromLocustStats(LocustStats $locustStats, string $slug): self
+    {
+        $byTime = [];
+
+        foreach ($locustStats->pageByTime[$slug] as $time => $histogram) {
+            $byTime[$time] = [
+                'percentile_95p' => $histogram->get95PercentileResponseTime(),
+                'requests' => $histogram->getRequestCount(),
+                'errors' => 0,
+            ];
+        }
+
+        return new TidewaysStats(
+            byTime: $byTime,
+            requests: $locustStats->pageSummary[$slug]->getRequestCount(),
+            responseTime: $locustStats->pageSummary[$slug]->get95PercentileResponseTime(),
+            medianResponseTime: $locustStats->pageSummary[$slug]->getMedianResponseTime(),
+            errors: 0,
+        );
+    }
 }

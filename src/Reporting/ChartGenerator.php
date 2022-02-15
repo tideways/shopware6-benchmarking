@@ -31,21 +31,26 @@ class ChartGenerator
         foreach ($report->pages as $page => $pageReport) {
             $dataSets = $this->transformTidewaysStatsToChartDataSet($pageReport->tideways);
             $dataSets = $this->cropDataToChartRange($dataSets, $start, $end);
-            $this->generatePngChart($dataSets, $this->dataDir . '/tideways/' . $page . '_performance.png');
-        }
-    }
-
-    public function generateChartsFromLocustStats(array $locustStats): void
-    {
-        foreach ($locustStats as $page => $data) {
             $this->generatePngChart(
-                $this->transformLocustStatsToChartDataSet($data),
-                $this->dataDir . '/locust/' . $page . '_response_times.png',
+                $dataSets,
+                $this->dataDir . '/tideways/' . $page . '_performance.png',
+                $pageReport->getMaxResponseTimeValueForChart()
             );
         }
     }
 
-    private function transformTidewaysStatsToChartDataSet(TidewaysStats $stats): array
+    public function generateChartsFromLocustStats(BenchmarkReport $report): void
+    {
+        foreach ($report->pages as $page => $pageReport) {
+            $this->generatePngChart(
+                $this->transformTidewaysStatsToChartDataSet($pageReport->locust, withErrors: false),
+                $this->dataDir . '/locust/' . $page . '_response_times.png',
+                $pageReport->getMaxResponseTimeValueForChart()
+            );
+        }
+    }
+
+    private function transformTidewaysStatsToChartDataSet(TidewaysStats $stats, bool $withErrors = true): array
     {
         $dataSets = ['Response Times' => [], 'Requests' => [], 'Errors' => []];
 
@@ -56,16 +61,8 @@ class ChartGenerator
             $dataSets['Errors'][$date] = $data['errors'];
         }
 
-        return $dataSets;
-    }
-
-    private function transformLocustStatsToChartDataSet(array $stats): array
-    {
-        $dataSets = ['Response Times' => [], 'Requests' => []];
-
-        foreach ($stats as $date => $histogram) {
-            $dataSets['Response Times'][$date . ':00'] = $histogram->get95PercentileResponseTime();
-            $dataSets['Requests'][$date . ':00'] = $histogram->getRequestCount();
+        if (!$withErrors) {
+            unset($dataSets['Errors']);
         }
 
         return $dataSets;
@@ -92,7 +89,7 @@ class ChartGenerator
         return $dataSets;
     }
 
-    private function generatePngChart(array $dataSets, string $ouputFilePath): bool
+    private function generatePngChart(array $dataSets, string $ouputFilePath, int $maxValue): bool
     {
         $graph = new \ezcGraphLineChart();
         $graph->options->font = __DIR__ . '/../../templates/font.ttf';
@@ -112,6 +109,7 @@ class ChartGenerator
         $graph->yAxis->label = 'ms';
         $graph->yAxis->axisSpace = 0.07;
         $graph->yAxis->min = 0;
+        $graph->yAxis->max = $this->getNiceNumber($maxValue);
         $graph->yAxis->majorGrid = '#ffffff';
         $graph->yAxis->axisLabelRenderer = new \ezcGraphAxisCenteredLabelRenderer();
         $graph->yAxis->axisLabelRenderer->showZeroValue = true;
@@ -157,5 +155,30 @@ class ChartGenerator
         $graph->render(520, 160, $ouputFilePath);
 
         return $graph->getRenderedFile() !== false;
+    }
+
+    protected function getNiceNumber(float $float) : float
+    {
+        // Get absolute value and save sign
+        $abs = abs($float);
+        $sign = $float / $abs;
+
+        // Normalize number to a range between 1 and 10
+        $log = (int)round(log10($abs), 0);
+        $abs /= pow(10, $log);
+
+        // find next nice number
+        if ($abs > 5) {
+            $abs = 10.;
+        } elseif ($abs > 2.5) {
+            $abs = 5.;
+        } elseif ($abs > 1) {
+            $abs = 2.5;
+        } else {
+            $abs = 1;
+        }
+
+        // unnormalize number to original values
+        return $abs * pow(10, $log) * $sign;
     }
 }

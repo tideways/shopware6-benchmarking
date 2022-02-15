@@ -12,4 +12,9 @@ class PageReport
         /** Rework TidewaysStats to another name or introduce new */
         public ?TidewaysStats $locust = null,
     ) {}
+
+    public function getMaxResponseTimeValueForChart() : int
+    {
+        return max($this->tideways->responseTime, $this->locust->responseTime);
+    }
 }

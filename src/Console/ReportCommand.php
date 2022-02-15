@@ -91,13 +91,7 @@ class ReportCommand extends Command
         $report = BenchmarkReport::createShopware6BenchmarkReport();
 
         foreach ($report->pages as $pageReport) {
-            $pageReport->locust = new TidewaysStats(
-                byTime: $locustStats->pageByTime[$pageReport->slug],
-                requests: $locustStats->pageSummary[$pageReport->slug]->getRequestCount(),
-                responseTime: $locustStats->pageSummary[$pageReport->slug]->get95PercentileResponseTime(),
-                medianResponseTime: $locustStats->pageSummary[$pageReport->slug]->getMedianResponseTime(),
-                errors: 0,
-            );
+            $pageReport->locust = TidewaysStats::createFromLocustStats($locustStats, $pageReport->slug);
 
             $pageReport->tideways = $pageReport->transactionName ? $tidewaysLoader->fetchTransactionPerformanceData(
                 $pageReport->transactionName,
@@ -137,7 +131,7 @@ class ReportCommand extends Command
             );
         }
 
-        $chartGenerator->generateChartsFromLocustStats($locustStats->pageByTime);
+        $chartGenerator->generateChartsFromLocustStats($report);
         $chartGenerator->generateChartsFromTidewaysStats($report, $locustStats->startDate, $locustStats->endDate);
 
         $histogramGenerator->generateChartsFromLocustStats($locustStats);
