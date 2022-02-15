@@ -175,7 +175,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     {% macro chart_row(title, slug, report, histogram = false) %}
         <tr>
-            <td colspan="2"><h3 style="margin-bottom: 0px;"><a id="details_{{ slug }}">{{ report.label }}</a></h3></td>
+            <td colspan="2"><h3 style="margin-bottom: 0px;"><a id="details_{{ slug }}">{{ report.pages[slug].label }}</a></h3></td>
         </tr>
         {% if histogram %}
             <tr>
@@ -205,7 +205,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     </tr>
                 </table>
 
+                {% if report.pages[slug].locust.byTime|length > 0 %}
                 <img src="./locust/{{ slug }}_response_times.png" width="520" />
+                {% endif %}
             </td>
 
             <td width="50%">
@@ -219,7 +221,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     </tr>
                 </table>
 
+                {% if report.pages[slug].tideways.byTime|length > 0 %}
                 <img src="./tideways/{{ slug }}_performance.png" width="520" />
+                {% endif %}
             </td>
         </tr>
     {% endmacro %}

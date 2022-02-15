@@ -33,10 +33,14 @@ class TidewaysStats
     {
         $byTime = [];
 
+        if (!isset($locustStats->pageByTime[$slug]) || !isset($locustStats->pageSummary[$slug])) {
+            return new TidewaysStats();
+        }
+
         foreach ($locustStats->pageByTime[$slug] as $time => $histogram) {
             $byTime[$time] = [
-                'percentile_95p' => $histogram->get95PercentileResponseTime(),
-                'requests' => $histogram->getRequestCount(),
+                'percentile_95p' => $histogram ? $histogram->get95PercentileResponseTime() : 0,
+                'requests' => $histogram ? $histogram->getRequestCount() : 0,
                 'errors' => 0,
             ];
         }

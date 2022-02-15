@@ -29,6 +29,10 @@ class ChartGenerator
     public function generateChartsFromTidewaysStats(BenchmarkReport $report, \DateTimeImmutable $start, \DateTimeImmutable $end): void
     {
         foreach ($report->pages as $page => $pageReport) {
+            if (count($pageReport->tideways->byTime) === 0) {
+                continue;
+            }
+
             $dataSets = $this->transformTidewaysStatsToChartDataSet($pageReport->tideways);
             $dataSets = $this->cropDataToChartRange($dataSets, $start, $end);
             $this->generatePngChart(
@@ -42,6 +46,10 @@ class ChartGenerator
     public function generateChartsFromLocustStats(BenchmarkReport $report): void
     {
         foreach ($report->pages as $page => $pageReport) {
+            if (count($pageReport->locust->byTime) === 0) {
+                continue;
+            }
+
             $this->generatePngChart(
                 $this->transformTidewaysStatsToChartDataSet($pageReport->locust, withErrors: false),
                 $this->dataDir . '/locust/' . $page . '_response_times.png',
@@ -159,6 +167,10 @@ class ChartGenerator
 
     protected function getNiceNumber(float $float) : float
     {
+        if ($float == 0) {
+            return 10;
+        }
+
         // Get absolute value and save sign
         $abs = abs($float);
         $sign = $float / $abs;
