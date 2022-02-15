@@ -173,9 +173,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
     {% endmacro %}
 
-    {% macro chart_row(title, slug, tideways, locust, histogram = false) %}
+    {% macro chart_row(title, slug, report, histogram = false) %}
         <tr>
-            <td colspan="2"><h3 style="margin-bottom: 0px;"><a id="details_{{ slug }}">{{ title }}</a></h3></td>
+            <td colspan="2"><h3 style="margin-bottom: 0px;"><a id="details_{{ slug }}">{{ report.label }}</a></h3></td>
         </tr>
         {% if histogram %}
             <tr>
@@ -188,7 +188,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </tr>
             <tr>
                 <td>
-                    {{ _self.score(attribute(locust.pageSummary, slug).get95PercentileResponseTime(), true) }}
+                    {{ _self.score(report.pages[slug].locust.responseTime, true) }}
                 </td>
             </tr>
         {% endif %}
@@ -198,9 +198,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     <tr>
                         <td><h4 style="margin-bottom: 0;">User Performance</h4></td>
                         <td class="align-right" style="padding-right: 30px; font-size: 10pt;">
-                            95% Percentile: {{ attribute(locust.pageSummary, slug).get95PercentileResponseTime() }}ms,
-                            Median: {{ attribute(locust.pageSummary, slug).getMedianResponseTime() }}ms,
-                            {{ attribute(locust.pageSummary, slug).getRequestCount() }} requests
+                            95% Percentile: {{ report.pages[slug].locust.responseTime }}ms,
+                            Median: {{ report.pages[slug].locust.medianResponseTime }}ms,
+                            {{ report.pages[slug].locust.requests }} requests
                         </td>
                     </tr>
                 </table>
@@ -213,8 +213,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     <tr>
                         <td><h4 style="margin-bottom: 0;">PHP Performance</h4></td>
                         <td class="align-right" style="padding-right: 30px; font-size: 10pt;">
-                            95% Percentile: {{ attribute(tideways, slug).responseTime }}ms,
-                            {{ attribute(tideways, slug).requests }} requests
+                            95% Percentile: {{ report.pages[slug].tideways.responseTime }}ms,
+                            {{ report.pages[slug].tideways.requests }} requests
                         </td>
                     </tr>
                 </table>
@@ -243,7 +243,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </table>
 
             <table>
-                {{ _self.chart_row("Overall", "overall", tideways, locust, true, _context) }}
+                {{ _self.chart_row("Overall", "overall", report, true, _context) }}
             </table>
 
             <h3 style="margin-top: 50px; margin-bottom: 50px;">Key Results <span class="text-muted">With {{ config.scenario.concurrentThreads }} concurrent threads</span></h3>
@@ -312,54 +312,54 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     </tr>
                 </thead>
                 <tbody>
-                    {% macro summary_row(title, slug, tideways, locust) %}
+                    {% macro summary_row(slug, report) %}
                         <tr>
-                            <td {% if slug != "overall" %}class="pl-15"{% endif %}>{{ title }}</td>
+                            <td {% if slug != "overall" %}class="pl-15"{% endif %}>{{ report.pages[slug].label }}</td>
                             <td class="align-center border-right">
-                                {% if locust.pageSummary[slug].getRequestCount() > 0 %}
-                                    {{ _self.score(locust.pageSummary[slug].get95PercentileResponseTime()) }}
+                                {% if report.pages[slug].locust.requests > 0 %}
+                                    {{ _self.score(report.pages[slug].locust.responseTime) }}
                                 {% endif %}
                             </td>
-                            <td class="align-right">{{ locust.pageSummary[slug].getMedianResponseTime() }}ms</td>
-                            <td class="align-right">{{ locust.pageSummary[slug].get95PercentileResponseTime() }}ms</td>
-                            <td class="align-right border-right">{{ locust.pageSummary[slug].getRequestCount() }}</td>
+                            <td class="align-right">{{ report.pages[slug].locust.medianResponseTime }}ms</td>
+                            <td class="align-right">{{ report.pages[slug].locust.responseTime }}ms</td>
+                            <td class="align-right border-right">{{ report.pages[slug].locust.requests }}</td>
                             {# <td class="align-right">{{ tideways[slug].getMedianResponseTime() }}ms</td>#}
-                            <td class="align-right">{{ tideways[slug].responseTime }}ms</td>
-                            <td class="align-right">{{ tideways[slug].requests }}</td>
+                            <td class="align-right">{{ report.pages[slug].tideways.responseTime }}ms</td>
+                            <td class="align-right">{{ report.pages[slug].tideways.requests }}</td>
                         </tr>
                     {% endmacro %}
 
                     {% set columns = "7" %}
-                    {{ _self.summary_row("Overall", "overall", tideways, locust) }}
+                    {{ _self.summary_row("overall", report) }}
                     <tr>
                         <td colspan="{{ columns }}">Browsing</td>
                     </tr>
-                    {{ _self.summary_row("Homepage", "homepage", tideways, locust) }}
-                    {{ _self.summary_row("Product Details Page", "product-detail-page", tideways, locust) }}
-                    {{ _self.summary_row("Category Page", "listing-page", tideways, locust) }}
-                    {{ _self.summary_row("Category Page Filter", "listing-widget-filtered", tideways, locust) }}
-                    {{ _self.summary_row("Search", "search", tideways, locust) }}
-                    {{ _self.summary_row("Search Suggestions", "search-suggest", tideways, locust) }}
+                    {{ _self.summary_row("homepage", report) }}
+                    {{ _self.summary_row("product-detail-page", report) }}
+                    {{ _self.summary_row("listing-page", report) }}
+                    {{ _self.summary_row("listing-widget-filtered", report) }}
+                    {{ _self.summary_row("search", report) }}
+                    {{ _self.summary_row("search-suggest", report) }}
                     <tr>
                         <td colspan="{{ columns }}">Cart</td>
                     </tr>
-                    {{ _self.summary_row("Cart Info Widget", "cart-widget", tideways, locust) }}
-                    {{ _self.summary_row("Add Item To Cart", "add-to-cart", tideways, locust) }}
-                    {{ _self.summary_row("Cart Page", "cart-page", tideways, locust) }}
+                    {{ _self.summary_row("cart-widget", report) }}
+                    {{ _self.summary_row("add-to-cart", report) }}
+                    {{ _self.summary_row("cart-page", report) }}
                     <tr>
                         <td colspan="{{ columns }}">Checkout</td>
                     </tr>
-                    {{ _self.summary_row("Checkout Register Page", "checkout-register-page", tideways, locust) }}
-                    {{ _self.summary_row("Confirm Order Page", "confirm-page", tideways, locust) }}
-                    {{ _self.summary_row("Order", "order", tideways, locust) }}
-                    {{ _self.summary_row("Finish Checkout Page", "checkout-finish-page", tideways, locust) }}
+                    {{ _self.summary_row("checkout-register-page", report) }}
+                    {{ _self.summary_row("confirm-page", report) }}
+                    {{ _self.summary_row("order", report) }}
+                    {{ _self.summary_row("checkout-finish-page", report) }}
                     <tr>
                         <td colspan="{{ columns }}">Account Management</td>
                     </tr>
-                    {{ _self.summary_row("Register Page", "register-page", tideways, locust) }}
-                    {{ _self.summary_row("Register", "register", tideways, locust) }}
-                    {{ _self.summary_row("Login", "login", tideways, locust) }}
-                    {{ _self.summary_row("Account Profile Page", "account-profile-page", tideways, locust) }}
+                    {{ _self.summary_row("register-page", report) }}
+                    {{ _self.summary_row("register", report) }}
+                    {{ _self.summary_row("login", report) }}
+                    {{ _self.summary_row("account-profile-page", report) }}
                 </tbody>
             </table>
 
@@ -436,36 +436,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <h2 class="new-page">Performance of Browsing</h2>
 
             <table>
-                {{ _self.chart_row("Homepage", "homepage", tideways, locust) }}
-                {{ _self.chart_row("Product Details Page", "product-detail-page", tideways, locust) }}
-                {{ _self.chart_row("Category Page", "listing-page", tideways, locust) }}
-                {{ _self.chart_row("Category Page Filter", "listing-widget-filtered", tideways, locust) }}
-                {{ _self.chart_row("Search", "search", tideways, locust) }}
-                {{ _self.chart_row("Search Suggestions", "search-suggest", tideways, locust) }}
+                {{ _self.chart_row("Homepage", "homepage", report) }}
+                {{ _self.chart_row("Product Details Page", "product-detail-page", report) }}
+                {{ _self.chart_row("Category Page", "listing-page", report) }}
+                {{ _self.chart_row("Category Page Filter", "listing-widget-filtered", report) }}
+                {{ _self.chart_row("Search", "search", report) }}
+                {{ _self.chart_row("Search Suggestions", "search-suggest", report) }}
             </table>
 
             <h2 class="new-page">Performance of Cart</h2>
 
             <table>
-                {{ _self.chart_row("Cart Page", "cart-page", tideways, locust) }}
-                {{ _self.chart_row("Cart Info Widget", "cart-widget", tideways, locust) }}
-                {{ _self.chart_row("Add Item To Cart", "add-to-cart", tideways, locust) }}
+                {{ _self.chart_row("Cart Page", "cart-page", report) }}
+                {{ _self.chart_row("Cart Info Widget", "cart-widget", report) }}
+                {{ _self.chart_row("Add Item To Cart", "add-to-cart", report) }}
             </table>
 
             <h2 class="new-page">Performance of Checkout</h2>
             <table>
-                {{ _self.chart_row("Checkout Register Page", "checkout-register-page", tideways, locust) }}
-                {{ _self.chart_row("Confirm Order Page", "confirm-page", tideways, locust) }}
-                {{ _self.chart_row("Order", "order", tideways, locust) }}
-                {{ _self.chart_row("Finish Checkout Page", "checkout-finish-page", tideways, locust) }}
+                {{ _self.chart_row("Checkout Register Page", "checkout-register-page", report) }}
+                {{ _self.chart_row("Confirm Order Page", "confirm-page", report) }}
+                {{ _self.chart_row("Order", "order", report) }}
+                {{ _self.chart_row("Finish Checkout Page", "checkout-finish-page", report) }}
             </table>
 
             <h2 class="new-page">Performance of Account Management</h2>
             <table>
-                {{ _self.chart_row("Register Page", "register-page", tideways, locust) }}
-                {{ _self.chart_row("Register", "register", tideways, locust) }}
-                {{ _self.chart_row("Login", "login", tideways, locust) }}
-                {{ _self.chart_row("Account Profile Page", "account-profile-page", tideways, locust) }}
+                {{ _self.chart_row("Register Page", "register-page", report) }}
+                {{ _self.chart_row("Register", "register", report) }}
+                {{ _self.chart_row("Login", "login", report) }}
+                {{ _self.chart_row("Account Profile Page", "account-profile-page", report) }}
             </table>
 
             <h2 class="new-page">Slowest Traces</h2>

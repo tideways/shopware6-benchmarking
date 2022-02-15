@@ -24,6 +24,7 @@ class TidewaysStats
     public function __construct(
         public array $byTime = [],
         public int $responseTime = 0,
+        public int $medianResponseTime = 0,
         public int $requests = 0,
         public float $errors = 0,
     ) {}

@@ -26,13 +26,10 @@ class ChartGenerator
 {
     public function __construct(private string $dataDir) {}
 
-    /**
-     * @param array<string,TidewaysStats> $stats
-     */
-    public function generateChartsFromTidewaysStats(array $stats, \DateTimeImmutable $start, \DateTimeImmutable $end): void
+    public function generateChartsFromTidewaysStats(BenchmarkReport $report, \DateTimeImmutable $start, \DateTimeImmutable $end): void
     {
-        foreach ($stats as $page => $data) {
-            $dataSets = $this->transformTidewaysStatsToChartDataSet($data);
+        foreach ($report->pages as $page => $pageReport) {
+            $dataSets = $this->transformTidewaysStatsToChartDataSet($pageReport->tideways);
             $dataSets = $this->cropDataToChartRange($dataSets, $start, $end);
             $this->generatePngChart($dataSets, $this->dataDir . '/tideways/' . $page . '_performance.png');
         }

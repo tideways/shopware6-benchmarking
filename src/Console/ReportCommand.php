@@ -8,12 +8,14 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use Tideways\Shopware6Benchmarking\Configuration;
+use Tideways\Shopware6Benchmarking\Reporting\BenchmarkReport;
 use Tideways\Shopware6Benchmarking\Reporting\ChartGenerator;
 use Tideways\Shopware6Benchmarking\Reporting\EmptyPerformanceLoader;
 use Tideways\Shopware6Benchmarking\Reporting\HistogramGenerator;
 use Tideways\Shopware6Benchmarking\Reporting\LocustStatsParser;
 use Tideways\Shopware6Benchmarking\Reporting\PerformanceLoader;
 use Tideways\Shopware6Benchmarking\Reporting\TidewaysApiLoader;
+use Tideways\Shopware6Benchmarking\Reporting\TidewaysStats;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -86,35 +88,22 @@ class ReportCommand extends Command
             intval($locustStats->endDate->format('i'))
         )->modify('+1 minute');
 
-        $pageMappings = [
-            'product-detail-page' => 'Shopware\Storefront\Controller\ProductController::index',
-            'listing-page' => 'Shopware\Storefront\Controller\NavigationController::index',
-            'listing-widget-filtered' => 'Shopware\Storefront\Controller\CmsController::category',
-            'add-to-cart' => 'Shopware\Storefront\Controller\CartLineItemController::addLineItems',
-            'cart-page' => 'Shopware\Storefront\Controller\CheckoutController::cartPage',
-            'cart-widget' => 'Shopware\Storefront\Controller\CheckoutController::info',
-            'homepage' => 'Shopware\Storefront\Controller\NavigationController::home',
-            'search' => 'Shopware\Storefront\Controller\SearchController::search',
-            'search-suggest' => 'Shopware\Storefront\Controller\SearchController::ajax',
-            'register' => 'Shopware\Storefront\Controller\RegisterController::register',
-            'register-page' => 'Shopware\Storefront\Controller\RegisterController::accountRegisterPage',
-            'checkout-register-page' => 'Shopware\Storefront\Controller\RegisterController::checkoutRegisterPage',
-            'login' => 'Shopware\Storefront\Controller\AuthController::login',
-            'order' => 'Shopware\Storefront\Controller\CheckoutController::order',
-            'confirm-page' => 'Shopware\Storefront\Controller\CheckoutController::confirmPage',
-            'account-profile-page' => 'Shopware\Storefront\Controller\AccountProfileController::index',
-            'checkout-finish-page' => 'Shopware\Storefront\Controller\CheckoutController::finishPage',
-        ];
+        $report = BenchmarkReport::createShopware6BenchmarkReport();
 
-        $tidewaysStats = [];
-        $tidewaysStats['overall'] = $tidewaysLoader->fetchOverallPerformanceData(
-            $tidewaysDataRangeStart,
-            $tidewaysDataRangeEnd
-        );
+        foreach ($report->pages as $pageReport) {
+            $pageReport->locust = new TidewaysStats(
+                byTime: $locustStats->pageByTime[$pageReport->slug],
+                requests: $locustStats->pageSummary[$pageReport->slug]->getRequestCount(),
+                responseTime: $locustStats->pageSummary[$pageReport->slug]->get95PercentileResponseTime(),
+                medianResponseTime: $locustStats->pageSummary[$pageReport->slug]->getMedianResponseTime(),
+                errors: 0,
+            );
 
-        foreach ($pageMappings as $locustPage => $tidewaysTransaction) {
-            $tidewaysStats[$locustPage] = $tidewaysLoader->fetchTransactionPerformanceData(
-                $tidewaysTransaction,
+            $pageReport->tideways = $pageReport->transactionName ? $tidewaysLoader->fetchTransactionPerformanceData(
+                $pageReport->transactionName,
+                $tidewaysDataRangeStart,
+                $tidewaysDataRangeEnd
+            ) : $tidewaysLoader->fetchOverallPerformanceData(
                 $tidewaysDataRangeStart,
                 $tidewaysDataRangeEnd
             );
@@ -122,31 +111,34 @@ class ReportCommand extends Command
 
         $minutes = (($tidewaysDataRangeEnd->getTimestamp() - $tidewaysDataRangeStart->getTimestamp()) / 60);
         $templateVariables['purchases_per_hour'] = round(
-            $tidewaysStats['order']->requests / $minutes * 60,
+            $report->pages['order']->locust->requests / $minutes * 60,
             0
         );
         $templateVariables['requests_per_minute'] = round(
-            $locustStats->getTotalRequests() / $minutes,
+            $locustStats->getTotalRequests() / $minutes, // TODO
             0
         );
         $templateVariables['php_requests_per_minute'] = round(
-            $tidewaysStats['overall']->requests / $minutes,
+            $report->pages['overall']->tideways->requests / $minutes,
             0
         );
-        $templateVariables['tideways'] = $tidewaysStats;
-        $templateVariables['locust'] = $locustStats;
+        $templateVariables['report'] = $report;
         $templateVariables['traces'] = [];
 
-        foreach ($pageMappings as $page => $transactionName) {
-            $templateVariables['traces'][$page] = $tidewaysLoader->fetchTraces(
-                $transactionName,
+        foreach ($report->pages as $pageName => $pageReport) {
+            if (strlen($pageReport->transactionName) === 0) {
+                continue;
+            }
+
+            $templateVariables['traces'][$pageName] = $tidewaysLoader->fetchTraces(
+                $pageReport->transactionName,
                 $tidewaysDataRangeStart,
                 $tidewaysDataRangeEnd
             );
         }
 
-        $chartGenerator->generateChartsFromLocustStats($locustStats->pageByTime, $locustStats->startDate, $locustStats->endDate);
-        $chartGenerator->generateChartsFromTidewaysStats($tidewaysStats, $locustStats->startDate, $locustStats->endDate);
+        $chartGenerator->generateChartsFromLocustStats($locustStats->pageByTime);
+        $chartGenerator->generateChartsFromTidewaysStats($report, $locustStats->startDate, $locustStats->endDate);
 
         $histogramGenerator->generateChartsFromLocustStats($locustStats);
 
