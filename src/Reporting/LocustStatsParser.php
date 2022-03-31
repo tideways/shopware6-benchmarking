@@ -51,11 +51,11 @@ class LocustStatsParser
             $maxTimestamp = $date;
 
             if (!isset($operations[$page])) {
-                $operations[$page] = ['summary' => new HdrHistogram(), 'byTime' => []];
+                $operations[$page] = ['summary' => $this->createHistogram(), 'byTime' => []];
             }
 
             if (!isset($operations['overall'])) {
-                $operations['overall'] = ['summary' => new HdrHistogram(), 'byTime' => []];
+                $operations['overall'] = ['summary' => $this->createHistogram(), 'byTime' => []];
             }
 
             $operations[$page]['summary']->record($duration);
