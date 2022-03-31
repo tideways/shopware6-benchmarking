@@ -10,7 +10,6 @@ use Symfony\Component\Process\Process;
 use Tideways\Shopware6Benchmarking\Configuration;
 use Tideways\Shopware6Benchmarking\ExecutionMode;
 use Tideways\Shopware6Benchmarking\GlobalConfiguration;
-use Tideways\Shopware6Benchmarking\Services\RegisterJsonUpdater;
 use Tideways\Shopware6Benchmarking\Services\SitemapFixturesDownloader;
 
 class RunCommand extends Command
@@ -41,11 +40,6 @@ class RunCommand extends Command
     {
         $config = Configuration::fromFile($input->getOption('config'));
         $workingDir = __DIR__ . '/../../';
-
-        $output->writeln('Update register.json fixture data');
-
-        $registerJsonUpdater = new RegisterJsonUpdater();
-        $registerJsonUpdater->update($config, refreshIfExists: true);
 
         $output->writeln('Update listings and products from sitemap.xml');
 
