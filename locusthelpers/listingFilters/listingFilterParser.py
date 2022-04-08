@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from typing import List
 from requests.models import Response
 from lxml import etree
 import json
@@ -32,7 +33,7 @@ class ListingFilterParser:
     def __init__(self, html: str):
         self.html = html
 
-    def findFilters(self) -> list[ListingFilter]:
+    def findFilters(self) -> List[ListingFilter]:
         root = etree.fromstring(
             self.html, etree.HTMLParser())
         availableFilterElements = root.xpath(

@@ -24,6 +24,7 @@ SOFTWARE.
 
 import logging
 import random
+from typing import List
 from urllib.parse import parse_qs, urlencode, urlparse
 
 from locust_plugins.users import HttpUserWithResources
@@ -236,7 +237,7 @@ class ShopwareUser(HttpUserWithResources):
 
         return pages
 
-    def visitRandomProductDetailPagesFromListing(self, response: Response, maxNumberOfProducts: int = 5, minNumberOfProducts: int = 0) -> list[Response]:
+    def visitRandomProductDetailPagesFromListing(self, response: Response, maxNumberOfProducts: int = 5, minNumberOfProducts: int = 0) -> List[Response]:
         if response == None:
             return []
 
