@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from typing import List
 from locust.clients import HttpSession
 from lxml import etree
 from requests.models import Response
@@ -39,7 +40,7 @@ def submitForm(response: Response, httpClient: HttpSession, formAction: str, cat
 
     return httpClient.post(formAction, data=formData, catch_response=catch_response, name=name)
 
-def getFormFieldOptionValues(response: Response, formAction: str, fieldName: str, filterEmpty=False) -> list[str]:
+def getFormFieldOptionValues(response: Response, formAction: str, fieldName: str, filterEmpty=False) -> List[str]:
     root = etree.fromstring(
         response.content, etree.HTMLParser())
     form = root.find('.//form[@action="' + formAction + '"]')
