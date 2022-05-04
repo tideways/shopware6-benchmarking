@@ -9,3 +9,4 @@
 /shopware64.tideways.io.html
 /ansible/digitalocean
 /.phpunit.cache
+/*.json
