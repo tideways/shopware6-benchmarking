@@ -1,5 +1,5 @@
 ---
-php_version: 8.0
+php_version: 8.1
 php_extensions:
   - common
   - dev

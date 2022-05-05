@@ -17,6 +17,10 @@
     php_packages: "{{ php_packages }} + [ 'php{{ php_version }}-{{ item }}' ]"
   with_items: "{{ php_extensions }}"
 
+- name: Debug extensions
+  debug:
+    msg: "{{ php_packages|join(', ') }}"
+
 - name: Install PHP extensions
   apt: pkg='{{ php_packages }}' state=present
   notify: Restart Apache

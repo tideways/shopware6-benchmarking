@@ -1,9 +1,9 @@
 # config/packages/framework.yaml
 framework:
     session:
-        handler_id: 'redis://{{ hostvars[groups['redis'][0]].ansible_all_ipv4_addresses| ipaddr('private') | first }}:6379'
+        handler_id: 'redis://{{ hostvars[groups['redis'][0]].ansible_all_ipv4_addresses| ipaddr('private') | last }}:6379'
     cache:
-        default_redis_provider: 'redis://{{ hostvars[groups['redis'][0]].ansible_all_ipv4_addresses| ipaddr('private') | first }}:6379'
+        default_redis_provider: 'redis://{{ hostvars[groups['redis'][0]].ansible_all_ipv4_addresses| ipaddr('private') | last }}:6379'
         pools:
             cache.object:
                 default_lifetime: 3600

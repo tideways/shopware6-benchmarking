@@ -2,7 +2,7 @@
 user		= mysql
 port		= 3306
 
-bind-address		= 127.0.0.1,{{ ansible_all_ipv4_addresses | ipaddr('private') | first }}
+bind-address		= 127.0.0.1,{{ ansible_all_ipv4_addresses | ipaddr('private') | last }}
 mysqlx-bind-address	= 127.0.0.1
 
 key_buffer_size		= 16M

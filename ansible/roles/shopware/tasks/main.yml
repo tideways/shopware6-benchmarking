@@ -41,7 +41,7 @@
   become_user: shopware
   become: yes
   command:
-    cmd: "/usr/local/bin/composer install -n -o"
+    cmd: "/usr/local/bin/composer install -n -o --no-plugins"
     chdir: "/var/www/shopware6"
   ignore_errors: yes
 
