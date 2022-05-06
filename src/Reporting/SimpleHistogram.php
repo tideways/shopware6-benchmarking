@@ -86,7 +86,7 @@ class SimpleHistogram implements Histogram
     
     private function sort() : void
     {
-        if ($this->sorted === false) {
+        if ($this->sorted === true) {
             return;
         }
         sort($this->values);

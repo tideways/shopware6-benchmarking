@@ -6,6 +6,13 @@ use PHPUnit\Framework\TestCase;
 
 class HdrHistogramTest extends TestCase
 {
+    public function setUp(): void
+    {
+        if (!extension_loaded('hdrhistogram')) {
+            $this->markTestSkipped('hdrhistogram extension requried.');
+        }
+    }
+
     public function testMetrics() : void
     {
         $histogram = new HdrHistogram();
