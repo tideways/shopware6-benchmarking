@@ -2,8 +2,6 @@
 
 The Shopware 6 performance benchmarking toolset, built by Shopware and Tideways.
 
-![](https://raw.githubusercontent.com/tideways/shopware6-benchmarking/master/templates/shopware_logo_blue.png)
-
 > NOTE: This project is currently in beta and it is not recommended to run it
 > against live production environments yet.
 
